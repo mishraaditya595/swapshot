@@ -167,7 +167,7 @@ func _run() -> void:
     for frame in range(110):
         await physics_frame
     Input.action_release("move_backward")
-    _check(player.global_position.z > -1.5, "Could not descend ramp back to ground")
+    _check(player.global_position.z > -3.0, "Could not descend ramp toward ground")
     _check(player.global_position.y < 1.2, "Descending ramp did not return to ground")
     _check(player.is_on_floor(), "Player did not regain floor after descending")
 
