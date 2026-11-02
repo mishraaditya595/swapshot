@@ -1,0 +1,138 @@
+name: SWAPSHOT Publish PR Previews to Pages
+
+on:
+  workflow_run:
+    workflows: [SWAPSHOT PR Web Preview Build]
+    types: [completed]
+
+# Only trusted default-branch code deploys public Pages.
+concurrency:
+  group: swapshot-pages-preview
+  cancel-in-progress: false
+
+jobs:
+  stage:
+    name: Preserve preview snapshots and prepare Pages site
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    outputs:
+      published: ${{ steps.validate.outputs.published }}
+      number: ${{ steps.validate.outputs.number }}
+    steps:
+      - name: Check out only trusted main scripts
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download PR build from completed read-only workflow
+        uses: actions/download-artifact@v4
+        with:
+          name: swapshot-web-preview
+          path: ${{ runner.temp }}/preview
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate PR identity and revision
+        id: validate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const path = require('node:path');
+            const prFile = path.join(process.env.RUNNER_TEMP, 'preview', 'preview-pr.txt');
+            const raw = fs.readFileSync(prFile, 'utf8').trim();
+            if (!/^[1-9]\d{0,8}$/.test(raw)) throw new Error('Invalid PR number in export artifact');
+            const number = Number(raw);
+            const run = context.payload.workflow_run;
+            const repoName = context.repo.owner + '/' + context.repo.repo;
+            if (run.event !== 'pull_request' || run.head_repository?.full_name !== repoName) {
+              throw new Error('PR build is not from this repository');
+            }
+            const { data: pr } = await github.rest.pulls.get({
+              ...context.repo,
+              pull_number: number
+            });
+            if (pr.head.repo.full_name !== repoName || pr.base.ref !== 'main') {
+              throw new Error('Only same-repository PRs targeting main may publish');
+            }
+            if (pr.state !== 'open' || pr.head.sha !== run.head_sha) {
+              core.notice('Skipping a closed or superseded PR build');
+              core.setOutput('published', 'false');
+              return;
+            }
+            core.setOutput('published', 'true');
+            core.setOutput('number', String(number));
+            core.setOutput('sha', run.head_sha);
+
+      - name: Preserve build in gh-pages branch
+        if: steps.validate.outputs.published == 'true'
+        shell: bash
+        env:
+          PR_NUMBER: ${{ steps.validate.outputs.number }}
+          PREVIEW_SHA: ${{ steps.validate.outputs.sha }}
+        run: |
+          set -euo pipefail
+          cp .github/scripts/render_pr_previews.py "$RUNNER_TEMP/render_pr_previews.py"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin gh-pages; then
+            git fetch origin gh-pages
+            git checkout -B gh-pages FETCH_HEAD
+          else
+            git checkout --orphan gh-pages
+            git rm -r -f --ignore-unmatch .
+          fi
+          dest="pr-$PR_NUMBER"
+          mkdir -p "$dest"
+          find "$dest" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+          cp -a "$RUNNER_TEMP/preview/." "$dest/"
+          rm -f "$dest/preview-pr.txt"
+          python3 "$RUNNER_TEMP/render_pr_previews.py" "$PWD"
+          touch .nojekyll
+          git add --all
+          if ! git diff --cached --quiet; then
+            git commit -m "ci: publish PR #$PR_NUMBER Web preview"
+            git push origin gh-pages
+          fi
+          mkdir -p "$RUNNER_TEMP/pages-dist"
+          rsync -a --exclude='.git' ./ "$RUNNER_TEMP/pages-dist/"
+          test -s "$RUNNER_TEMP/pages-dist/$dest/index.html"
+          echo "Prepared /swapshot/$dest/ from $PREVIEW_SHA" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Configure GitHub Pages
+        if: steps.validate.outputs.published == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Upload complete static site
+        if: steps.validate.outputs.published == 'true'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/pages-dist
+
+  deploy:
+    name: Deploy and expose PR preview URLs
+    needs: stage
+    if: needs.stage.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages site
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Show playable PR URL
+        env:
+          PR_NUMBER: ${{ needs.stage.outputs.number }}
+        run: |
+          echo "### Browser-playable preview" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://mishraaditya595.github.io/swapshot/pr-$PR_NUMBER/" >> "$GITHUB_STEP_SUMMARY"
