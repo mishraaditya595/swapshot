@@ -135,6 +135,20 @@ func _run() -> void:
             "Camera intersects collision near " + test_case["label"]
         )
 
+    var ramp_body: StaticBody3D = arena.get_node("AccessRamp") as StaticBody3D
+    print("MS-01 RAMP NODE transform=%s" % [ramp_body.global_transform])
+    for sample_z in [-2.5, -5.0, -7.0]:
+        var vertical: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+            Vector3(9.0, 5.0, sample_z), Vector3(9.0, -1.0, sample_z)
+        )
+        var sample: Dictionary = arena.get_world_3d().direct_space_state.intersect_ray(vertical)
+        print("MS-01 RAMP RAY z=%.1f collider=%s point=%s normal=%s" % [
+            sample_z,
+            str(sample.get("collider")),
+            str(sample.get("position")),
+            str(sample.get("normal"))
+        ])
+
     # Traverse the real ramp using physics input, not a teleported collider probe.
     pivot.rotation.y = 0.0
     player.global_position = Vector3(9.0, 1.1, -0.5)
@@ -144,8 +158,13 @@ func _run() -> void:
     for frame in range(110):
         await physics_frame
         if frame in [15, 35, 60, 90, 109]:
-            print("MS-01 RAMP TRACE frame=%d position=%s grounded=%s collisions=%d" % [
-                frame, player.global_position, player.is_on_floor(), player.get_slide_collision_count()
+            var first_collision: String = "none"
+            if player.get_slide_collision_count() > 0:
+                var hit: KinematicCollision3D = player.get_slide_collision(0)
+                first_collision = "%s normal=%s" % [str(hit.get_collider()), hit.get_normal()]
+            print("MS-01 RAMP TRACE frame=%d position=%s grounded=%s collisions=%d first=%s" % [
+                frame, player.global_position, player.is_on_floor(),
+                player.get_slide_collision_count(), first_collision
             ])
     Input.action_release("move_forward")
     _check(player.global_position.z < -8.5, "Could not walk up ramp onto landing")
