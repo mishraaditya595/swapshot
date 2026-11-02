@@ -4,7 +4,7 @@
 
 SWAPSHOT is a single-player, third-person tactical shooter built for **GitHub Game Off 2026** (theme: **SHIFT**). Play as Vex, a covert operative infiltrating the Helix facility. Plant a holographic anchor, SHIFT into a better position, leave an echo behind, and turn firefights into flanking opportunities.
 
-**Status: repository bootstrap.** The Godot project opens to an empty starter scene; movement, combat, enemy AI, SHIFT, and an exported playable build **have not yet been implemented**.
+**Status: MS-01 foundation in development.** The current feature branch adds a third-person movement/camera training arena. Rifle combat, enemy AI, SHIFT, and a published playable build are **not yet implemented**; manual MS-01 acceptance is pending.
 
 ## Scope
 
@@ -17,7 +17,7 @@ SWAPSHOT is a single-player, third-person tactical shooter built for **GitHub Ga
 
 1. Install [Godot 4.7.2 stable](https://godotengine.org/download/archive/4.7.2-stable/) (standard/non-.NET).
 2. Clone this repository and import `project.godot` through the Godot Project Manager.
-3. Open or run `scenes/main.tscn`. The scene is currently a deliberately minimal scaffold, **not a playable demo**.
+3. Run `scenes/main.tscn` to enter the training arena. **WASD** moves, **mouse** looks after clicking the viewport, and **Esc** releases the cursor. Traverse the ramp to reach the elevated platform; jump/combat/SHIFT are reserved for later milestones.
 4. Run the static review audit and tests:
 
 ```bash
@@ -32,7 +32,7 @@ godot --headless --path . --import
 godot --headless --path . --quit-after 2
 ```
 
-The commands above check source/import integrity; they do **not** prove the gameplay is fun or the Web export works.
+For the MS-01 branch, also run `godot --headless --path . --script res://tests/ms01_scene_smoke.gd`, then record a **real editor playtest** of movement, camera collisions, walls, ramp, pointer capture and release. Automated checks do **not** prove camera comfort or the Web export works.
 
 ## Development milestones
 
