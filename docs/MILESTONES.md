@@ -32,12 +32,14 @@
 **Target:** Nov 2–3, 2026 · **Priority:** P0 · **Depends on:** MS-00 (unless explicitly reordered)
 
 - [ ] **MS-01 complete** — **Implementing PR:** [#4](https://github.com/mishraaditya595/swapshot/pull/4)
-  - [ ] Create the first gameplay scripts and reusable player scene using CharacterBody3D.
-  - [ ] Add camera-relative WASD movement, jump or traversal only if scope allows, collision, and basic acceleration/turning.
-  - [ ] Implement mouse-look, over-the-shoulder camera rig, clamped pitch and basic camera-wall collision.
-  - [ ] Create the small greybox training arena with walls, cover, and an elevated landing area.
+  - [x] Create the first gameplay scripts and reusable player scene using CharacterBody3D.
+  - [x] Add camera-relative WASD movement, jump or traversal only if scope allows, collision, and basic acceleration/turning.
+  - [x] Implement mouse-look, over-the-shoulder camera rig, clamped pitch and basic camera-wall collision.
+  - [x] Create the small greybox training arena with walls, cover, and an elevated landing area.
   - [ ] Define InputMap actions and a clear mouse-capture / release flow.
   - [ ] Verify editor startup, controllability, collision and camera behavior with a recorded manual test.
+
+**MS-01 evidence so far:** [Godot 4.7.2 headless/physics CI](https://github.com/mishraaditya595/swapshot/actions/runs/41428102801) verifies scripted mechanics; [review findings](reviews/MS-01-review.md) explicitly leave actual mouse capture and a recorded editor playtest pending. The milestone is NOT complete.
 
 **Acceptance gate:** A human can run a scene, move and look around without falling through the floor or camera clipping into walls. All checks and unrun manual tests documented.
 
