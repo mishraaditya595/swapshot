@@ -31,7 +31,7 @@
 
 **Target:** Nov 2–3, 2026 · **Priority:** P0 · **Depends on:** MS-00 (unless explicitly reordered)
 
-- [ ] **MS-01 complete** — **Implementing PR:** —
+- [ ] **MS-01 complete** — **Implementing PR:** [#4](https://github.com/mishraaditya595/swapshot/pull/4)
   - [ ] Create the first gameplay scripts and reusable player scene using CharacterBody3D.
   - [ ] Add camera-relative WASD movement, jump or traversal only if scope allows, collision, and basic acceleration/turning.
   - [ ] Implement mouse-look, over-the-shoulder camera rig, clamped pitch and basic camera-wall collision.
