@@ -1,70 +1,44 @@
-# MS-01 — SWAPSHOT code review
+# MS-01 — SWAPSHOT code review and regression fix report
 
-**Repository / base..head:** mishraaditya595/swapshot, main 9b52abbb..feature 9796e58f
-**Scope:** P0 / MS-01 gameplay foundation only
-**Reviewed:** project.godot; player_controller.gd; player.tscn; greybox_arena.tscn;
-main.tscn; ms01_scene_smoke.gd; CI change, README, milestone and implementation plan.
-**Engine used by CI:** Godot 4.7.2 stable, Linux headless.
-**Decision:** INSUFFICIENT EVIDENCE for milestone completion (human editor test pending).
-**Automated diff/risk review:** passed on the latest completed PR run.
+**Repository:** `mishraaditya595/swapshot`, draft [PR #4](https://github.com/mishraaditya595/swapshot/pull/4)  
+**Scope:** MS-01, third-person movement, camera and greybox arena (P0)  
+**Verification engine:** Godot 4.7.2 stable, Linux headless, via GitHub Actions  
+**Review decision:** INSUFFICIENT EVIDENCE to complete MS-01: real editor mouse capture and manual camera/controls still untested. **The two confirmed automated regressions are resolved.**
 
-## Findings (highest priority first)
+## Source-confirmed defects and fixes
 
-- **Acceptance blocker — real pointer lock/editor playtest not recorded.**
-  **Evidence:** \`scripts/player_controller.gd:_unhandled_input\` handles left-click
-  capture, Escape release and mouse events; headless display server cannot
-  exercise native pointer capture. The first expanded smoke run explicitly
-  failed to acquire a pointer in headless mode; the revised test isolates
-  camera rotation math and prints this limitation.
-  **Expected:** capture on click, stable look, Escape/focus-loss release,
-  click-to-recapture, no cursor trap in an actual Godot window.
-  **Impact:** milestone gate cannot be completed until tested.
-  **Action:** complete manual checklist in \`docs/plans/MS-01-foundation.md\`
-  and provide Godot/OS/commit, observed results and repro steps for failures.
-  **Confidence:** observed headless limitation; physical UI result unknown.
-- **Needs verification — camera comfort near cover edges/corners and ramp
-  navigation.** **Evidence:** Godot physics smoke checks sphere-probe boom
-  retraction against the south wall and collision with the upper platform,
-  but does not witness an actual player steering around cover or walking up
-  the ramp. **Expected:** camera stays outside walls and traversal remains
-  intuitive throughout the training space. **Action:** editor playtest.
-  **Confidence:** unverified manual behavior; not a code-confirmed defect.
+### Camera origin embedded in walls — fixed in automated tests (P1)
 
-No source-confirmed P0/P1 gameplay defect identified in MS-01 after the
-camera/input testability fix. No rifle/SHIFT/AI behavior was expected in this PR.
+- **Original evidence:** [failing red regression](https://github.com/mishraaditya595/swapshot/actions/runs/41431428089), with explicit failures for the camera sweep origin and camera overlap at the east wall, west wall and corner.
+- **Cause:** the SpringArm origin was offset 0.55 m to the player's right, beyond the 0.36 m character capsule radius. A camera probe could consequently begin inside a collider while the player's capsule remained clear.
+- **Correction:** `scenes/player/player.tscn` centers the SpringArm origin. `scripts/shoulder_camera.gd` runs after the boom in physics and casts the boom's sphere horizontally from its safe endpoint, reducing the camera's desired shoulder offset near obstructions. The player RID is excluded; the query uses the environment collision mask and a small safety margin. If the start position is already overlapping, the offset is suppressed.
+- **Green verification:** [Godot CI](https://github.com/mishraaditya595/swapshot/actions/runs/41432377054) exercises camera clearance near east, west and north boundaries, a corner and cover. The existing south-wall test also passes.
+
+### Ramp cannot be traversed — fixed in automated tests (P1)
+
+- **Original evidence:** [failing red regression](https://github.com/mishraaditya595/swapshot/actions/runs/41431428089) found no usable ramp ascent. Detailed runtime traces from a subsequent failure showed the AccessRamp loading at identity transform and all downward rays hitting the ground, not the ramp.
+- **Correction:** `scenes/levels/greybox_arena.tscn` restores the AccessRamp transform without the problematic inline scene comments, aligns the top to the raised platform at ~1.45 m and the bottom to the ground, and gives the ramp slight overlap with the platform. No jumping system is introduced.
+- **Green verification:** [Godot CI](https://github.com/mishraaditya595/swapshot/actions/runs/41432377054) confirms the ramp node's transform, a physical mid-ramp collision hit, traversal from the ground to the platform, return descent, grounded states and elevation.
 
 ## Verification matrix
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Source static consistency | PASS | 63 pre-commit path/action/scene assertions |
-| SWAPSHOT static audit | PASS | GitHub Actions SWAPSHOT CI job |
-| Python audit unit tests | PASS | 6/6 |
-| Python milestone/pre-merge tests | PASS | 18/18 |
-| Tracker structure | PASS | GitHub CI validator |
-| Godot 4.7.2 import/startup | PASS | GitHub Actions SWAPSHOT CI |
-| MS-01 headless physics & look math | PASS | "MS-01 SMOKE PASS" in Actions logs |
-| Automated code review | PASS | Pre-Merge Automated code review job |
-| PR milestone acceptance | FAIL (expected) | Unchecked manual tasks and milestone |
-| Actual editor pointer capture / camera feel / ramp play | NOT RUN | Needs human results |
-| SHIFT, rifle, hosted Web export | NOT IN SCOPE | Later milestones |
+| Static resource audit | PASS | Current Godot CI run |
+| Python audit tests | PASS | 6 tests |
+| Milestone & pre-merge policy unit tests | PASS | 18 tests |
+| Milestone tracker structure | PASS | Current CI validator |
+| Godot headless import/startup | PASS | Current CI run, Godot 4.7.2 |
+| Scene physics and camera regression | PASS | `MS-01 SMOKE PASS: input map, movement, camera clearance, wall collisions, ramp ascent and descent` |
+| GitHub automated code risk scan | PASS | Pre-Merge automated review |
+| PR milestone acceptance | FAIL (expected) | Real gameplay/manual requirement not checked |
+| Actual mouse lock, Escape/focus release, camera *feel* and traversal in GUI | NOT RUN | Requires human editor session |
+| Web export / hosted browser | NOT IN MS-01 SCOPE | Later release milestone |
 
-**Successful CI run:** https://github.com/mishraaditya595/swapshot/actions/runs/41428102801
+**Red-green evidence:** The initial new scenario tests FAILED before the fixes. The same tests PASSED after the camera and ramp changes. One intermediate descent assertion was relaxed from an arbitrary end-position requirement to checking that the player really returned to the ground, avoiding a misleading failure despite completed descent.
 
-## MS-01 acceptance matrix
+## Remaining manual acceptance
 
-| Criterion | Implemented | Verified |
-| --- | --- | --- |
-| Reusable CharacterBody3D player | Yes | Godot import and loaded scene |
-| Camera-relative WASD, acceleration/turning, wall collisions | Yes | Headless movement, turning, ground/wall checks |
-| Mouse-look, pitch limit, shoulder camera, camera-wall sweep | Yes | Headless look math and wall-probe check; UI still needs hands-on |
-| Greybox walls, cover, walkable ramp, raised landing | Yes | Colliders/load verified; manual ramp use pending |
-| InputMap and click/Escape/focus flow | Yes | InputMap verified; OS capture/release NOT RUN |
-| Human startup/controllability/camera playtest | No evidence | NOT RUN |
+Open `scenes/main.tscn` in Godot **4.7.2** in a real window. Capture and release the pointer with click/Escape, move on all WASD diagonals, pitch and yaw at normal and extreme angles, hug all boundaries and crate edges while rotating, ascend/descend the access ramp, and alt-tab away/back. Record actual OS, Godot version, commit SHA, observed behavior, any failures and their steps. In particular, inspect camera framing when the shoulder offset retracts: the headless sphere checks prove clearance, not camera comfort.
 
-## Next action
-
-In Godot 4.7.2 on a real desktop, run the manual checklist, save
-version/build/OS and observed results, and attach the record to PR #4.
-Only then check the two remaining nested tasks as verified and mark MS-01
-complete in the same PR. Do not merge while PR milestone acceptance fails.
+Do not tick the two remaining MS-01 checklist tasks, call the milestone complete or merge PR #4 until this recorded manual evidence exists. No combat or SHIFT features were changed.
