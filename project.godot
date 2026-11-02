@@ -1,0 +1,12 @@
+; SWAPSHOT — Godot 4.7.2 stable.
+; This is a bootstrap scene. It does not yet contain playable gameplay.
+config_version=5
+
+[application]
+config/name="SWAPSHOT"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

@@ -1,0 +1,34 @@
+# Godot generated files
+.godot/
+.import/
+*.tmp
+*.bak
+
+# Local/editor
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Python caches for static audit tests
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Builds and downloadable export artifacts
+build/
+dist/
+exports/
+*.pck
+*.wasm
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.key
+*.pem
