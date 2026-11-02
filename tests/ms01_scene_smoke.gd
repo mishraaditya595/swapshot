@@ -93,6 +93,61 @@ func _run() -> void:
         _check(camera.global_position.z < 15.62, "Camera clipped through south wall")
 
 
+    # Regression: the 0.55 m shoulder offset previously put the camera boom
+    # inside the east wall while the narrower player capsule was still clear.
+    player.global_position = Vector3(15.2, 0.9, 0.0)
+    player.velocity = Vector3.ZERO
+    pivot.rotation.y = 0.0
+    boom.rotation.x = 0.0
+    for frame in range(5):
+        await physics_frame
+    var east_wall_start: float = 15.6
+    _check(
+        boom.global_position.x + (boom.shape as SphereShape3D).radius < east_wall_start,
+        "Camera sweep origin intersects east wall (shoulder offset regression)"
+    )
+    var probe: PhysicsShapeQueryParameters3D = PhysicsShapeQueryParameters3D.new()
+    probe.shape = boom.shape
+    probe.collision_mask = 1
+    probe.exclude = [player.get_rid()]
+    probe.transform = Transform3D(Basis.IDENTITY, camera.global_position)
+    _check(
+        arena.get_world_3d().direct_space_state.intersect_shape(probe, 8).is_empty(),
+        "Camera overlaps east wall while player capsule is clear"
+    )
+
+    # A wall check alone is insufficient: the same sweep-origin problem can
+    # happen near any obstacle. Verify the west wall and crate edge too.
+    var cases: Array[Dictionary] = [
+        {"label": "west wall", "point": Vector3(-15.2, 0.9, 0.0), "yaw": PI},
+        {"label": "cover", "point": Vector3(-5.04, 0.9, -7.0), "yaw": PI},
+        {"label": "east wall corner", "point": Vector3(15.1, 0.9, 15.05), "yaw": 0.0},
+    ]
+    for test_case in cases:
+        player.global_position = test_case["point"]
+        player.velocity = Vector3.ZERO
+        pivot.rotation.y = test_case["yaw"]
+        for frame in range(5):
+            await physics_frame
+        probe.transform = Transform3D(Basis.IDENTITY, camera.global_position)
+        _check(
+            arena.get_world_3d().direct_space_state.intersect_shape(probe, 8).is_empty(),
+            "Camera intersects collision near " + test_case["label"]
+        )
+
+    # Traverse the real ramp using physics input, not a teleported collider probe.
+    pivot.rotation.y = 0.0
+    player.global_position = Vector3(9.0, 1.1, -0.5)
+    player.velocity = Vector3.ZERO
+    await physics_frame
+    Input.action_press("move_forward")
+    for frame in range(110):
+        await physics_frame
+    Input.action_release("move_forward")
+    _check(player.global_position.z < -8.5, "Could not walk up ramp onto landing")
+    _check(player.global_position.y > 1.8, "Ramp traversal failed to gain elevation")
+    _check(player.is_on_floor(), "Player lost floor contact on landing")
+
     # Elevated landing is a physical surface, not merely decorative geometry.
     var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
         Vector3(9.0, 5.0, -10.5),
@@ -105,7 +160,7 @@ func _run() -> void:
 
     arena.queue_free()
     if failures.is_empty():
-        print("MS-01 SMOKE PASS: input map, camera-relative movement, look math, wall/camera collision, landing")
+        print("MS-01 SMOKE PASS: input map, movement, camera clearance, wall collisions, ramp traversal")
         quit(0)
     else:
         printerr("MS-01 SMOKE FAIL: %d check(s)" % failures.size())
