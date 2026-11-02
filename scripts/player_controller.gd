@@ -33,14 +33,20 @@ func _unhandled_input(event: InputEvent) -> void:
         return
 
     if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-        camera_pivot.rotation.y -= event.relative.x * mouse_sensitivity
-        var pitch_limit: float = deg_to_rad(pitch_limit_degrees)
-        camera_boom.rotation.x = clampf(
-            camera_boom.rotation.x - event.relative.y * mouse_sensitivity,
-            -pitch_limit,
-            pitch_limit
-        )
+        _apply_mouse_look(event.relative)
         get_viewport().set_input_as_handled()
+
+
+# This pure rotation step is directly testable in headless mode; native pointer
+# capture itself requires an actual window and a manual editor test.
+func _apply_mouse_look(relative_motion: Vector2) -> void:
+    camera_pivot.rotation.y -= relative_motion.x * mouse_sensitivity
+    var pitch_limit: float = deg_to_rad(pitch_limit_degrees)
+    camera_boom.rotation.x = clampf(
+        camera_boom.rotation.x - relative_motion.y * mouse_sensitivity,
+        -pitch_limit,
+        pitch_limit
+    )
 
 
 func _physics_process(delta: float) -> void:
