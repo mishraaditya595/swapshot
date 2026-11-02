@@ -38,6 +38,10 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Verify downloaded Godot export using trusted main script
+        shell: bash
+        run: python3 .github/scripts/verify_web_preview.py "$RUNNER_TEMP/preview"
+
       - name: Validate PR identity and revision
         id: validate
         uses: actions/github-script@v7
