@@ -39,7 +39,7 @@
   - [ ] Define InputMap actions and a clear mouse-capture / release flow.
   - [ ] Verify editor startup, controllability, collision and camera behavior with a recorded manual test.
 
-**MS-01 evidence so far:** [Godot 4.7.2 headless/physics CI](https://github.com/mishraaditya595/swapshot/actions/runs/41428102801) verifies scripted mechanics; [review findings](reviews/MS-01-review.md) explicitly leave actual mouse capture and a recorded editor playtest pending. The milestone is NOT complete.
+**MS-01 evidence so far:** [Godot 4.7.2 headless/physics CI](https://github.com/mishraaditya595/swapshot/actions/runs/41432377054) verifies camera collision, movement and ramp ascent/descent, following red-green regression tests; [review findings](reviews/MS-01-review.md) explicitly leave actual mouse capture and a recorded editor playtest pending. The milestone is NOT complete.
 
 **Acceptance gate:** A human can run a scene, move and look around without falling through the floor or camera clipping into walls. All checks and unrun manual tests documented.
 
