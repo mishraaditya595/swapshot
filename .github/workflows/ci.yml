@@ -24,7 +24,7 @@ jobs:
         run: python3 -m unittest discover -s .agents/skills/swapshot-review/tests -v
       - name: Milestone tracker integrity
         run: python3 scripts/validate_milestones.py docs/MILESTONES.md
-      - name: Milestone validator tests
+      - name: Milestone and pre-merge validator tests
         run: python3 -m unittest discover -s tests -v
 
   godot-import:
@@ -41,7 +41,21 @@ jobs:
           unzip -q /tmp/godot.zip -d /tmp/godot-bin
           chmod +x /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
           /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --version
-      - name: Import project resources
-        run: /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --import
+      - name: Import project resources and reject engine errors
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --import 2>&1 | tee /tmp/godot-import.log
+          if grep -E 'SCRIPT ERROR:|Parse Error:|ERROR:' /tmp/godot-import.log; then
+            echo "Godot printed an error during import" >&2
+            exit 1
+          fi
       - name: Startup smoke test (no gameplay assertion)
-        run: /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --quit-after 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --quit-after 2 2>&1 | tee /tmp/godot-startup.log
+          if grep -E 'SCRIPT ERROR:|Parse Error:|ERROR:' /tmp/godot-startup.log; then
+            echo "Godot printed an error during startup" >&2
+            exit 1
+          fi

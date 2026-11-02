@@ -1,0 +1,56 @@
+name: SWAPSHOT Pre-Merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pr-policy:
+    name: PR milestone acceptance
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate PR type, milestone and completion evidence
+        run: python3 scripts/pr_quality.py policy --event "$GITHUB_EVENT_PATH" --report policy-report.md
+      - name: Attach policy report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-policy-report
+          path: policy-report.md
+          if-no-files-found: ignore
+          retention-days: 14
+
+  automated-review:
+    name: Automated code review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Static review of changed paths and added lines
+        run: python3 scripts/pr_quality.py review --event "$GITHUB_EVENT_PATH" --report code-review-report.md
+      - name: Attach review report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: automated-code-review-report
+          path: code-review-report.md
+          if-no-files-found: ignore
+          retention-days: 14

@@ -16,6 +16,10 @@ Read `docs/MILESTONES.md` before implementing any feature; choose **one** milest
 
 A governance-only PR that changes the milestone process is not a gameplay milestone. For user-approved scope changes, update the planned work by reviewed PR and preserve historical completed IDs and links. Run `python3 scripts/validate_milestones.py docs/MILESTONES.md` and its tests. Static validation cannot replace in-engine or hosted browser verification.
 
+## Enforced pre-merge pipeline
+
+Read [PRE_MERGE.md](PRE_MERGE.md) and submit a milestone PR or governance-only PR using its exact classification format. GitHub runs two additional jobs: **PR milestone acceptance** (roadmap state, real PR link, prerequisites, evidence headings) and **Automated code review** (secret/artifact/unsafe API detection and project-specific manual review reminders). Failing either check must prevent merge once branch ruleset requirements are enabled. These checks cannot verify manual playtesting or full code quality; perform human review and in-engine QA separately.
+
 ## Definition of done
 
 Code exists in the PR; a relevant check was executed with passing output; no known P0/P1 in intended scope; all unavailable gameplay/engine/browser checks are explicitly listed. A CI green check alone does not verify aim feel, combat quality, FPS or player comprehension.

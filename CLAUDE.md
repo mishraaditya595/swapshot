@@ -16,6 +16,10 @@ These four skills also have lightweight discoverable wrappers under `.claude/ski
 
 Before working on any game feature, read **[docs/MILESTONES.md](docs/MILESTONES.md)**. Pick the earliest unfinished MS-XX milestone, use one PR for it, and update the SAME file in that PR. Tick individual tasks only after actual verification; tick the milestone only once all tasks and the acceptance gate pass, then link the real implementing PR number. Create the PR first to obtain its number and commit the checklist update afterward. Never infer a passing manual playtest, browser build, or jam submission from a code change. Validate with `python3 scripts/validate_milestones.py docs/MILESTONES.md`. See the complete policy in AGENTS.md.
 
+## Pull request quality gate
+
+Read [docs/PRE_MERGE.md](docs/PRE_MERGE.md) before creating a PR. For a milestone PR use the `MS-XX` ID in the title and the matching `**Milestone:** MS-XX` body field, provide evidence under the three required headings, and link the real implementing PR in `docs/MILESTONES.md`. For infrastructure-only work use `**Change type:** governance` and never modify gameplay code under that exemption. Both `PR milestone acceptance` and `Automated code review` checks must pass; still apply the manual `swapshot-review` skill. See AGENTS.md for authoritative policy.
+
 ## Non-negotiables
 
 - **Engine:** Godot **4.7.2 stable** + GDScript; Web-first Compatibility renderer.

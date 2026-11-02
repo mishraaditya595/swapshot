@@ -42,6 +42,15 @@ The canonical full delivery roadmap is **[docs/MILESTONES.md](docs/MILESTONES.md
 - Don't close a milestone PR without the tracker update. If the implementing PR is not merged, milestone completion is not delivered to main. For genuinely deferred tasks, obtain owner approval and change acceptance criteria in a reviewed PR; don't quietly mark them done.
 - Never combine MS-01 and MS-02 in one PR. The roadmap/documentation-only PR introducing this policy is not a gameplay milestone.
 
+## Pre-merge quality gates
+
+Every implementation or governance PR must pass **SWAPSHOT Pre-Merge** in addition to the existing Godot/Python CI. See [docs/PRE_MERGE.md](docs/PRE_MERGE.md).
+
+- For milestone implementation: title contains exactly one MS-XX, PR body has matching `**Milestone:** MS-XX` and substantive **Acceptance evidence**, **Verification evidence**, and **Review findings** sections. Complete the milestone tasks and link the real PR number in the tracker **before merging**. The PR acceptance CI intentionally fails until this is done.
+- For documentation/infrastructure-only work: title starts `ci:`, `docs:` or `chore:`, and body declares `**Change type:** governance`. Never use this exception for gameplay assets/scenes or to silently alter completed milestone history.
+- CI automatically checks milestone bookkeeping and catches certain static risks (credentials, generated artifacts, unsafe execution). `Automated code review` is a **rule-based risk scan, not an AI reviewer**. It cannot certify correctness, playability, safe SHIFT, or external submissions.
+- Perform `swapshot-review` and real manual gameplay QA separately. A passing CI check cannot replace developer approval. Don't game the scripts or mark unverified tasks done.
+
 ## Godot & game implementation rules
 
 - The official project engine target is **Godot 4.7.2 stable**, no C#/.NET required.
