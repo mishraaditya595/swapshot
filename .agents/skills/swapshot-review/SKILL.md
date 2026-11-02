@@ -7,6 +7,10 @@ description: Review the SWAPSHOT Godot 4 third-person shooter repository, a pull
 
 Review SWAPSHOT as a **small, polished, single-player, third-person tactical shooter**, not as a large AAA/open-world game. The 2026 jam theme is **SHIFT**. A good review helps the solo developer ship a fun, stable, browser-playable build in the jam timeframe.
 
+## Milestone completion check
+
+For every gameplay or release milestone review, read `docs/MILESTONES.md`; verify **exactly one** milestone is represented by the implementing PR. Review each checked task against test evidence, the acceptance gate and the actual PR link. Reject false completion, unrelated work and missing manual/hosted test evidence. Run `python3 scripts/validate_milestones.py docs/MILESTONES.md` when available, noting it only checks structure.
+
 ## Source of truth and scope
 
 1. Read `references/design-contract.md` for acceptance criteria and intended scope. The bundled `references/source-design-brief.html` is the original interactive design document; consult relevant sections when precise detail matters. Treat tunable values as targets, not inflexible final product requirements.

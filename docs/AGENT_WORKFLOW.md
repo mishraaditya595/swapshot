@@ -10,6 +10,12 @@
 
 Skills are local under `.agents/skills/`. The Claude wrappers in `.claude/skills/` point to those same full instructions. The skill finder may **recommend** additions, but no unreviewed skill is automatically authorized to install dependencies.
 
+## Milestone execution and reporting (mandatory)
+
+Read `docs/MILESTONES.md` before implementing any feature; choose **one** milestone (MS-01 through MS-16) and create **one** implementing PR. PR title/body must include its stable ID. A milestone has an ordered task checklist and an acceptance gate; complete and verify tasks individually, updating `docs/MILESTONES.md` **in the same PR**. Once all requirements pass, change the milestone's checkbox to [x] and replace its PR placeholder with the genuine GitHub PR link. Create the PR first to learn the real number; add a follow-up commit for the tracker update. Never invent PR numbers or mark manual/human-dependent tests complete without evidence.
+
+A governance-only PR that changes the milestone process is not a gameplay milestone. For user-approved scope changes, update the planned work by reviewed PR and preserve historical completed IDs and links. Run `python3 scripts/validate_milestones.py docs/MILESTONES.md` and its tests. Static validation cannot replace in-engine or hosted browser verification.
+
 ## Definition of done
 
 Code exists in the PR; a relevant check was executed with passing output; no known P0/P1 in intended scope; all unavailable gameplay/engine/browser checks are explicitly listed. A CI green check alone does not verify aim feel, combat quality, FPS or player comprehension.

@@ -44,6 +44,10 @@ WASD move · Mouse look/aim · Left click fire · Right click ADS · Q deploy an
 
 Low-poly industrial sci-fi, graphite/steel architecture, cyan SHIFT highlights and amber threat indicators. Reusable geometry, minimal effects; prioritize frame pacing and readability. HTML5 export through itch.io using Godot Compatibility; desktop optional. The hosted browser build must be separately tested before submission. Target submission before Game Off's December 1, 2026 deadline.
 
+## Delivery sequencing
+
+Follow [the milestone and PR tracker](MILESTONES.md) for the chronological implementation checklist, quality gates, planned dates and real implementing PR references. The design is the scope authority; the milestone tracker is the **delivery status authority**. Never treat a planned milestone as implemented.
+
 ## Change control
 
 Tuning numbers are goals, not immutable truths. Any major change to core loop or milestone scope needs an approved design note. Distinguish design plan, implemented behavior, automated verification and manual playtest observations.

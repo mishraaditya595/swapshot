@@ -22,6 +22,10 @@ jobs:
         run: python3 .agents/skills/swapshot-review/scripts/audit_project.py --root .
       - name: Audit unit tests
         run: python3 -m unittest discover -s .agents/skills/swapshot-review/tests -v
+      - name: Milestone tracker integrity
+        run: python3 scripts/validate_milestones.py docs/MILESTONES.md
+      - name: Milestone validator tests
+        run: python3 -m unittest discover -s tests -v
 
   godot-import:
     name: Godot 4.7.2 headless import
