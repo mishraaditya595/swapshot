@@ -1,6 +1,7 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/player_controller.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scripts/shoulder_camera.gd" id="2_camera"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleCollider"]
 radius = 0.36
@@ -49,12 +50,14 @@ mesh = SubResource("VisorMesh")
 position = Vector3(0, 0.48, 0)
 
 [node name="CameraBoom" type="SpringArm3D" parent="CameraPivot"]
-position = Vector3(0.55, 0.13, 0)
+position = Vector3(0, 0.13, 0)
 spring_length = 3.5
 shape = SubResource("CameraProbe")
 collision_mask = 1
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot/CameraBoom"]
+process_physics_priority = 10
+script = ExtResource("2_camera")
 current = true
 fov = 75.0
 near = 0.05
