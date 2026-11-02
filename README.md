@@ -38,6 +38,10 @@ The commands above check source/import integrity; they do **not** prove the game
 
 **[View the full milestone/PR checklist](docs/MILESTONES.md)** — the single source of truth from the first gameplay GDScript to release. Each milestone is its own PR. Coding agents must tick its verified tasks, check off the completed milestone and record the **actual PR number/link in the same file** before asking to merge. Milestone MS-00 (repository bootstrap) is already completed by [PR #1](https://github.com/mishraaditya595/swapshot/pull/1); gameplay milestones remain pending.
 
+## Pull request quality checks
+
+[Pre-merge quality gate](docs/PRE_MERGE.md) documents the PR acceptance checks, conservative static code review, Godot/CI tests, and how to make job names mandatory under the GitHub `main` ruleset. Automated checks do **not** substitute for in-editor playtesting or human review.
+
 ## Architecture and collaboration
 
 - [Agent instructions](AGENTS.md) and [Claude instructions](CLAUDE.md)

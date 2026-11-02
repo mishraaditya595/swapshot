@@ -11,6 +11,10 @@ Review SWAPSHOT as a **small, polished, single-player, third-person tactical sho
 
 For every gameplay or release milestone review, read `docs/MILESTONES.md`; verify **exactly one** milestone is represented by the implementing PR. Review each checked task against test evidence, the acceptance gate and the actual PR link. Reject false completion, unrelated work and missing manual/hosted test evidence. Run `python3 scripts/validate_milestones.py docs/MILESTONES.md` when available, noting it only checks structure.
 
+## PR quality gate evidence
+
+When reviewing PRs, inspect reports from the `PR milestone acceptance` and `Automated code review` GitHub Actions jobs (see `docs/PRE_MERGE.md`). Use their findings as **signals**, not proof of complete code review: the automated scan cannot establish gameplay, SHIFT capsule safety, scene runtime behavior or browser performance. Report manual reproduction and acceptance evidence independently. Never call a PR ready when its policy or review check fails.
+
 ## Source of truth and scope
 
 1. Read `references/design-contract.md` for acceptance criteria and intended scope. The bundled `references/source-design-brief.html` is the original interactive design document; consult relevant sections when precise detail matters. Treat tunable values as targets, not inflexible final product requirements.
