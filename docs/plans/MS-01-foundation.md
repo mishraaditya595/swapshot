@@ -26,10 +26,14 @@ health, enemies, jump, UI menu systems, third-party assets or plugins here.
 - Player physics body keeps a stable orientation; only the visible mesh turns
   toward movement. Yaw and pitch stay on separate camera nodes.
 - SpringArm uses a sphere sweep and collision mask excluding the player layer.
+  Its origin stays on the capsule centerline: a separate camera script sweeps
+  sideways at the camera endpoint before applying the over-the-shoulder offset,
+  preventing the sweep origin or camera from starting inside nearby cover.
 - Click to capture mouse, Escape and window focus loss to release.
 - A 32 m square physical arena: four walls, three cover crates, and a **ramp**
-  leading to an elevated platform. The ramp provides traversal without
-  implementing an out-of-scope jump.
+  leading to an elevated platform. The ramp starts flush with the floor and
+  overlaps the raised platform edge; both ascent and descent are covered by
+  automated physics checks without implementing an out-of-scope jump.
 - Prototype-only primitive meshes/materials; no external assets or licenses.
 
 ## Verification and acceptance
