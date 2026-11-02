@@ -144,8 +144,6 @@ mesh = SubResource("PlatformMesh")
 shape = SubResource("PlatformShape")
 
 [node name="AccessRamp" type="StaticBody3D" parent="."]
-# Both ramp ends meet their walkable surfaces, with a short overlap into
-# the raised platform (not a collision-blocking lip at either entrance).
 position = Vector3(9, 0.58, -4.5)
 rotation = Vector3(0.229, 0, 0)
 
