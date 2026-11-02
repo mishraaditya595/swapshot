@@ -51,7 +51,42 @@ func _run() -> void:
     _check(player.is_on_floor(), "Player did not settle on ground")
     _check(player.global_position.y > 0.85, "Player fell through the floor")
 
+    # Look yaw drives camera-relative movement, not the mesh's current yaw.
+    var pivot: Node3D = player.get_node("CameraPivot")
+    pivot.rotation.y = -PI / 2.0
+    var old_x: float = player.global_position.x
+    Input.action_press("move_forward")
+    for frame in range(20):
+        await physics_frame
+    Input.action_release("move_forward")
+    _check(player.global_position.x > old_x + 0.35, "Forward did not follow camera yaw")
+    _check(absf(player.get_node("VisualRoot").rotation.y) > 0.1, "Visual mesh did not turn")
+
+    # Exercise click/capture, mouse look with extreme pitch, and Escape release.
+    Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+    var click: InputEventMouseButton = InputEventMouseButton.new()
+    click.button_index = MOUSE_BUTTON_LEFT
+    click.pressed = true
+    player._unhandled_input(click)
+    _check(Input.mouse_mode == Input.MOUSE_MODE_CAPTURED, "Left click did not capture mouse")
+
+    var mouse_motion: InputEventMouseMotion = InputEventMouseMotion.new()
+    mouse_motion.relative = Vector2(100.0, -100000.0)
+    player._unhandled_input(mouse_motion)
+    if boom != null:
+        _check(boom.rotation.x <= deg_to_rad(65.0) + 0.001, "Camera pitch exceeded clamp")
+        _check(boom.rotation.x > 0.1, "Mouse motion did not change camera pitch")
+
+    var escape: InputEventKey = InputEventKey.new()
+    escape.physical_keycode = KEY_ESCAPE
+    escape.pressed = true
+    player._unhandled_input(escape)
+    _check(Input.mouse_mode == Input.MOUSE_MODE_VISIBLE, "Escape did not release mouse")
+
     # Static colliders must stop movement at the south wall.
+    pivot.rotation.y = 0.0
+    if boom != null:
+        boom.rotation.x = 0.0
     player.global_position = Vector3(0.0, 1.0, 14.5)
     player.velocity = Vector3.ZERO
     await physics_frame
@@ -60,6 +95,14 @@ func _run() -> void:
         await physics_frame
     Input.action_release("move_backward")
     _check(player.global_position.z < 15.4, "Player moved through south arena wall")
+
+    # The boom's sphere probe should retract rather than placing the lens
+    # through the south wall when the character stands close to it.
+    for frame in range(3):
+        await physics_frame
+    if camera != null:
+        _check(camera.global_position.z < 15.62, "Camera clipped through south wall")
+
 
     # Elevated landing is a physical surface, not merely decorative geometry.
     var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
@@ -73,7 +116,7 @@ func _run() -> void:
 
     arena.queue_free()
     if failures.is_empty():
-        print("MS-01 SMOKE PASS: InputMap, movement, ground/wall and elevated collider, camera rig")
+        print("MS-01 SMOKE PASS: input/capture, camera-relative movement, pitch, wall/camera collision, landing")
         quit(0)
     else:
         printerr("MS-01 SMOKE FAIL: %d check(s)" % failures.size())
