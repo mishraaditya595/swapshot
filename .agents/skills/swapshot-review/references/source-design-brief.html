@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0a101c">
+  <meta name="description" content="SWAPSHOT: an interactive, offline game design brief for GitHub Game Off 2026, theme SHIFT.">
+  <title>SWAPSHOT — Interactive Game Design Brief</title>
+  <style>
+    :root{color-scheme:dark;--bg:#09101a;--bg2:#0d1724;--panel:#121f2c;--panel2:#172738;--line:#29404d;--line2:#395565;--ink:#edf6fa;--muted:#a0b4c0;--faint:#738b9c;--cyan:#63e6e0;--cyan2:#7caaf9;--orange:#ffb469;--green:#90e2b1;--radius:17px;--max:1180px;--side:242px;--shadow:0 24px 75px rgba(0,0,0,.23)}
+    *{box-sizing:border-box}
+    [hidden]{display:none!important}
+    html{scroll-behavior:smooth;scroll-padding-top:34px}
+    body{margin:0;background:radial-gradient(circle at 86% -6%,rgba(64,161,184,.13),transparent 29%),radial-gradient(circle at 18% 35%,rgba(72,101,185,.055),transparent 32%),var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+    button,a,input{font:inherit}
+    button{cursor:pointer}
+    a{color:var(--cyan);text-decoration:none}
+    a:hover{text-decoration:underline}
+    button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--cyan);outline-offset:4px}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .skip{position:absolute;top:-55px;left:20px;z-index:99;background:var(--cyan);color:#09101a;padding:10px 16px;border-radius:9px}.skip:focus{top:12px}
+    .sidebar{position:fixed;top:0;bottom:0;left:0;width:var(--side);background:linear-gradient(155deg,#101c2b,#0b131f 78%);border-right:1px solid #203444;display:flex;flex-direction:column;padding:30px 17px 18px;z-index:10}
+    .brand{display:flex;align-items:center;gap:12px;padding:0 13px 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .brandmark{height:37px;width:37px;display:grid;place-items:center;border:1px solid rgba(99,230,224,.55);background:rgba(99,230,224,.07);border-radius:10px;color:var(--cyan);font-weight:950;font-size:24px;line-height:1}
+    .brand strong{font-size:15px;letter-spacing:.16em;line-height:1.1;display:block}.brand small{display:block;color:var(--faint);font-size:10px;letter-spacing:.10em;margin-top:5px}
+    .sidebar-label{color:var(--faint);font-size:10px;font-weight:800;letter-spacing:.18em;padding:0 13px;margin-bottom:12px;text-transform:uppercase}
+    .side-links{display:grid;gap:4px}
+    .side-links a{color:#b3c3ce;padding:10px 12px;display:flex;align-items:center;gap:12px;border:1px solid transparent;border-radius:10px;font-size:13px;font-weight:600;transition:.18s ease}
+    .side-links a:hover,.side-links a.active{background:#1b3040;color:var(--ink);border-color:#2a4954;text-decoration:none}
+    .side-links a.active:before{background:var(--cyan)}
+    .navdot{width:7px;height:7px;border-radius:50%;background:#526c7b;flex:none}.active .navdot{background:var(--cyan)}
+    .sidebar-bottom{margin-top:auto;background:#172633;padding:15px;border:1px solid #2b4451;border-radius:13px}
+    .sidebar-bottom p{margin:0 0 5px;font-size:11px;color:#9cb0bc}.sidebar-bottom strong{font-size:14px;display:block;margin-bottom:10px}
+    .meter{height:7px;border-radius:100px;background:#253c47;overflow:hidden}.meter-fill{height:100%;width:0;background:linear-gradient(90deg,#4fb3c6,var(--cyan));border-radius:100px;transition:width .25s}
+    .main{margin-left:var(--side);min-height:100vh}
+    .wrap{max-width:var(--max);margin:auto;padding:40px clamp(20px,4.2vw,64px) 95px}
+    .topline{display:flex;justify-content:space-between;gap:16px;align-items:center;color:var(--faint);font-size:11px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;margin-bottom:22px;flex-wrap:wrap}
+    .topline-right{display:flex;gap:10px;align-items:center}
+    .tag{display:inline-flex;align-items:center;gap:8px;border-radius:100px;border:1px solid #3c6270;background:#123039;padding:6px 11px;color:#b1f5ec;font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:800}
+    .tag.orange{border-color:#624a39;background:#2c221f;color:#ffd1a2}.tag.neutral{border-color:#35495a;background:#1b2936;color:#a5c5d7}
+    .tiny-button{border:1px solid var(--line2);background:#172533;color:var(--ink);padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;transition:background .2s}.tiny-button:hover{background:#243b4a}
+    .hero{display:grid;grid-template-columns:1fr .94fr;gap:34px;align-items:center;margin-bottom:35px}
+    .eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;margin:0 0 12px}
+    h1,h2,h3,h4,p{margin-top:0}h1{font-size:clamp(51px,7.2vw,90px);line-height:.94;letter-spacing:-.07em;margin:0 0 22px;font-weight:950}h1 span{color:var(--cyan)}
+    .lead{font-size:clamp(16px,1.7vw,19px);line-height:1.55;color:#d2e4e9;margin:0 0 11px;max-width:540px}.muted{color:var(--muted)}.small{font-size:13px}.micro{font-size:11px}.hero-sub{max-width:545px;font-size:14px;color:var(--muted);margin-bottom:22px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:1px solid #4c7885;background:transparent;color:#d9f6f5;display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:10px;padding:11px 18px;font-weight:750;font-size:13px;text-decoration:none;transition:.18s}
+    .btn:hover{text-decoration:none;background:#1e3846;transform:translateY(-1px)}.btn.primary{background:var(--cyan);border-color:var(--cyan);color:#05212a}.btn.primary:hover{background:#99fff1}.btn.warn{border-color:#75543a;color:#ffd5aa;background:#2a231f}.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+    .hero-visual{border:1px solid #3a5b67;border-radius:19px;overflow:hidden;background:#101d2a;position:relative;box-shadow:var(--shadow);isolation:isolate}.hero-visual svg{display:block;width:100%;height:auto}
+    .visual-top{display:flex;justify-content:space-between;position:absolute;z-index:1;left:17px;right:17px;top:17px;color:#a7d1d8;font-size:9px;font-weight:800;letter-spacing:.14em}
+    .visual-bottom{position:absolute;left:0;right:0;bottom:0;padding:20px 20px 15px;background:linear-gradient(transparent,rgba(4,12,19,.9));display:flex;justify-content:space-between;align-items:end;font-size:10px;letter-spacing:.13em;color:#bcd5df}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:62px}
+    .stat{border:1px solid var(--line);border-radius:13px;background:rgba(21,35,49,.73);padding:16px 17px;min-width:0}.stat small{display:block;font-size:10px;color:var(--faint);letter-spacing:.13em;text-transform:uppercase;font-weight:800;margin-bottom:6px}.stat strong{display:block;font-size:17px;line-height:1.3;letter-spacing:-.03em}
+    section.content-section{margin:0 0 74px;scroll-margin-top:32px}
+    .section-header{display:flex;align-items:start;gap:18px;margin-bottom:22px}.chapter{min-width:42px;height:42px;border:1px solid #3b6571;border-radius:12px;color:var(--cyan);display:grid;place-items:center;font-size:12px;letter-spacing:.06em;font-weight:850;background:#142d36}.section-header h2{font-size:clamp(27px,3vw,37px);letter-spacing:-.055em;line-height:1.13;margin:0 0 7px}.section-header p{color:var(--muted);margin:0;max-width:760px;font-size:14px}
+    .cols2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.cols3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .card{background:linear-gradient(150deg,#162634,#111c29);border:1px solid #2b4451;border-radius:var(--radius);padding:21px;min-width:0}.card h3{font-size:16px;margin:0 0 7px;letter-spacing:-.02em}.card p{font-size:13px;color:var(--muted);margin-bottom:0}.card .mini-title{color:var(--cyan);font-size:10px;letter-spacing:.13em;font-weight:850;text-transform:uppercase;margin-bottom:7px;display:block}
+    .narrative{border:1px solid #2b4855;border-radius:var(--radius);background:linear-gradient(110deg,#182d39,#14212e);padding:23px 26px;margin:16px 0 20px;position:relative}.narrative p{margin:0;font-size:16px;line-height:1.65;color:#dcebef}.narrative strong{color:var(--cyan)}
+    .pill{display:inline-block;border:1px solid #3b5460;background:#20323f;border-radius:100px;font-size:10px;padding:4px 9px;letter-spacing:.1em;font-weight:800;text-transform:uppercase;color:#c2d3dc}
+    .step{display:flex;gap:12px;align-items:flex-start}.step-num{display:grid;place-items:center;background:#1d3d47;border:1px solid #3e7278;color:#b6f7f2;font-size:12px;font-weight:800;width:28px;height:28px;flex:none;border-radius:9px}.step h3{margin:0 0 3px}
+    .demo-shell{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(270px,.75fr);gap:16px;align-items:stretch}
+    .demo-board-wrap{background:#0d1c2a;border:1px solid #3d5d69;border-radius:16px;overflow:hidden;min-width:0}.demo-heading{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:12px 15px;background:#182e3b;font-size:11px;letter-spacing:.1em;color:#c3e3e8;font-weight:800}
+    .demo-map{position:relative;aspect-ratio:1.42;width:100%;background:radial-gradient(ellipse at 70% 20%,rgba(59,126,145,.17),transparent 40%),repeating-linear-gradient(0deg,transparent 0,transparent 39px,rgba(108,157,177,.09) 40px),repeating-linear-gradient(90deg,transparent 0,transparent 39px,rgba(108,157,177,.09) 40px),#142331;overflow:hidden;isolation:isolate}
+    .demo-map:before{content:"";position:absolute;inset:4.5%;border:2px solid #364c5b;border-radius:6px;pointer-events:none}
+    .demo-map:after{content:"TACTICAL TRAINING // ZONE A";position:absolute;left:7%;top:7%;font-size:9px;letter-spacing:.1em;color:#7393a5;pointer-events:none}
+    .cover{position:absolute;background:linear-gradient(140deg,#647e91,#334c60);box-shadow:8px 9px 0 #1a2e3b;border:1px solid #8ca2a9;border-radius:3px;z-index:2}.cover.one{left:34%;top:34%;width:13%;height:26%}.cover.two{left:54%;top:55%;width:12%;height:24%}.cover.three{left:68%;top:18%;width:13%;height:11%}
+    .dashed-line{position:absolute;height:0;border-top:1px dashed rgba(95,226,220,.35);transform-origin:left center;pointer-events:none;z-index:1}
+    .pad{position:absolute;width:32px;height:32px;transform:translate(-50%,-50%);display:grid;place-items:center;border-radius:50%;border:1px dashed #668d99;background:#153140;z-index:4;color:#b5dbe2;font-size:10px;font-weight:900}.pad:hover,.pad.selected{border:2px solid var(--cyan);background:#1b4950;box-shadow:0 0 0 5px rgba(97,228,220,.12)}.pad[aria-pressed=true]:after{content:"";width:5px;height:5px;position:absolute;bottom:-9px;background:var(--cyan);border-radius:50%}
+    .token{position:absolute;width:30px;height:30px;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:900;z-index:6;transition:left .22s ease,top .22s ease}.token.player{color:#072a35;background:#60ddd8;box-shadow:0 0 0 5px rgba(96,221,216,.16),0 0 27px #60ddd888}.token.enemy{color:#422b14;background:#ffb369;box-shadow:0 0 0 5px rgba(255,179,105,.16)}.token.anchor{color:var(--cyan);border:2px solid var(--cyan);background:rgba(40,85,88,.6);box-shadow:0 0 18px rgba(99,230,224,.4)}.token.echo{color:var(--cyan);border:1px dashed var(--cyan);background:rgba(99,230,224,.13);opacity:.7;animation:echo 1.1s ease-in-out infinite alternate}@keyframes echo{from{opacity:.75}to{opacity:.25}}
+    .enemy-label{position:absolute;left:80%;top:26%;transform:translateX(-50%);color:#ffc791;font-size:9px;font-weight:900;letter-spacing:.08em}
+    .demo-footer{display:flex;justify-content:space-between;gap:9px;flex-wrap:wrap;padding:11px 15px;color:#93a9b6;font-size:10px}.legend{display:flex;align-items:center;gap:7px}.dot{display:inline-block;width:8px;height:8px;background:var(--cyan);border-radius:50%}.dot.orange{background:var(--orange)}.dot.outline{background:transparent;border:1px solid var(--cyan)}
+    .demo-control{padding:22px;background:linear-gradient(180deg,#162a37,#13212f);border:1px solid #355260;border-radius:16px;display:flex;flex-direction:column;gap:13px}.demo-control h3{margin:0;font-size:17px}.demo-control p{color:var(--muted);font-size:12px;line-height:1.55;margin:0}.status{padding:13px;background:#0d1f2b;border:1px solid #395661;border-radius:10px;font-size:13px;color:#d1e4e7;min-height:70px}.status strong{display:block;color:var(--cyan);font-size:10px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}.keyhint{font-size:10px;color:var(--faint);text-align:center}.demo-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}.demo-buttons .btn{padding:10px 8px;font-size:12px}.demo-buttons .full{grid-column:1 / -1}.demo-progress{display:grid;gap:5px}.demo-progress-line{display:flex;justify-content:space-between;font-size:11px;color:#aec6d0}.demo-progress .meter{height:5px}.demo-desc{font-size:12px;color:var(--muted);margin-top:12px}
+    .mission-zones{counter-reset:mission}.zone{position:relative;overflow:hidden}.zone:before{content:"";position:absolute;right:-30px;top:-55px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(95,223,223,.09),transparent 66%)}.zone .time{color:var(--orange);font-size:11px;font-weight:750}.zone strong{color:var(--cyan);font-size:11px;letter-spacing:.13em;text-transform:uppercase}
+    .spec-table{width:100%;border-collapse:collapse;font-size:13px}.spec-table th{text-align:left;background:#172c38;color:#cfe0e7;font-size:11px;letter-spacing:.08em;text-transform:uppercase}.spec-table td,.spec-table th{padding:11px 13px;border-bottom:1px solid #304958;vertical-align:top}.spec-table td:first-child{font-weight:700;color:#e0eef2}.spec-table tr:last-child td{border-bottom:none}.table-wrap{border:1px solid #304958;border-radius:12px;overflow-x:auto;background:#12222f}
+    .architecture{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.arch-node{border:1px solid #385461;border-radius:10px;padding:12px;background:#142934;text-align:center}.arch-node strong{font-size:12px;display:block;color:#e8f3f5}.arch-node span{display:block;font-size:11px;color:#99b5bf}.arch-node.highlight{border-color:#4d9a9c;background:#163b42}
+    details{border:1px solid #2b4654;background:#132330;border-radius:12px;margin:12px 0;overflow:hidden}summary{cursor:pointer;padding:14px 17px;font-weight:750;font-size:13px;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px}summary::-webkit-details-marker{display:none}summary:after{content:"+";color:var(--cyan);font-size:20px;line-height:1}details[open] summary:after{content:"−"}details .detail-body{border-top:1px solid #284250;padding:15px 17px;color:var(--muted);font-size:13px}details p:last-child{margin-bottom:0}pre{background:#08131f;border:1px solid #2a4553;border-radius:10px;overflow:auto;padding:15px;color:#bce4e2;font-size:12px;line-height:1.6;margin:10px 0}
+    .callout{border-left:3px solid var(--cyan);padding:14px 17px;background:#13313a;color:#d2e9e8;border-radius:0 10px 10px 0;margin:20px 0;font-size:13px}.callout.orange{border-color:var(--orange);background:#30271f;color:#ffe3bd}
+    .day-block{background:linear-gradient(145deg,#172b38,#101e2d);padding:22px;border:1px solid #31505c;border-radius:15px}.day-block h3{margin:2px 0 6px;font-size:18px}.day-block ul{margin:10px 0 0;padding-left:20px;color:var(--muted);font-size:13px}.day-block li{margin:6px 0}
+    .roadmap-toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin:16px 0}.tabs{display:flex;flex-wrap:wrap;gap:6px}.tab{background:#152635;border:1px solid #2d4957;color:#b5cdd7;border-radius:10px;padding:9px 13px;font-size:12px;font-weight:750}.tab:hover{background:#25404a}.tab.active{background:#1c4850;color:#d7ffff;border-color:#5ed1d0}
+    .roadmap-card{background:#122330;border:1px solid #345260;border-radius:16px;padding:21px}.roadmap-header{display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:13px}.roadmap-header h3{font-size:18px;margin:0 0 4px}.roadmap-header p{font-size:12px;color:var(--muted);margin:0}.task-list{display:grid;gap:0;border-top:1px solid #2a4552}.task{display:grid;grid-template-columns:20px 68px 1fr;gap:12px;align-items:start;border-bottom:1px solid #2a4552;padding:14px 2px;cursor:pointer}.task:last-child{border-bottom:none}.task input{accent-color:var(--cyan);height:17px;width:17px;margin:3px 0 0;cursor:pointer}.task .date{color:#9ec5ce;font-size:12px;font-weight:750}.task .desc{font-size:13px;line-height:1.5;color:#e2edf0}.task:has(input:checked) .desc{text-decoration:line-through;color:#708d98}.milestone{border:1px solid #427e78;background:#173d3f;color:#b3f1de;border-radius:10px;padding:12px 14px;font-size:12px;margin-top:14px}.roadmap-actions{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px}.progress-header{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:24px;font-size:12px;color:var(--muted)}.big-progress{margin-top:9px;height:10px;background:#243a46;border-radius:100px;overflow:hidden}.big-progress>div{width:0%;height:100%;border-radius:100px;background:linear-gradient(90deg,#5f9fe0,var(--cyan));transition:width .2s}
+    .priority{border-left:3px solid var(--cyan)}.priority.p1{border-left-color:#aab9df}.priority.p2{border-left-color:var(--orange)}.priority h3{display:flex;align-items:center;gap:8px}.priority h3 .pill{font-size:9px}.priority p{line-height:1.6}
+    .score-line{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #304957;padding:10px 0;gap:12px}.score-line:last-child{border:0}.score-line label{display:flex;gap:9px;align-items:center;color:#d9e5e7;font-size:13px;cursor:pointer}.score-line input{accent-color:var(--cyan);width:16px;height:16px}.score-total{font-size:43px;letter-spacing:-.06em;color:var(--cyan);font-weight:850;line-height:1.1}
+    .footer{border-top:1px solid var(--line);padding-top:28px;margin-top:78px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:15px;color:var(--faint);font-size:12px}.footer a{color:#a4c6d2}
+    @media(max-width:1080px){.sidebar{width:194px;padding:24px 12px}.main{margin-left:194px}.hero{gap:22px}.stats{grid-template-columns:repeat(2,1fr)}.demo-shell{grid-template-columns:1fr}.demo-control{display:grid;grid-template-columns:1fr 1fr;align-content:start}.demo-control h3,.demo-control .status{grid-column:1/-1}}
+    @media(max-width:760px){html{scroll-padding-top:68px}.sidebar{position:sticky;top:0;left:0;right:0;bottom:auto;width:auto;height:auto;padding:9px 12px;display:block;border-right:0;border-bottom:1px solid var(--line);background:#0c1622eb;backdrop-filter:blur(12px)}.brand{display:none}.sidebar-label{display:none}.side-links{display:flex;overflow-x:auto;gap:3px;scrollbar-width:none}.side-links::-webkit-scrollbar{display:none}.side-links a{white-space:nowrap;padding:8px 10px;font-size:11px;gap:7px}.sidebar-bottom{display:none}.main{margin-left:0}.wrap{padding:25px 17px 65px}.hero{grid-template-columns:1fr}.hero-visual{max-width:650px}.topline{margin-bottom:25px}.stats{margin-bottom:55px}.cols3{grid-template-columns:1fr 1fr}.content-section{scroll-margin-top:90px!important}.architecture{grid-template-columns:1fr 1fr}}
+    @media(max-width:510px){.cols2,.cols3{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.stat{padding:12px}.stat strong{font-size:14px}.topline{font-size:10px;letter-spacing:.05em}.section-header{gap:10px}.chapter{width:36px;min-width:36px;height:36px}.demo-map{aspect-ratio:1.15}.demo-control{display:flex}.task{grid-template-columns:20px 55px 1fr;gap:8px}.card{padding:17px}.roadmap-card{padding:14px}.architecture{grid-template-columns:1fr}.btn{padding:10px 12px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    @media print{.sidebar,.actions,.demo-buttons,.roadmap-actions,.topline-right,.roadmap-toolbar .tabs,.tiny-button{display:none!important}.main{margin:0}.wrap{max-width:none;padding:0}.hero{grid-template-columns:1fr 1fr}.hero-visual{box-shadow:none}.content-section{page-break-inside:avoid}body{background:#09101a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.card{break-inside:avoid}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#overview">Skip to content</a>
+  <aside class="sidebar" aria-label="Page navigation">
+    <div class="brand"><div class="brandmark" aria-hidden="true">↔</div><div><strong>SWAPSHOT</strong><small>GAME DESIGN / 2026</small></div></div>
+    <div class="sidebar-label">Mission briefing</div>
+    <nav class="side-links" id="site-nav">
+      <a href="#overview" class="active"><span class="navdot"></span>Overview</a>
+      <a href="#gameplay"><span class="navdot"></span>Gameplay</a>
+      <a href="#simulation"><span class="navdot"></span>Try SHIFT</a>
+      <a href="#mission"><span class="navdot"></span>The mission</a>
+      <a href="#technology"><span class="navdot"></span>Tech stack</a>
+      <a href="#prototype"><span class="navdot"></span>48-hour prototype</a>
+      <a href="#roadmap"><span class="navdot"></span>30-day roadmap</a>
+      <a href="#release"><span class="navdot"></span>Ship checklist</a>
+    </nav>
+    <div class="sidebar-bottom"><p>MISSION BUILD STATUS</p><strong id="side-progress">0 / 30 tasks</strong><div class="meter"><div class="meter-fill" id="side-fill"></div></div><p style="margin:11px 0 0">Stored on this device</p></div>
+  </aside>
+  <main class="main" id="overview"><div class="wrap">
+    <div class="topline"><span>GitHub Game Off 2026 &nbsp; / &nbsp; Theme: SHIFT</span><div class="topline-right"><span class="tag">Solo game jam</span><button class="tiny-button" type="button" id="print-page">Print / PDF</button></div></div>
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Operation Zero Hour</p>
+        <h1>SWAP<span>SHOT</span></h1>
+        <p class="lead">Don't take cover.<br><strong>Change the battlefield.</strong></p>
+        <p class="hero-sub">A fast, third-person tactical shooter where you place a holographic anchor and instantly SHIFT across a firefight. Think classic action-game energy, focused into one polished 8–12-minute mission.</p>
+        <div class="actions"><a class="btn primary" href="#simulation">Try the SHIFT mechanic <span aria-hidden="true">↗</span></a><a class="btn" href="#roadmap">See build plan →</a></div>
+      </div>
+      <div class="hero-visual" aria-label="Stylized illustrative scene of a tactical agent teleporting from cover to a raised industrial platform">
+        <div class="visual-top"><span>HELIX // SECURITY BREACH</span><span>LIVE / CONCEPT</span></div>
+        <svg viewBox="0 0 550 370" role="img" aria-label="Industrial warehouse with cyan teleport energy and an orange enemy silhouette">
+          <defs><linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#132336"/><stop offset="1" stop-color="#293a4a"/></linearGradient><linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#354957"/><stop offset="1" stop-color="#111d2a"/></linearGradient><linearGradient id="shiftbeam" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#63e6e0" stop-opacity=".1"/><stop offset=".65" stop-color="#63e6e0" stop-opacity=".8"/><stop offset="1" stop-color="#a4fff2" stop-opacity=".2"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="4"/></filter></defs>
+          <rect width="550" height="370" fill="url(#sky)"/>
+          <path d="M0 54H550 M0 105H550 M0 155H550" stroke="#566b78" stroke-width="1" opacity=".18"/>
+          <path d="M25 0V230 M126 0V230 M228 0V230 M330 0V230 M433 0V230" stroke="#4d6575" stroke-width="7" opacity=".35"/>
+          <path d="M0 216L550 188V370H0Z" fill="url(#floor)"/><path d="M0 279L550 224 M0 352L550 275 M74 219L120 370 M263 212L291 370 M447 197L460 370" stroke="#667e86" opacity=".22" stroke-width="2"/>
+          <rect x="42" y="174" width="190" height="88" fill="#354c5e" stroke="#668595"/><path d="M42 189H232 M42 248H232" stroke="#75929f" opacity=".6"/><path d="M57 177L82 248 M129 177L154 248 M201 177L221 248" stroke="#72929e" opacity=".22"/>
+          <rect x="310" y="108" width="220" height="20" fill="#7a8f9d"/><rect x="330" y="128" width="15" height="114" fill="#435563"/><rect x="486" y="128" width="15" height="103" fill="#435563"/><path d="M310 108V86H530V108 M323 89V108 M354 89V108 M385 89V108 M417 89V108 M449 89V108 M481 89V108 M515 89V108" stroke="#73929f" stroke-width="2"/><path d="M310 86H530" stroke="#9faeba" stroke-width="4"/>
+          <path d="M0 112L550 92" stroke="#6c8695" stroke-width="4" opacity=".4"/><path d="M389 0L420 88 M500 0L474 87" stroke="#516979" stroke-width="5" opacity=".5"/>
+          <circle cx="455" cy="142" r="50" fill="#63e6e0" opacity=".17" filter="url(#glow)"/><ellipse cx="455" cy="128" rx="22" ry="35" fill="none" stroke="#63e6e0" stroke-width="2.5" stroke-dasharray="7 5"/><circle cx="455" cy="109" r="10" fill="#64e9e2" opacity=".75"/><path d="M447 120L463 120L470 155L440 155Z" fill="#63e6e0" opacity=".4" stroke="#80fef3" stroke-width="1.5"/>
+          <path d="M155 193C242 65 345 57 445 128" fill="none" stroke="url(#shiftbeam)" stroke-width="9" opacity=".75" filter="url(#glow)"/><path d="M155 193C242 65 345 57 445 128" fill="none" stroke="#71f8ed" stroke-width="2.5" stroke-dasharray="9 7"/>
+          <ellipse cx="145" cy="242" rx="31" ry="8" fill="#69f5e5" opacity=".15"/><circle cx="144" cy="170" r="12" fill="#bdc9d5"/><path d="M132 182L155 182L166 224L124 224Z" fill="#406474" stroke="#8daebb" stroke-width="2"/><path d="M134 224L129 250 M157 224L167 250" stroke="#6b94a2" stroke-width="10"/><path d="M135 192L171 203" stroke="#bfd5da" stroke-width="8"/><path d="M170 202L197 196" stroke="#9db9c7" stroke-width="5"/>
+          <circle cx="384" cy="191" r="10" fill="#ffbb76"/><path d="M373 202L396 202L406 235L365 235Z" fill="#aa6942" stroke="#f4b674"/><path d="M376 236L373 260 M393 236L401 257" stroke="#b67d56" stroke-width="9"/>
+          <circle cx="384" cy="210" r="24" stroke="#ffae6b" stroke-dasharray="2 6" fill="none" opacity=".5"/><path d="M197 196L354 207" stroke="#edc37f" stroke-dasharray="13 8" opacity=".6" stroke-width="1.8"/><circle cx="357" cy="207" r="5" fill="#ffbb76"/>
+          <g fill="none" stroke="#62dcd7" stroke-width="1.5" opacity=".9"><path d="M276 157V146H288 M300 146H312V157 M276 177V188H288 M300 188H312V177"/></g>
+          <text x="25" y="346" fill="#b2d3de" font-size="10" font-family="monospace">HP 100 / 100</text><text x="431" y="346" fill="#83eee1" font-size="11" font-family="monospace">SHIFT READY</text>
+        </svg>
+        <div class="visual-bottom"><span>THIRD-PERSON / ACTION</span><span>01 MISSION · 03 ZONES</span></div>
+      </div>
+    </header>
+    <div class="stats" aria-label="Project summary"><div class="stat"><small>Game length</small><strong>8–12 minutes</strong></div><div class="stat"><small>Engine</small><strong>Godot 4.7.2</strong></div><div class="stat"><small>Style</small><strong>Low-poly sci-fi</strong></div><div class="stat"><small>Deadline</small><strong>Dec 1, 2026 · PST</strong></div></div>
+
+    <section class="content-section" id="gameplay">
+      <div class="section-header"><div class="chapter">01</div><div><h2>The game, in one minute</h2><p>One operative. One facility. One ability that turns bad positioning into an advantage.</p></div></div>
+      <div class="narrative"><p>You are <strong>Vex</strong>, an operative trapped inside the Helix research facility after a security breach. To extract its experimental core, fight through guards and automated defenses using an unstable <strong>SHIFT Device</strong>. Plant an anchor, lure enemies into a bad angle, and instantly appear somewhere they didn't expect.</p></div>
+      <div class="cols3">
+        <div class="card"><span class="mini-title">01 / Engage</span><h3>Take the fight</h3><p>Third-person over-the-shoulder shooting. Move quickly, use cover, and identify threats.</p></div>
+        <div class="card"><span class="mini-title">02 / Outthink</span><h3>Place an anchor</h3><p>Aim at a reachable floor or elevated surface and deploy a holographic destination.</p></div>
+        <div class="card"><span class="mini-title">03 / Dominate</span><h3>SHIFT and flank</h3><p>Teleport, leave a decoy behind, and turn the new angle into a decisive attack.</p></div>
+      </div>
+      <div class="callout"><strong>The one-line design rule:</strong> The shooting must feel good on its own; SHIFT should make a good firefight spectacular.</div>
+      <div class="cols2">
+        <div class="card"><span class="mini-title">SHIFT device / prototype balance</span><h3>Ability rules</h3><div class="table-wrap" style="margin-top:12px"><table class="spec-table"><tbody><tr><td>Anchor range</td><td>18 m</td></tr><tr><td>Anchor lifetime</td><td>8 s</td></tr><tr><td>Cooldown after SHIFT</td><td>4 s</td></tr><tr><td>Active anchors</td><td>1</td></tr><tr><td>Decoy echo</td><td>1.5 s</td></tr><tr><td>Arrival protection</td><td>0.15 s</td></tr></tbody></table></div><p style="margin-top:12px">All values are tuning targets—not promises. Teleport only to validated, unblocked surfaces.</p></div>
+        <div class="card"><span class="mini-title">Player / equipment</span><h3>Keep combat focused</h3><p><strong style="color:var(--ink)">One VX-7 rifle:</strong> automatic hitscan, 24-round magazine, ~1.5-second reload, readable recoil, tracers, hit markers, and strong sound.</p><p style="margin-top:12px"><strong style="color:var(--ink)">Two enemy archetypes:</strong> security troopers who fire and reposition; an optional stationary turret with a telegraphed firing arc.</p><p style="margin-top:12px"><strong style="color:var(--ink)">Fast retries:</strong> 100 HP, regenerate after a short safe interval, checkpoint per zone. No crafting, loot economy, or gear system.</p></div>
+      </div>
+      <h3 style="margin:23px 0 12px">Keyboard + mouse controls</h3>
+      <div class="table-wrap"><table class="spec-table"><thead><tr><th>Input</th><th>Action</th><th>Input</th><th>Action</th></tr></thead><tbody><tr><td>W A S D</td><td>Move</td><td>Mouse</td><td>Look / aim</td></tr><tr><td>Left click</td><td>Shoot</td><td>Right click</td><td>Aim down sights</td></tr><tr><td>Q</td><td>Deploy anchor</td><td>Left Shift</td><td>Teleport to anchor</td></tr><tr><td>R</td><td>Reload</td><td>E</td><td>Interact</td></tr><tr><td>Tab</td><td>Objective</td><td>Esc</td><td>Pause</td></tr></tbody></table></div>
+    </section>
+
+    <section class="content-section" id="simulation">
+      <div class="section-header"><div class="chapter">02</div><div><h2>Try the SHIFT mechanic</h2><p>A tiny interactive tactical diagram. Select a destination, deploy the anchor, and SHIFT to reposition. This is a concept demonstrator, not a playable 3D game.</p></div></div>
+      <div class="demo-shell">
+        <div class="demo-board-wrap">
+          <div class="demo-heading"><span>TRAINING RANGE / TOP-DOWN</span><span style="color:var(--cyan)">● SIMULATION ACTIVE</span></div>
+          <div class="demo-map" id="demo-map" aria-label="Tactical overhead map of a training range. Selectable destinations are labeled A, B, and C.">
+            <div class="cover one" aria-hidden="true"></div><div class="cover two" aria-hidden="true"></div><div class="cover three" aria-hidden="true"></div>
+            <div class="enemy-label">HOSTILE</div><div class="token enemy" style="left:80%;top:36%" title="Enemy position">E</div>
+            <button type="button" class="pad" data-pad="a" style="left:23%;top:26%" aria-label="Select anchor position A" aria-pressed="false">A</button>
+            <button type="button" class="pad selected" data-pad="b" style="left:73%;top:73%" aria-label="Select anchor position B" aria-pressed="true">B</button>
+            <button type="button" class="pad" data-pad="c" style="left:84%;top:48%" aria-label="Select anchor position C" aria-pressed="false">C</button>
+            <div class="token player" id="demo-player" style="left:18%;top:77%" title="You">P</div>
+            <div class="token anchor" id="demo-anchor" hidden title="SHIFT anchor">A</div>
+            <div class="token echo" id="demo-echo" hidden title="Holographic decoy">◉</div>
+          </div>
+          <div class="demo-footer"><span class="legend"><span class="dot"></span> Player</span><span class="legend"><span class="dot orange"></span> Enemy</span><span class="legend"><span class="dot outline"></span> Anchor</span><span style="color:#e9c19d">Cover blocks</span></div>
+        </div>
+        <div class="demo-control">
+          <h3>Execute a tactical swap</h3><p>Choose any marked landing pad. The demo assumes each is in valid range and has safe floor clearance.</p>
+          <div class="status" role="status" aria-live="polite"><strong id="demo-state">READY TO DEPLOY</strong><span id="demo-message">Position B selected. Press Q or Deploy to plant an anchor.</span></div>
+          <div class="demo-progress"><div class="demo-progress-line"><span>Anchor time remaining</span><strong id="anchor-clock">—</strong></div><div class="meter"><div class="meter-fill" id="anchor-fill"></div></div></div>
+          <div class="demo-progress"><div class="demo-progress-line"><span>Ability cooldown</span><strong id="cooldown-clock">Ready</strong></div><div class="meter"><div class="meter-fill" id="cooldown-fill"></div></div></div>
+          <div class="demo-buttons"><button class="btn" type="button" id="deploy-btn">Q · Deploy</button><button class="btn primary" type="button" id="shift-btn">Shift · Swap</button><button class="btn full" type="button" id="demo-reset">↺ Reset encounter</button></div>
+          <p class="keyhint">Keyboard: <kbd>Q</kbd> deploy · <kbd>Left Shift</kbd> swap · <kbd>R</kbd> reset. Mouse/touch also supported.</p>
+        </div>
+      </div>
+      <p class="demo-desc">In the real 3D game, SHIFT would include raycast-based anchor placement, collision capsule clearance, camera stability, and a 1.5-second decoy that draws nearby enemy attention. The demonstration uses only predetermined safe positions.</p>
+    </section>
+
+    <section class="content-section" id="mission">
+      <div class="section-header"><div class="chapter">03</div><div><h2>One mission. Three escalating zones.</h2><p>A compact campaign with an intro, combat escalation, a clear objective, and a replayable conclusion.</p></div></div>
+      <div class="cols3">
+        <div class="card zone"><strong>ZONE 01</strong><h3 style="margin-top:10px">Loading Dock</h3><p class="time">2–3 min · Learn the basics</p><p>Enter the Helix compound, learn rifle handling, deploy your first SHIFT anchor, and flank two guards behind stacked cargo.</p></div>
+        <div class="card zone"><strong>ZONE 02</strong><h3 style="margin-top:10px">Security Core</h3><p class="time">3–4 min · Vertical firefight</p><p>Fight across cover and catwalks, use high ground, avoid security defenses, and disable the control terminal.</p></div>
+        <div class="card zone"><strong>ZONE 03</strong><h3 style="margin-top:10px">Extraction</h3><p class="time">3–5 min · Final assault</p><p>Take the experimental core, hold against the last enemy wave, then escape. Replay to improve your performance.</p></div>
+      </div>
+      <div class="cols2" style="margin-top:14px">
+        <div class="card"><span class="mini-title">Visual direction</span><h3>Industrial sci-fi, not photorealism</h3><p>Modular concrete, shipping containers, catwalks, sharp silhouettes and restrained lighting. Reuse assets across zones. Graphite environments; cyan SHIFT technology; amber enemy warnings.</p><div style="display:flex;gap:7px;margin-top:16px" aria-label="Art palette"><div style="background:#17202b;height:32px;flex:1;border-radius:6px" title="Graphite"></div><div style="background:#344656;height:32px;flex:1;border-radius:6px" title="Steel"></div><div style="background:#58d8e8;height:32px;flex:1;border-radius:6px" title="SHIFT cyan"></div><div style="background:#f3a34f;height:32px;flex:1;border-radius:6px" title="Danger amber"></div><div style="background:#d8e3eb;height:32px;flex:1;border-radius:6px" title="UI white"></div></div></div>
+        <div class="card"><span class="mini-title">Replay motivation</span><h3>Reward aggressive SHIFT usage</h3><p>Optional style scoring gives players a reason to replay a short mission. Try enabling achievements below to see how one encounter could be scored.</p>
+          <div style="margin-top:11px"><div class="score-line"><label><input type="checkbox" class="score-check" data-points="100" checked> Enemy eliminated</label><strong>+100</strong></div><div class="score-line"><label><input type="checkbox" class="score-check" data-points="50" checked> Kill right after SHIFT</label><strong>+50</strong></div><div class="score-line"><label><input type="checkbox" class="score-check" data-points="25"> Echo distraction assist</label><strong>+25</strong></div><div class="score-line"><label><input type="checkbox" class="score-check" data-points="150"> Encounter without damage</label><strong>+150</strong></div></div>
+          <div style="display:flex;justify-content:space-between;align-items:end;margin-top:12px"><span class="muted small">Example score</span><span class="score-total" id="score-total" aria-live="polite">150</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-section" id="technology">
+      <div class="section-header"><div class="chapter">04</div><div><h2>How we'd build it</h2><p>Simple enough to ship as one developer. Modular enough to maintain. No servers, accounts, or multiplayer.</p></div></div>
+      <div class="cols2"><div class="card"><span class="mini-title">Recommended engine</span><h3>Godot 4.7.2 + GDScript</h3><p>Use <strong style="color:#e9f6fa">CharacterBody3D</strong> for movement, <strong style="color:#e9f6fa">SpringArm3D</strong> for the third-person camera, raycasts for hitscan weapons and placement checks, and <strong style="color:#e9f6fa">AnimationPlayer</strong> for effects. Export with the Compatibility renderer and single-threaded web settings.</p></div><div class="card"><span class="mini-title">Ship first, optimize second</span><h3>Web playable, desktop optional</h3><p>Publish an HTML5 build on itch.io, test on normal laptop browsers, and link a public GitHub repository. Keep geometry, effects, and download size modest; verify the hosted game, not only the editor build.</p></div></div>
+      <h3 style="margin:26px 0 13px">System map</h3>
+      <div class="architecture" aria-label="High-level game architecture">
+        <div class="arch-node"><strong>Input + Player</strong><span>Movement / health</span></div><div class="arch-node"><strong>Third-person Camera</strong><span>Aim / collisions</span></div><div class="arch-node highlight"><strong>SHIFT Ability</strong><span>Anchor / swap / echo</span></div>
+        <div class="arch-node"><strong>Weapon System</strong><span>Hitscan / reload</span></div><div class="arch-node"><strong>Enemy State Machine</strong><span>Detect / attack / distract</span></div><div class="arch-node"><strong>Mission Director</strong><span>Encounters / checkpoints</span></div>
+      </div>
+      <details><summary>Technical design: the safe SHIFT sequence</summary><div class="detail-body"><ol><li>Place one anchor using range and line-of-sight checks.</li><li>Validate a floor and enough empty space for the player's collision capsule.</li><li>On SHIFT, recheck clearance because the world could have changed.</li><li>Teleport to the anchor; preserve camera aim and safely adjust velocity.</li><li>Spawn a 1.5-second holographic echo at the old position; notify nearby enemies.</li><li>Consume the anchor, start cooldown, and update the HUD.</li></ol><p>If placement or activation fails validation, do not consume the ability. Never teleport through solid geometry.</p></div></details>
+      <details><summary>Technical design: enemy and weapon behaviour</summary><div class="detail-body"><p><strong style="color:var(--ink)">Enemy states:</strong> Idle → Alerted → Attacking / Repositioning → Distracted → Dead. Start with cover points rather than complicated squad AI. Keep a small number of enemies active at once.</p><p><strong style="color:var(--ink)">Rifle:</strong> Camera-based aiming, muzzle obstruction checks, rate limiting, finite magazine, short reload, hit reactions and sound. Don't allow bullets to pass through nearby walls.</p></div></details>
+      <details><summary>Suggested folder structure</summary><div class="detail-body"><pre>swapshot/
+├── project.godot
+├── export_presets.cfg
+├── scenes/
+│   ├── player/             # controller + camera
+│   ├── abilities/          # shift, anchor, echo
+│   ├── weapons/            # rifle
+│   ├── enemies/            # trooper, optional turret
+│   ├── levels/             # arena + main mission
+│   └── ui/                 # HUD + menus
+├── scripts/                # mission + encounters
+├── assets/                 # models, audio, materials
+├── tests/                  # mechanics + smoke tests
+├── docs/                   # design + attributions
+└── .github/workflows/      # basic validation</pre></div></details>
+      <div class="callout orange"><strong>Highest technical risks:</strong> clumsy third-person controls, unsafe teleports, mediocre shooting feedback, heavy browser rendering, and spending too long on 3D assets. Prototype in primitive shapes before investing in art.</div>
+      <p class="small muted">Optional reference: <a href="https://gdquest-demos.github.io/godot-4-3d-third-person-controller/" target="_blank" rel="noopener noreferrer">GDQuest third-person controller demo</a>. Evaluate compatibility and its license before reusing code or assets. <a href="https://kenney.nl/assets/prototype-kit" target="_blank" rel="noopener noreferrer">Kenney Prototype Kit</a> can speed up greyboxing.</p>
+    </section>
+
+    <section class="content-section" id="prototype">
+      <div class="section-header"><div class="chapter">05</div><div><h2>The first 48 hours</h2><p>Build the smallest thing that proves the game will be fun. No polished environments. No cinematic intro. Just one fight.</p></div></div>
+      <div class="cols2"><div class="day-block"><span class="pill">Day 1 · Nov 2</span><h3>Movement + SHIFT</h3><p class="muted small">~5–6 focused hours</p><ul><li>Create Godot project and small arena.</li><li>Get third-person movement and camera working.</li><li>Add rifle firing and damageable target.</li><li>Place an anchor and teleport to it.</li><li>Test camera behaviour and collisions.</li></ul></div><div class="day-block"><span class="pill">Day 2 · Nov 3</span><h3>One full firefight</h3><p class="muted small">~5–6 focused hours</p><ul><li>Add one enemy that detects and shoots.</li><li>Add health, death, and restart.</li><li>Add anchor cooldown and holographic echo.</li><li>Add muzzle flash, hit feedback, SHIFT sound.</li><li>Export and test the first browser build.</li></ul></div></div>
+      <div class="callout"><strong>Go / no-go question:</strong> Can a player move, shoot, place an anchor, SHIFT into a clever flanking position, defeat an enemy, and immediately want another attempt? If not, tune the fundamentals before building levels.</div>
+    </section>
+
+    <section class="content-section" id="roadmap">
+      <div class="section-header"><div class="chapter">06</div><div><h2>Your 30-day build roadmap</h2><p>Five phases with daily actions. Check off tasks as you finish them. Progress is stored locally in this browser and can be exported.</p></div></div>
+      <div class="roadmap-toolbar"><div class="tabs" id="week-tabs" role="tablist" aria-label="Choose roadmap phase"><button type="button" class="tab active" role="tab" data-week="0" aria-selected="true">Week 1</button><button type="button" class="tab" role="tab" data-week="1" aria-selected="false">Week 2</button><button type="button" class="tab" role="tab" data-week="2" aria-selected="false">Week 3</button><button type="button" class="tab" role="tab" data-week="3" aria-selected="false">Week 4</button><button type="button" class="tab" role="tab" data-week="4" aria-selected="false">Release</button></div><span class="pill" id="week-stat">0 / 7 done</span></div>
+      <div class="roadmap-card"><div class="roadmap-header"><div><h3 id="week-title">Week 1 — Core mechanics</h3><p id="week-range">November 2–8</p></div><span class="tag neutral" id="week-label">PROTOTYPE</span></div><div id="roadmap-tasks" class="task-list" aria-live="polite"></div><div class="milestone" id="week-milestone"></div><div class="roadmap-actions"><button class="tiny-button" type="button" id="prev-week">← Previous</button><button class="tiny-button" type="button" id="next-week">Next phase →</button></div></div>
+      <div class="progress-header"><strong id="overall-progress-text">0 of 30 days complete</strong><span id="progress-percent">0%</span></div><div class="big-progress"><div id="overall-progress-bar"></div></div>
+      <div class="actions" style="margin-top:16px"><button class="btn" type="button" id="export-progress">Export checklist JSON ↓</button><button class="btn warn" type="button" id="clear-progress">Reset all checkmarks</button></div>
+      <p class="muted micro" style="margin-top:10px">An interactive planning checklist; checking an item does not run a build or update GitHub. Local storage can be unavailable in some private browsing modes; JSON export is a backup.</p>
+    </section>
+
+    <section class="content-section" id="release">
+      <div class="section-header"><div class="chapter">07</div><div><h2>What actually ships</h2><p>Set a hard quality bar and cut extras before the game becomes too large to finish.</p></div></div>
+      <div class="cols3"><div class="card priority"><h3><span class="pill">P0</span> Must ship</h3><p>One compact arena, one rifle, one enemy type, reliable SHIFT, health/restart, winning condition, essential feedback, a playable browser build.</p></div><div class="card priority p1"><h3><span class="pill">P1</span> Planned release</h3><p>Three connected zones, terminal objective, checkpoints, optional turret, polished effects and sound, extraction finale, replay score.</p></div><div class="card priority p2"><h3><span class="pill">P2</span> Only if ahead</h3><p>More animations, controller support, challenge mode, extra encounters, alternate desktop builds. No multiplayer, open world, or weapon customization.</p></div></div>
+      <h3 style="margin:27px 0 11px">Release quality gates</h3><div class="table-wrap"><table class="spec-table"><tbody><tr><td>Gameplay</td><td>Third-person movement, aiming, recoil, and SHIFT all feel responsive.</td></tr><tr><td>Safety of gameplay</td><td>No wall-teleports, softlocks, uncontrolled respawns, or shots through solid cover.</td></tr><tr><td>Performance</td><td>Playable on a typical laptop browser; no runaway effects or severe stuttering.</td></tr><tr><td>Usability</td><td>Clear SHIFT status, controls, pause, restart, and accessible contrast.</td></tr><tr><td>Distribution</td><td>Hosted itch.io HTML5 ZIP with <code>index.html</code> at its root, tested after upload.</td></tr><tr><td>Source</td><td>Public GitHub repo, licenses/credits, short README, and AI-use disclosure if applicable.</td></tr></tbody></table></div>
+      <div class="callout"><strong>Submission timing:</strong> Official deadline is December 1, 2026, at 13:37 PST (December 2, 03:07 IST). Target submission by the evening of December 1 IST. Verify the published game and source link rather than relying on the upload's success message.</div>
+      <p class="small muted">Official references: <a href="https://itch.io/jam/game-off-2026" target="_blank" rel="noopener noreferrer">Game Off 2026</a> · <a href="https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_web.html" target="_blank" rel="noopener noreferrer">Godot web export</a> · <a href="https://itch.io/docs/creators/html5" target="_blank" rel="noopener noreferrer">itch.io HTML5 games</a>.</p>
+      <div class="narrative" style="margin-top:22px"><p><strong>North star:</strong> A short, polished shooter with excellent movement, satisfying gunplay, and one unforgettable repositioning ability will beat an unfinished, oversized action game.</p></div>
+    </section>
+    <footer class="footer"><span>SWAPSHOT · Working title · Game Off 2026 design brief</span><span>Offline-ready single HTML file · Interactive demo is illustrative</span></footer>
+  </div></main>
+  <script>
+    'use strict';
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => Array.from(document.querySelectorAll(selector));
+
+    // Simple top-down illustrative SHIFT demonstrator.
+    const pads = {
+      a: {x:23,y:26,name:'A — north platform'},
+      b: {x:73,y:73,name:'B — eastern flank'},
+      c: {x:84,y:48,name:'C — behind enemy'}
+    };
+    const demo = {player:{x:18,y:77},selected:'b',anchor:null,anchorUntil:0,cooldownUntil:0,echo:null,echoUntil:0,lastMessage:'Position B selected. Press Q or Deploy to plant an anchor.'};
+    function place(el,point){el.style.left=point.x+'%';el.style.top=point.y+'%';}
+    function demoNotice(title,message){$('#demo-state').textContent=title;$('#demo-message').textContent=message;demo.lastMessage=message;}
+    function selectPad(id){demo.selected=id;$$('.pad').forEach(p=>{const active=p.dataset.pad===id;p.classList.toggle('selected',active);p.setAttribute('aria-pressed',String(active));});demoNotice('LANDING PAD SELECTED',pads[id].name+'. Press Q to deploy your anchor.');}
+    function deploy(){const now=Date.now();if(now<demo.cooldownUntil){demoNotice('COOLDOWN ACTIVE','Wait for the SHIFT device to recharge.');return;}if(demo.anchor){demoNotice('ANCHOR ALREADY ACTIVE','Press Shift to use the active anchor, or let it expire.');return;}demo.anchor={...pads[demo.selected]};demo.anchorUntil=now+8000;demoNotice('ANCHOR DEPLOYED','Press Shift within eight seconds. The enemy is still watching your original position.');renderDemo();}
+    function shift(){const now=Date.now();if(!demo.anchor){demoNotice('NO ACTIVE ANCHOR','Choose a landing pad and press Q before shifting.');return;}if(now>=demo.anchorUntil){demo.anchor=null;demoNotice('ANCHOR EXPIRED','Deploy a fresh anchor to try again.');renderDemo();return;}const previous={...demo.player};demo.player={x:demo.anchor.x,y:demo.anchor.y};demo.anchor=null;demo.anchorUntil=0;demo.echo=previous;demo.echoUntil=now+1500;demo.cooldownUntil=now+4000;demoNotice('SUCCESSFUL SHIFT','You teleported! The holographic echo briefly distracts the enemy at your old position.');renderDemo();}
+    function resetDemo(){demo.player={x:18,y:77};demo.selected='b';demo.anchor=null;demo.anchorUntil=0;demo.cooldownUntil=0;demo.echo=null;demo.echoUntil=0;selectPad('b');demoNotice('READY TO DEPLOY','Position B selected. Press Q or Deploy to plant an anchor.');renderDemo();}
+    function renderDemo(){const now=Date.now();if(demo.anchor && now>=demo.anchorUntil){demo.anchor=null;demo.anchorUntil=0;demoNotice('ANCHOR EXPIRED','Your anchor faded before you shifted. Select a pad and deploy again.');}if(demo.echo && now>=demo.echoUntil){demo.echo=null;}place($('#demo-player'),demo.player);
+      const anchorEl=$('#demo-anchor');anchorEl.hidden=!demo.anchor;if(demo.anchor)place(anchorEl,demo.anchor);
+      const echoEl=$('#demo-echo');echoEl.hidden=!demo.echo;if(demo.echo)place(echoEl,demo.echo);
+      const remaining=Math.max(0,demo.anchorUntil-now);$('#anchor-clock').textContent=demo.anchor?(remaining/1000).toFixed(1)+' s':'—';$('#anchor-fill').style.width=demo.anchor?Math.min(100,remaining/8000*100)+'%':'0%';
+      const cooldown=Math.max(0,demo.cooldownUntil-now);$('#cooldown-clock').textContent=cooldown?(cooldown/1000).toFixed(1)+' s':'Ready';$('#cooldown-fill').style.width=Math.min(100,cooldown/4000*100)+'%';
+      $('#deploy-btn').disabled=Boolean(demo.anchor)||cooldown>0;$('#shift-btn').disabled=!demo.anchor;
+    }
+    $$('.pad').forEach(b=>b.addEventListener('click',()=>selectPad(b.dataset.pad)));
+    $('#deploy-btn').addEventListener('click',deploy);$('#shift-btn').addEventListener('click',shift);$('#demo-reset').addEventListener('click',resetDemo);
+    document.addEventListener('keydown',e=>{const tag=(e.target.tagName||'').toLowerCase();if(['input','textarea','select'].includes(tag)||e.altKey||e.ctrlKey||e.metaKey||e.repeat)return;
+      // Only activate shortcuts while the demonstration is visible; do not hijack normal browsing elsewhere.
+      const r=$('#simulation').getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;
+      if(e.key.toLowerCase()==='q'){e.preventDefault();deploy();}else if(e.key==='Shift'){e.preventDefault();shift();}else if(e.key.toLowerCase()==='r'){e.preventDefault();resetDemo();}
+    });
+    setInterval(renderDemo,100);renderDemo();
+
+    function updateScore(){const total=$$('.score-check').filter(el=>el.checked).reduce((sum,el)=>sum+Number(el.dataset.points),0);$('#score-total').textContent=String(total);}
+    $$('.score-check').forEach(el=>el.addEventListener('change',updateScore));updateScore();
+
+    const weeks = [
+      {title:'Week 1 — Combat prototype',range:'Nov 2–8',label:'PROTOTYPE',milestone:'By Nov 8: a complete, replayable two-minute firefight with reliable SHIFT.',days:[
+        ['Nov 2','Create Godot project, third-person controller, aiming, shooting, and basic anchor teleport.'],
+        ['Nov 3','Add one enemy, health, decoy echo, cooldown, and first browser build.'],
+        ['Nov 4','Tune movement, camera collision, aiming, firing, and recoil.'],
+        ['Nov 5','Harden anchor placement and landing collision checks; handle invalid destinations.'],
+        ['Nov 6','Add enemy alert, attack, repositioning, and hit reactions.'],
+        ['Nov 7','Build one complete firefight with a goal and victory/restart flow.'],
+        ['Nov 8','Playtest the vertical slice; decide if the combat is fun enough to expand.']]},
+      {title:'Week 2 — Core action',range:'Nov 9–15',label:'COMBAT',milestone:'By Nov 15: a polished, four-to-five-minute first mission section.',days:[
+        ['Nov 9','Polish rifle audio, impacts, tracer visuals, and shooting feel.'],
+        ['Nov 10','Improve enemy response to the echo, SHIFT bonuses, and HUD readability.'],
+        ['Nov 11','Greybox and build the Loading Dock with reusable industrial assets.'],
+        ['Nov 12','Add controlled multi-enemy encounters and encounter completion logic.'],
+        ['Nov 13','Create a security terminal objective and transition to next zone.'],
+        ['Nov 14','Add optional turret with readable targeting and telegraphed fire.'],
+        ['Nov 15','Playtest and finalize the first complete mission section.']]},
+      {title:'Week 3 — Full mission',range:'Nov 16–22',label:'CONTENT',milestone:'By Nov 22: a complete 8–12-minute mission from intro to extraction.',days:[
+        ['Nov 16','Build the Security Core with catwalks, cover, and elevation.'],
+        ['Nov 17','Design two encounters where SHIFT offers meaningful tactical advantages.'],
+        ['Nov 18','Build the final Extraction arena with optimized reusable geometry.'],
+        ['Nov 19','Implement the last enemy assault and extraction objective.'],
+        ['Nov 20','Add a brief intro, mission instructions, and concise ending.'],
+        ['Nov 21','Connect all zones; implement checkpoints and victory conditions.'],
+        ['Nov 22','Complete a full playthrough, fix progression blockers, freeze mission content.']]},
+      {title:'Week 4 — Polish and QA',range:'Nov 23–29',label:'POLISH',milestone:'By Nov 29: a tested release candidate with no game-breaking issues.',days:[
+        ['Nov 23','Replace obvious greybox placeholders and unify visual style.'],
+        ['Nov 24','Improve character animations and enemy reactions to hits.'],
+        ['Nov 25','Polish SHIFT visuals, audio, and combat feedback.'],
+        ['Nov 26','Improve onboarding, menus, accessibility, UI, and settings.'],
+        ['Nov 27','Optimize browser performance, lights, geometry, and downloads.'],
+        ['Nov 28','Run external playtests; fix confusing interactions and crashes.'],
+        ['Nov 29','Fix critical bugs, capture screenshots/video, freeze features.']]},
+      {title:'Release — Verify and submit',range:'Nov 30 – Dec 1',label:'RELEASE',milestone:'Public itch.io game submitted with playable HTML5 build and linked GitHub source.',days:[
+        ['Nov 30','Produce final build, upload to itch.io, test hosted game from start to finish.'],
+        ['Dec 1','Publish GitHub source and attribution, disclose AI assistance as appropriate, submit and verify entry.']]}
+    ];
+    const STORE_KEY='swapshot-2026-progress-v1';let completed=new Set();let activeWeek=0;let canPersist=true;
+    try{const saved=JSON.parse(localStorage.getItem(STORE_KEY)||'[]');if(Array.isArray(saved))completed=new Set(saved.filter(n=>Number.isInteger(n)&&n>=0&&n<30));}catch(err){canPersist=false;}
+    function persist(){try{localStorage.setItem(STORE_KEY,JSON.stringify([...completed].sort((a,b)=>a-b)));}catch(err){canPersist=false;}}
+    function startIndex(week){return weeks.slice(0,week).reduce((n,w)=>n+w.days.length,0);}
+    function renderRoadmap(){const week=weeks[activeWeek];const start=startIndex(activeWeek);$('#week-title').textContent=week.title;$('#week-range').textContent=week.range;$('#week-label').textContent=week.label;$('#week-milestone').textContent='MILESTONE — '+week.milestone;
+      $('#roadmap-tasks').replaceChildren(...week.days.map(([date,desc],i)=>{const idx=start+i;const label=document.createElement('label');label.className='task';const check=document.createElement('input');check.type='checkbox';check.checked=completed.has(idx);check.setAttribute('aria-label',`Mark ${date} task complete`);check.addEventListener('change',()=>{if(check.checked)completed.add(idx);else completed.delete(idx);persist();renderRoadmap();});const time=document.createElement('span');time.className='date';time.textContent=date;const content=document.createElement('span');content.className='desc';content.textContent=desc;label.append(check,time,content);return label;}));
+      const n=week.days.filter((_,i)=>completed.has(start+i)).length;$('#week-stat').textContent=`${n} / ${week.days.length} done`;
+      $$('#week-tabs .tab').forEach(t=>{const current=Number(t.dataset.week)===activeWeek;t.classList.toggle('active',current);t.setAttribute('aria-selected',String(current));});$('#prev-week').disabled=activeWeek===0;$('#next-week').disabled=activeWeek===weeks.length-1;
+      const total=weeks.reduce((n,w)=>n+w.days.length,0),percent=Math.round(100*completed.size/total);$('#overall-progress-text').textContent=`${completed.size} of ${total} days complete`;$('#progress-percent').textContent=percent+'%';$('#overall-progress-bar').style.width=percent+'%';$('#side-progress').textContent=`${completed.size} / ${total} tasks`;$('#side-fill').style.width=percent+'%';
+    }
+    $$('#week-tabs .tab').forEach(btn=>btn.addEventListener('click',()=>{activeWeek=Number(btn.dataset.week);renderRoadmap();}));
+    $('#prev-week').addEventListener('click',()=>{activeWeek=Math.max(0,activeWeek-1);renderRoadmap();});$('#next-week').addEventListener('click',()=>{activeWeek=Math.min(weeks.length-1,activeWeek+1);renderRoadmap();});
+    $('#clear-progress').addEventListener('click',()=>{if(!completed.size)return;if(confirm('Clear all 30 roadmap checkmarks on this device?')){completed.clear();persist();renderRoadmap();}});
+    $('#export-progress').addEventListener('click',()=>{const payload={project:'SWAPSHOT',theme:'SHIFT',event:'GitHub Game Off 2026',exported_at:new Date().toISOString(),tasks:weeks.flatMap((w,wi)=>w.days.map((d,di)=>({date:d[0],task:d[1],completed:completed.has(startIndex(wi)+di)})))};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='swapshot-progress.json';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+    $('#print-page').addEventListener('click',()=>window.print());
+    renderRoadmap();
+    const navLinks=$$('#site-nav a');if('IntersectionObserver'in window){const sections=['overview','gameplay','simulation','mission','technology','prototype','roadmap','release'].map(id=>document.getElementById(id));const io=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio);if(!visible.length)return;const target='#'+visible[0].target.id;navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')===target));},{rootMargin:'-5% 0px -57% 0px',threshold:[0,.1,.4]});sections.forEach(section=>io.observe(section));}
+  </script>
+</body>
+</html>
