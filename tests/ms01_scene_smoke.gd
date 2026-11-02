@@ -143,6 +143,10 @@ func _run() -> void:
     Input.action_press("move_forward")
     for frame in range(110):
         await physics_frame
+        if frame in [15, 35, 60, 90, 109]:
+            print("MS-01 RAMP TRACE frame=%d position=%s grounded=%s collisions=%d" % [
+                frame, player.global_position, player.is_on_floor(), player.get_slide_collision_count()
+            ])
     Input.action_release("move_forward")
     _check(player.global_position.z < -8.5, "Could not walk up ramp onto landing")
     _check(player.global_position.y > 1.8, "Ramp traversal failed to gain elevation")
