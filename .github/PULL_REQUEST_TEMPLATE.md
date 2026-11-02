@@ -1,6 +1,16 @@
 ## Purpose / design reference
 <!-- Link the approved feature spec or explain why this is a straightforward fix. -->
 
+## Milestone identity and tracking
+
+- **Milestone:** MS-__ (or governance-only documentation PR)
+- **Roadmap:** [docs/MILESTONES.md](../docs/MILESTONES.md)
+- [ ] Exactly one implementation milestone is covered (or this PR is explicitly governance-only).
+- [ ] Nested tasks in the milestone were ticked **only after actual verification**.
+- [ ] Once all tasks/acceptance checks passed, the milestone is checked **in this PR** and its true PR link is recorded. If still open: state why.
+- [ ] `python3 scripts/validate_milestones.py docs/MILESTONES.md` passed.
+<!-- Do not check an unverified manual playtest or final itch.io submission. -->
+
 ## What changed
 <!-- Describe behavior, not just file names. -->
 

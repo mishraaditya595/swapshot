@@ -34,6 +34,10 @@ godot --headless --path . --quit-after 2
 
 The commands above check source/import integrity; they do **not** prove the gameplay is fun or the Web export works.
 
+## Development milestones
+
+**[View the full milestone/PR checklist](docs/MILESTONES.md)** — the single source of truth from the first gameplay GDScript to release. Each milestone is its own PR. Coding agents must tick its verified tasks, check off the completed milestone and record the **actual PR number/link in the same file** before asking to merge. Milestone MS-00 (repository bootstrap) is already completed by [PR #1](https://github.com/mishraaditya595/swapshot/pull/1); gameplay milestones remain pending.
+
 ## Architecture and collaboration
 
 - [Agent instructions](AGENTS.md) and [Claude instructions](CLAUDE.md)

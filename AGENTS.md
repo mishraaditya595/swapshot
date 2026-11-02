@@ -31,6 +31,17 @@ Upstream source catalog: [brainstorming](https://www.skills.sh/obra/superpowers/
 6. **Review:** apply `swapshot-review` read-only against changed behavior, particularly SHIFT collisions, weapon line-of-sight, enemy state, and Web constraints; resolve P0/P1 defects before requesting merge.
 7. **Report:** summarize changed files, tests actually run, missing manual verification, known risks, and exact next step. Use `.github/PULL_REQUEST_TEMPLATE.md`.
 
+## Milestone tracker — required for every gameplay PR
+
+The canonical full delivery roadmap is **[docs/MILESTONES.md](docs/MILESTONES.md)**. Read it **before coding**. It spans **MS-01 (first gameplay code)** through **MS-16 (actual jam submission)**; MS-00 is the already-delivered repository bootstrap.
+
+- **One milestone per implementing PR.** Select the first unfinished milestone in sequence unless the project owner explicitly approves a changed order; keep PR title/body labelled with its milestone ID.
+- **Update the same tracker in the implementing PR.** Tick nested tasks only after each task is **implemented and verified**. Open the PR to obtain its number, then push a follow-up commit that ticks the milestone only when all tasks and its acceptance gate are satisfied, and records the **actual** URL and PR number on the milestone's checkbox line.
+- **No phantom completion:** Never invent a PR number or check off manual gameplay, Web-hosted test, or jam submission requirements based on source code alone. If tests are unavailable, leave the corresponding task/milestone unchecked and identify the blocker in the PR.
+- A checked milestone must have all its nested tasks checked, a linked real implementing PR, and review evidence; the roadmap is enforced by CI with `python3 scripts/validate_milestones.py docs/MILESTONES.md`. The check validates bookkeeping, not gameplay.
+- Don't close a milestone PR without the tracker update. If the implementing PR is not merged, milestone completion is not delivered to main. For genuinely deferred tasks, obtain owner approval and change acceptance criteria in a reviewed PR; don't quietly mark them done.
+- Never combine MS-01 and MS-02 in one PR. The roadmap/documentation-only PR introducing this policy is not a gameplay milestone.
+
 ## Godot & game implementation rules
 
 - The official project engine target is **Godot 4.7.2 stable**, no C#/.NET required.

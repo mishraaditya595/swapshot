@@ -12,6 +12,10 @@
 
 These four skills also have lightweight discoverable wrappers under `.claude/skills/`. For the **full original workflow** and references, always read the corresponding canonical `.agents/skills/<name>/SKILL.md` linked above. The wrappers are intentionally not duplicated copies.
 
+## Mandatory milestone workflow
+
+Before working on any game feature, read **[docs/MILESTONES.md](docs/MILESTONES.md)**. Pick the earliest unfinished MS-XX milestone, use one PR for it, and update the SAME file in that PR. Tick individual tasks only after actual verification; tick the milestone only once all tasks and the acceptance gate pass, then link the real implementing PR number. Create the PR first to obtain its number and commit the checklist update afterward. Never infer a passing manual playtest, browser build, or jam submission from a code change. Validate with `python3 scripts/validate_milestones.py docs/MILESTONES.md`. See the complete policy in AGENTS.md.
+
 ## Non-negotiables
 
 - **Engine:** Godot **4.7.2 stable** + GDScript; Web-first Compatibility renderer.
