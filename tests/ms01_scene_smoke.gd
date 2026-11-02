@@ -120,8 +120,10 @@ func _run() -> void:
     # happen near any obstacle. Verify the west wall and crate edge too.
     var cases: Array[Dictionary] = [
         {"label": "west wall", "point": Vector3(-15.2, 0.9, 0.0), "yaw": PI},
+        {"label": "north wall", "point": Vector3(0.0, 0.9, -15.2), "yaw": PI},
         {"label": "cover", "point": Vector3(-5.04, 0.9, -7.0), "yaw": PI},
         {"label": "east wall corner", "point": Vector3(15.1, 0.9, 15.05), "yaw": 0.0},
+        {"label": "northwest corner", "point": Vector3(-15.1, 0.9, -15.05), "yaw": PI},
     ]
     for test_case in cases:
         player.global_position = test_case["point"]
@@ -135,19 +137,18 @@ func _run() -> void:
             "Camera intersects collision near " + test_case["label"]
         )
 
+    # Verify the ramp actually loads at its intended transform and provides
+    # solid collision at mid-slope; a scene comment once hid its transform.
     var ramp_body: StaticBody3D = arena.get_node("AccessRamp") as StaticBody3D
-    print("MS-01 RAMP NODE transform=%s" % [ramp_body.global_transform])
-    for sample_z in [-2.5, -5.0, -7.0]:
-        var vertical: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
-            Vector3(9.0, 5.0, sample_z), Vector3(9.0, -1.0, sample_z)
-        )
-        var sample: Dictionary = arena.get_world_3d().direct_space_state.intersect_ray(vertical)
-        print("MS-01 RAMP RAY z=%.1f collider=%s point=%s normal=%s" % [
-            sample_z,
-            str(sample.get("collider")),
-            str(sample.get("position")),
-            str(sample.get("normal"))
-        ])
+    _check(
+        ramp_body.global_position.distance_to(Vector3(9.0, 0.58, -4.5)) < 0.01,
+        "Ramp transform was lost while parsing the scene"
+    )
+    var vertical: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
+        Vector3(9.0, 5.0, -5.0), Vector3(9.0, -1.0, -5.0)
+    )
+    var mid_ramp: Dictionary = arena.get_world_3d().direct_space_state.intersect_ray(vertical)
+    _check(mid_ramp.get("collider") == ramp_body, "Mid-ramp ray did not contact ramp collider")
 
     # Traverse the real ramp using physics input, not a teleported collider probe.
     pivot.rotation.y = 0.0
@@ -157,19 +158,18 @@ func _run() -> void:
     Input.action_press("move_forward")
     for frame in range(110):
         await physics_frame
-        if frame in [15, 35, 60, 90, 109]:
-            var first_collision: String = "none"
-            if player.get_slide_collision_count() > 0:
-                var hit: KinematicCollision3D = player.get_slide_collision(0)
-                first_collision = "%s normal=%s" % [str(hit.get_collider()), hit.get_normal()]
-            print("MS-01 RAMP TRACE frame=%d position=%s grounded=%s collisions=%d first=%s" % [
-                frame, player.global_position, player.is_on_floor(),
-                player.get_slide_collision_count(), first_collision
-            ])
     Input.action_release("move_forward")
     _check(player.global_position.z < -8.5, "Could not walk up ramp onto landing")
     _check(player.global_position.y > 1.8, "Ramp traversal failed to gain elevation")
     _check(player.is_on_floor(), "Player lost floor contact on landing")
+
+    Input.action_press("move_backward")
+    for frame in range(110):
+        await physics_frame
+    Input.action_release("move_backward")
+    _check(player.global_position.z > -1.5, "Could not descend ramp back to ground")
+    _check(player.global_position.y < 1.2, "Descending ramp did not return to ground")
+    _check(player.is_on_floor(), "Player did not regain floor after descending")
 
     # Elevated landing is a physical surface, not merely decorative geometry.
     var ray: PhysicsRayQueryParameters3D = PhysicsRayQueryParameters3D.create(
@@ -183,7 +183,7 @@ func _run() -> void:
 
     arena.queue_free()
     if failures.is_empty():
-        print("MS-01 SMOKE PASS: input map, movement, camera clearance, wall collisions, ramp traversal")
+        print("MS-01 SMOKE PASS: input map, movement, camera clearance, wall collisions, ramp ascent and descent")
         quit(0)
     else:
         printerr("MS-01 SMOKE FAIL: %d check(s)" % failures.size())
