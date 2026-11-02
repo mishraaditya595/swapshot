@@ -25,8 +25,10 @@ jobs:
         uses: actions/cache@v4
         id: web-template
         with:
-          path: ~/.local/share/godot/export_templates/4.7.2.stable/web_release.zip
-          key: swapshot-godot-4.7.2-stable-web-release-v1
+          path: |
+            ~/.local/share/godot/export_templates/4.7.2.stable/web_nothreads_release.zip
+            ~/.local/share/godot/export_templates/4.7.2.stable/web_nothreads_debug.zip
+          key: swapshot-godot-4.7.2-stable-web-nothreads-v2
 
       - name: Install Godot 4.7.2 editor
         shell: bash
@@ -52,9 +54,11 @@ jobs:
             -o "$RUNNER_TEMP/export-templates.tpz"
           dir="$HOME/.local/share/godot/export_templates/4.7.2.stable"
           mkdir -p "$dir"
-          unzip -p "$RUNNER_TEMP/export-templates.tpz" templates/web_release.zip > "$dir/web_release.zip"
-          test -s "$dir/web_release.zip"
-          unzip -tqq "$dir/web_release.zip"
+          for template in web_nothreads_release web_nothreads_debug; do
+            unzip -p "$RUNNER_TEMP/export-templates.tpz" "templates/$template.zip" > "$dir/$template.zip"
+            test -s "$dir/$template.zip"
+            unzip -tqq "$dir/$template.zip"
+          done
           rm -f "$RUNNER_TEMP/export-templates.tpz"
 
       - name: Import and export Web preview
@@ -63,7 +67,8 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
-          test -s "$HOME/.local/share/godot/export_templates/4.7.2.stable/web_release.zip"
+          test -s "$HOME/.local/share/godot/export_templates/4.7.2.stable/web_nothreads_release.zip"
+          test -s "$HOME/.local/share/godot/export_templates/4.7.2.stable/web_nothreads_debug.zip"
           # Temporary preview preset, NOT the final MS-14 Web release preset.
           cp .github/web-preview-export-presets.cfg export_presets.cfg
           mkdir -p "$RUNNER_TEMP/web-preview"
