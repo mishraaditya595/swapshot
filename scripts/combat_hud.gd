@@ -6,6 +6,7 @@ extends CanvasLayer
 @onready var reload_label: Label = $Reload
 @onready var incoming: Label = $Incoming
 @onready var health_label: Label = $Health
+@onready var health_fill: ColorRect = $HealthBarTrack/HealthBarFill
 @onready var threat_label: Label = $Threat
 @onready var damage_flash: ColorRect = $DamageFlash
 @onready var owner_player: CharacterBody3D = get_parent() as CharacterBody3D
@@ -14,6 +15,7 @@ var _hit_left: float = 0.0
 var _incoming_left: float = 0.0
 var _previous_health: float = 100.0
 var _enemy: Node = null
+var mission_managed: bool = false
 
 
 func _ready() -> void:
@@ -70,11 +72,34 @@ func _set_health(remaining: float, maximum: float) -> void:
         "font_color", Color(1.0, 0.45, 0.31) if remaining <= maximum * 0.3
         else Color(0.71, 0.98, 0.90)
     )
-    if remaining <= 0.0:
+    health_fill.scale.x = clampf(remaining / maxf(maximum, 1.0), 0.0, 1.0)
+    health_fill.color = Color(1.0, 0.38, 0.24) if remaining <= maximum * 0.3 else Color(0.35, 0.91, 0.83)
+    if remaining <= 0.0 and not mission_managed:
         threat_label.text = "YOU ARE DOWN  |  Enter to restart"
 
 
+func set_mission_managed(enabled: bool) -> void:
+    mission_managed = enabled
+    if enabled and is_instance_valid(_enemy):
+        for signal_name: String in ["state_changed", "echo_distracted", "echo_released", "windup_started", "shot_fired", "destroyed"]:
+            var handler: Callable = Callable(self, {
+                "state_changed": "_on_enemy_state_changed", "echo_distracted": "_on_echo_distracted",
+                "echo_released": "_on_echo_released", "windup_started": "_on_windup_started",
+                "shot_fired": "_on_enemy_shot", "destroyed": "_on_enemy_destroyed"
+            }[signal_name])
+            if _enemy.is_connected(signal_name, handler):
+                _enemy.disconnect(signal_name, handler)
+        _enemy = null
+
+
+func set_encounter_threat(message: String, tint: Color = Color(1.0, 0.74, 0.39)) -> void:
+    if mission_managed:
+        _set_threat(message, tint)
+
+
 func _bind_enemy() -> void:
+    if mission_managed:
+        return
     var candidate: Node = get_tree().get_first_node_in_group("enemy")
     if candidate == null:
         threat_label.text = "ENCOUNTER  |  LOCATE THE TROOPER"

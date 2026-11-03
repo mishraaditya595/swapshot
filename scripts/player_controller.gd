@@ -7,6 +7,8 @@ signal died()
 @export_range(1.0, 500.0, 1.0) var max_health: float = 100.0
 var health: float = 100.0
 var is_alive: bool = true
+var controls_enabled: bool = true
+@export var managed_restart: bool = false
 
 @export var move_speed: float = 6.0
 @export var acceleration: float = 22.0
@@ -38,16 +40,25 @@ func apply_damage(amount: float) -> void:
     if health <= 0.0:
         is_alive = false
         velocity = Vector3.ZERO
-        $ShiftAbility.set_owner_alive(false)
-        _release_mouse()
+        set_combat_enabled(false)
         died.emit()
 
 
 func reset_health() -> void:
     health = max_health
     is_alive = true
+    controls_enabled = true
     health_changed.emit(health, max_health)
     $ShiftAbility.set_owner_alive(true)
+
+
+func set_combat_enabled(enabled: bool) -> void:
+    controls_enabled = enabled
+    if not enabled:
+        velocity = Vector3.ZERO
+        $ShiftAbility.set_owner_alive(false)
+        $VisualRoot/WeaponPivot/VX7.stop_combat()
+        _release_mouse()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -56,9 +67,11 @@ func _unhandled_input(event: InputEvent) -> void:
         get_viewport().set_input_as_handled()
         return
     if not is_alive:
-        if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ENTER:
+        if not managed_restart and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ENTER:
             get_tree().reload_current_scene()
             get_viewport().set_input_as_handled()
+        return
+    if not controls_enabled:
         return
 
     if event is InputEventMouseButton:
@@ -86,7 +99,7 @@ func _apply_mouse_look(relative_motion: Vector2) -> void:
 
 
 func _physics_process(delta: float) -> void:
-    if not is_alive:
+    if not is_alive or not controls_enabled:
         velocity = Vector3.ZERO
         return
     var input_vector: Vector2 = Input.get_vector(

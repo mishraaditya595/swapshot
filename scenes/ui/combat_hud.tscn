@@ -19,7 +19,7 @@ anchor_right = 1.0
 offset_left = -298.0
 offset_top = 13.0
 offset_right = -12.0
-offset_bottom = 61.0
+offset_bottom = 79.0
 mouse_filter = 2
 color = Color(0.02, 0.06, 0.10, 0.7)
 
@@ -34,6 +34,23 @@ mouse_filter = 2
 theme_override_font_sizes/font_size = 24
 text = "ARMOR  100 / 100"
 horizontal_alignment = 2
+
+[node name="HealthBarTrack" type="ColorRect" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -280.0
+offset_top = 62.0
+offset_right = -20.0
+offset_bottom = 69.0
+mouse_filter = 2
+color = Color(0.08, 0.16, 0.19, 0.95)
+
+[node name="HealthBarFill" type="ColorRect" parent="HealthBarTrack"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.35, 0.91, 0.83, 1)
 
 [node name="ThreatBackdrop" type="ColorRect" parent="."]
 anchor_left = 0.5

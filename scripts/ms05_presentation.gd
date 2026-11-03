@@ -1,4 +1,5 @@
 extends Node3D
+@export var managed_objective: bool = false
 ## MS-05 visual framing only; preserve proven camera/rifle aim geometry.
 
 func _ready() -> void:
@@ -17,6 +18,8 @@ func _ready() -> void:
 
 
 func _on_trooper_destroyed() -> void:
+    if managed_objective:
+        return
     var mission: Label = $EncounterHUD/HelixHint as Label
     mission.text = "MISSION COMPLETE  /  HELIX TROOPER NEUTRALIZED"
     mission.add_theme_color_override("font_color", Color(0.45, 0.98, 0.86))
