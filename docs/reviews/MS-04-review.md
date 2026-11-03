@@ -33,14 +33,14 @@ MS-05 will connect the echo_spawned and echo_ended signals to guards. MS-06 will
 
 | Check | Status | Evidence |
 | --- | --- | --- |
-| Static audit, audit tests and repository Python tests | PASS | SWAPSHOT CI run 41622208294, Static audit and audit tests |
+| Static audit, audit tests and repository Python tests | PASS | [SWAPSHOT CI 41627869920](https://github.com/mishraaditya595/swapshot/actions/runs/41627869920), Static audit and audit tests, after milestone acceptance edits |
 | Godot 4.7.2 import and startup | PASS | Same CI run, Godot headless job |
 | MS-01 and MS-02 regressions | PASS | Same CI run, engine smoke |
 | MS-03 teleport and landing safety | PASS | Same CI run, engine smoke |
 | MS-04 expiry, cooldown, rejection, spam, pause, death and reload | PASS | Same CI run, MS-04 SMOKE PASS |
 | Echo spawn, 1.5-second expiry, signal and cleanup | PASS | Same CI run, MS-04 SMOKE PASS |
 | Automated code review | PASS | Pre-Merge automated rule scan on feature-code commit; not a gameplay review |
-| PR milestone acceptance | PENDING RECHECK | Milestone and review updated with owner's Nov 3 feedback; requires fresh CI on documentation commits |
+| PR milestone acceptance | PASS on recorded revision | [SWAPSHOT Pre-Merge 41627869928](https://github.com/mishraaditya595/swapshot/actions/runs/41627869928) accepted the milestone tracker/PR evidence; final documentation edits require another green run |
 | Godot editor and hosted browser inputs, sound and presentation | OWNER REPORT ONLY | Owner says gameplay is working fine; no independent editor/browser session, recording, test build ID or per-feature audio evidence |
 | Guard response to echo | OUT OF SCOPE | MS-05 |
 
@@ -60,4 +60,4 @@ MS-05 will connect the echo_spawned and echo_ended signals to guards. MS-06 will
 
 ## Risks and next action
 
-No currently observed P0/P1 engine regression remains in the automated scope. The owner has accepted current gameplay in general terms; the MS-04 checklist is complete with the evidence boundaries above. Fresh CI, including the PR milestone acceptance policy, must pass on the final documentation commit before PR #12 is considered merge-ready. No merge is being performed by this bookkeeping update. The project review, verification, brainstorming, find-skills and humanizer skills were consulted; no third-party skill or package was installed. Reader-facing prose received an editorial pass without changing facts, controls or commands.
+No currently observed P0/P1 engine regression remains in the automated scope. The owner has accepted current gameplay in general terms; the MS-04 checklist is complete with the evidence boundaries above. The acceptance revision passed both [CI 41627869920](https://github.com/mishraaditya595/swapshot/actions/runs/41627869920) and [Pre-Merge 41627869928](https://github.com/mishraaditya595/swapshot/actions/runs/41627869928). Fresh checks must also pass after this evidence-document update before PR #12 is considered merge-ready. No merge is being performed by this bookkeeping update. The project review, verification, brainstorming, find-skills and humanizer skills were consulted; no third-party skill or package was installed. Reader-facing prose received an editorial pass without changing facts, controls or commands.
