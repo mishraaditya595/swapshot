@@ -6,13 +6,17 @@
 **Test environment:** GitHub Actions Linux Godot 4.7.2 stable; this conversation runtime has no Godot editor or hosted PR browser run.
 **Decision:** INSUFFICIENT EVIDENCE for full gameplay acceptance; automated evidence PASS.
 
+## Owner browser evidence (Nov 3) and P1 follow-up
+
+The owner supplied a 42-second browser recording of PR #8 and confirmed firing, reload and ADS inputs function. The recording shows an aim-facing defect: the cyan visor/character retains world yaw when the camera turns, and source confirms the gun was camera-parented. The follow-up mounts VX-7 to the visual body and synchronizes yaw/pitch; see [aim alignment plan](../plans/MS-02-aim-alignment.md). **The updated code still needs a new hosted browser playtest.**
+
 ## Findings
 
-### P1 — Hosted/browser gameplay still unverified
-- **Evidence:** No manual Web deployment or owner gameplay video for PR #8. Existing `deploy-web-manual.yml` deliberately only runs when triggered.
+### P1 — Updated combat pose has not yet been browser-verified
+- **Evidence:** The owner provided a Web recording showing the original alignment issue. No updated recording exists for the shoulder-mounted fix; deployment remains manual.
 - **Reproduction:** Actions → SWAPSHOT Deploy Web to GitHub Pages (Manual) → Run workflow → source `pr`, PR `8`. Play with WASD/LMB/RMB/R/Escape near crates and on the ramp.
 - **Expected:** No click-to-capture ghost shots; ADS and recoil feel responsive; muzzle/camera ray disagreement does not let shots through close cover.
-- **Observed:** NOT RUN. Headless tests cannot witness render, sounds, pointer capture, frame pacing or recoil feel.
+- **Observed:** Original video shows the mismatched visual facing. Revised implementation has not been rendered/playtested; headless tests cannot certify visual comfort.
 - **Smallest next test:** Owner records one hosted Web run covering the MS-02 acceptance gate and updates this report.
 
 ### P2 — Prototype visuals, no audio asset
