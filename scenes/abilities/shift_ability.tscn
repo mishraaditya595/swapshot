@@ -19,6 +19,8 @@ mesh = SubResource("Disc")
 visible = false
 mesh = SubResource("Disc")
 
+[node name="CuePlayer" type="AudioStreamPlayer" parent="."]
+
 [node name="ShiftHUD" type="CanvasLayer" parent="."]
 
 [node name="Status" type="Label" parent="ShiftHUD"]
@@ -30,3 +32,13 @@ mouse_filter = 2
 theme_override_colors/font_color = Color(0.68, 0.98, 0.96, 1)
 theme_override_font_sizes/font_size = 17
 text = "SHIFT  |  Aim at floor, Q deploy"
+
+[node name="Timer" type="Label" parent="ShiftHUD"]
+offset_left = 18.0
+offset_top = 121.0
+offset_right = 440.0
+offset_bottom = 151.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.98, 0.78, 0.48, 1)
+theme_override_font_sizes/font_size = 16
+text = "SHIFT READY"

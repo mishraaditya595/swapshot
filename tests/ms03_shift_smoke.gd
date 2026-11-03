@@ -142,12 +142,17 @@ func _run() -> void:
     _check(is_equal_approx(boom.rotation.x, -0.22), "SHIFT snapped camera pitch")
     _check(not ability.call("try_shift"), "Repeated SHIFT cannot use a consumed anchor")
 
+    # MS-04 cooldown must elapse before repeated use.
+    ability.call("_advance_lifecycle", 4.0)
+
     # Repeated landings must not depend on stale state from first activation.
     player.global_position = Vector3(0.0, 0.98, 10.5)
     player.velocity = Vector3.ZERO
     await _frames(4)
     _check(ability.call("_try_place_at", point, Vector3.UP), "Fresh anchor should place again")
     _check(ability.call("try_shift"), "Second safe SHIFT should succeed")
+
+    ability.call("_advance_lifecycle", 4.0)
 
     # Exercise the real camera-targeted Q path, not only direct validation.
     player.global_position = Vector3(0.0, 0.98, 10.5)
@@ -160,7 +165,9 @@ func _run() -> void:
     _check(ability.call("try_deploy"), "Q deployment must use the camera ray safely")
     _check(ability.call("try_shift"), "Camera-ray anchor must SHIFT safely")
 
+    # Let the audio mixer release the final short SHIFT cue before process exit.
     arena.queue_free()
+    await _frames(16)
     if failures.is_empty():
         print("MS-03 SMOKE PASS: range, slope, floor, capsule, anchored visual, revalidation, retry, camera, velocity")
         quit(0)

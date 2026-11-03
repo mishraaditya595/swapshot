@@ -77,14 +77,14 @@
 
 **Target:** Nov 6, 2026 · **Priority:** P0 · **Depends on:** MS-03 (unless explicitly reordered)
 
-- [ ] **MS-04 complete** — **Implementing PR:** —
-  - [ ] Implement a single active anchor, eight-second expiry and a four-second post-SHIFT cooldown (tunable).
-  - [ ] Spawn a 1.5-second holographic echo after successful teleport; dispose it reliably.
-  - [ ] Emit clear state signals for the HUD and future enemy AI; add simple SHIFT visuals / audio cues.
-  - [ ] Handle Q/Shift spam, death, pause, scene reload and expiry/activation race conditions.
-  - [ ] Add tests for expiry, cooldown, repeat inputs, resource consumption and echo lifetime.
+- [x] **MS-04 complete** — **Implementing PR:** [#12](https://github.com/mishraaditya595/swapshot/pull/12)
+  - [x] Implement a single active anchor, eight-second expiry and a four-second post-SHIFT cooldown (tunable).
+  - [x] Spawn a 1.5-second holographic echo after successful teleport; dispose it reliably.
+  - [x] Emit clear state signals for the HUD and future enemy AI; add simple SHIFT visuals / audio cues.
+  - [x] Handle Q/Shift spam, death, pause, scene reload and expiry/activation race conditions.
+  - [x] Add tests for expiry, cooldown, repeat inputs, resource consumption and echo lifetime.
 
-**Acceptance gate:** SHIFT state stays deterministic across success, rejection, expiry and reload; the echo ends on time and never leaks.
+**Acceptance gate:** SHIFT state stays deterministic across success, rejection, expiry and reload; the echo ends on time and never leaks. **Met for MS-04 on Nov 3, 2026:** The owner reported that the current gameplay "is working fine" after discussing SHIFT audio, and asked to complete milestone bookkeeping. This is an overall gameplay acceptance report, not a separate recording or item-by-item manual verification of every expiry, collision and echo edge case. [Godot 4.7.2 CI run 41622208294](https://github.com/mishraaditya595/swapshot/actions/runs/41622208294) passed the MS-01–MS-04 smoke tests, headless startup and static checks, covering expiry/cooldown, rejection, repeated input, signals, pause, reload and echo lifetime/cleanup. The preview HUD, visual echo and generated anchor/SHIFT cues are implemented; no specific browser device/build identifier or sound-level measurements were supplied. Enemy reaction to the echo remains MS-05, health/death integration MS-06, and full sound/visual polish MS-12. Fresh PR checks remain required before merge; the acceptance of this milestone does not itself merge PR #12.
 
 ### MS-05 — One hostile: trooper AI and firefight
 
