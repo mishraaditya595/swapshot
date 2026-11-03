@@ -124,6 +124,17 @@ func _run() -> void:
     _check(ability.call("_try_place_at", point, Vector3.UP), "Fresh anchor should place again")
     _check(ability.call("try_shift"), "Second safe SHIFT should succeed")
 
+    # Exercise the real camera-targeted Q path, not only direct validation.
+    player.global_position = Vector3(0.0, 0.98, 10.5)
+    player.velocity = Vector3.ZERO
+    camera_pivot.rotation.y = 0.0
+    boom.rotation.x = -0.4
+    await _frames(5)
+    var camera_hit: Dictionary = ability.call("_aim_surface")
+    _check(not camera_hit.is_empty(), "Aim ray must find arena floor")
+    _check(ability.call("try_deploy"), "Q deployment must use the camera ray safely")
+    _check(ability.call("try_shift"), "Camera-ray anchor must SHIFT safely")
+
     arena.queue_free()
     if failures.is_empty():
         print("MS-03 SMOKE PASS: range, slope, floor, capsule, revalidation, retry, camera, velocity")
