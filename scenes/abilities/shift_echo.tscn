@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3]
+
+[sub_resource type="CapsuleMesh" id="EchoBody"]
+radius = 0.34
+mid_height = 1.1
+
+[sub_resource type="BoxMesh" id="EchoVisor"]
+size = Vector3(0.4, 0.22, 0.12)
+
+[node name="ShiftEcho" type="Node3D"]
+
+[node name="Body" type="MeshInstance3D" parent="."]
+mesh = SubResource("EchoBody")
+
+[node name="Visor" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, -0.32)
+mesh = SubResource("EchoVisor")
