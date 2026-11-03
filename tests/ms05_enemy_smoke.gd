@@ -46,7 +46,7 @@ func _run() -> void:
     var rifle: Node = player.get_node("VisualRoot/WeaponPivot/VX7")
     _check(enemy.collision_layer == 1, "VX-7 world hit mask must hit trooper")
     _check(int(rifle.get("hit_mask")) == 1, "Existing rifle hit mask must remain unchanged")
-    _check(int(enemy.get("state")) != 3, "Guard must spawn alive")
+    _check(int(enemy.get("state")) == 0, "Guard starts IDLE outside acquisition range")
 
     # Remove animation timing and player gravity from the test; physics ray queries
     # still run against the real scene's collision bodies.
@@ -54,6 +54,13 @@ func _run() -> void:
     player.set_physics_process(false)
     player.global_position = Vector3(8.0, 1.03, 8.0)
     await _frames(3)
+    enemy.set("detection_range", 4.0)
+    _check(not bool(enemy.call("_can_see_player")), "Out-of-range player stays undetected")
+    enemy.set("detection_range", 12.5)
+    (enemy.get_node("VisualRoot") as Node3D).rotation.y = 0.0
+    _check(not bool(enemy.call("_within_fov", player.global_position + Vector3.UP * 0.3)),
+        "Guard's initial FOV must reject targets behind it")
+    (enemy.get_node("VisualRoot") as Node3D).rotation.y = PI
     _check(bool(enemy.call("_can_see_player")), "Visible player must clear world+player ray")
     enemy.call("advance_ai", 0.01)
     _check(int(enemy.get("state")) == 1, "Visible player triggers ALERT")
@@ -69,6 +76,9 @@ func _run() -> void:
         "Windup must not apply premature damage")
     enemy.call("advance_ai", 0.31)
     var second_hp: float = float(player.get("health"))
+    var damage_cue: Label = player.get_node("CombatHUD/Incoming") as Label
+    _check(damage_cue.visible and damage_cue.text.contains("ARMOR HIT"),
+        "A real enemy hit triggers a visible player damage cue")
     _check(second_hp < first_hp and second_hp >= first_hp - 12.01,
         "Unobstructed enemy shot must apply bounded player damage")
     enemy.call("advance_ai", 0.1)

@@ -10,7 +10,7 @@ signal echo_distracted(world_position: Vector3)
 enum State { IDLE, ALERT, ATTACK, DEAD }
 
 @export_range(1.0, 500.0, 1.0) var max_health: float = 100.0
-@export_range(1.0, 60.0, 0.5) var detection_range: float = 24.0
+@export_range(1.0, 60.0, 0.5) var detection_range: float = 12.5
 @export_range(30.0, 360.0, 1.0) var field_of_view_degrees: float = 145.0
 @export_range(1.0, 50.0, 0.5) var attack_range: float = 22.0
 @export_range(1.0, 50.0, 0.5) var echo_notice_range: float = 20.0
