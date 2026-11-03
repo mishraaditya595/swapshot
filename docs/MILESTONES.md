@@ -31,15 +31,15 @@
 
 **Target:** Nov 2–3, 2026 · **Priority:** P0 · **Depends on:** MS-00 (unless explicitly reordered)
 
-- [ ] **MS-01 complete** — **Implementing PR:** [#4](https://github.com/mishraaditya595/swapshot/pull/4)
+- [x] **MS-01 complete** — **Implementing PR:** [#4](https://github.com/mishraaditya595/swapshot/pull/4)
   - [x] Create the first gameplay scripts and reusable player scene using CharacterBody3D.
   - [x] Add camera-relative WASD movement, jump or traversal only if scope allows, collision, and basic acceleration/turning.
   - [x] Implement mouse-look, over-the-shoulder camera rig, clamped pitch and basic camera-wall collision.
   - [x] Create the small greybox training arena with walls, cover, and an elevated landing area.
-  - [ ] Define InputMap actions and a clear mouse-capture / release flow.
-  - [ ] Verify editor startup, controllability, collision and camera behavior with a recorded manual test.
+  - [x] Define InputMap actions and a clear mouse-capture / release flow.
+  - [x] Verify **hosted Web gameplay startup**, controllability, collision and camera behavior with a recorded manual test (owner-approved Web-first acceptance instead of native editor GUI).
 
-**MS-01 evidence so far:** [Godot 4.7.2 headless/physics CI](https://github.com/mishraaditya595/swapshot/actions/runs/41432377054) verifies camera collision, movement and ramp ascent/descent, following red-green regression tests; [review findings](reviews/MS-01-review.md) explicitly leave actual mouse capture and a recorded editor playtest pending. The milestone is NOT complete.
+**MS-01 verification:** [Godot 4.7.2 physics/import CI](https://github.com/mishraaditya595/swapshot/actions/runs/41582463772) passed movement, camera clearance/recovery, wall/crate collisions, ramp ascent/descent and avatar close-camera fade. The [manual Web deployment](https://github.com/mishraaditya595/swapshot/actions/runs/41582737996) published PR #4 revision `cc0f6f152c3675ee3df996900f96c67dac9df4b7`. On November 3 the owner supplied a macOS browser screen recording showing WASD, mouse-look and near-obstacle traversal; subsequent confirmations verified Escape mouse release, Command+Tab app focus switching and backward/sideways movement after head-on wall/crate contact. See the [recorded MS-01 QA and review findings](reviews/MS-01-review.md). Native Godot editor GUI was **not** manually tested; this scope adjustment reflects the owner's browser-only QA requirement. A minor close-platform dark-surface occlusion is deferred as nonblocking polish. Later milestones still require separate final Web/release testing.
 
 **Acceptance gate:** A human can run a scene, move and look around without falling through the floor or camera clipping into walls. All checks and unrun manual tests documented.
 
