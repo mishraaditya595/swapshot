@@ -2,6 +2,10 @@
 
 > **Don't take cover. Change the battlefield.**
 
+**[Play SWAPSHOT online — GitHub Pages](https://mishraaditya595.github.io/swapshot/)**
+
+Open the preview hub to play a manually published browser build. New PRs, pushes and merges do **not** automatically redeploy the game; the owner chooses when to publish a new build.
+
 SWAPSHOT is a single-player, third-person tactical shooter built for **GitHub Game Off 2026** (theme: **SHIFT**). Play as Vex, a covert operative infiltrating the Helix facility. Plant a holographic anchor, SHIFT into a better position, leave an echo behind, and turn firefights into flanking opportunities.
 
 **Status: repository bootstrap.** The Godot project opens to an empty starter scene; movement, combat, enemy AI, SHIFT, and an exported playable build **have not yet been implemented**.
