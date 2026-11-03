@@ -4,15 +4,15 @@ extends Camera3D
 ## SpringArm3D retracts immediately on contact (required for safety). This
 ## script applies the safe endpoint, but restores the normal follow distance
 ## and right-shoulder offset gradually instead of snapping in a single frame.
-## At very close distances the player meshes fade, so camera retraction does
-## not fill the view with the back of the character.
+## Once the camera retracts into the player silhouette, its materials become
+## fully transparent. The weapon/muzzle geometry and aim rays never move.
 
 @export_range(0.0, 1.5, 0.05) var shoulder_offset: float = 0.55
 @export_range(0.0, 0.2, 0.005) var clearance_margin: float = 0.04
 @export_range(1.0, 15.0, 0.5) var distance_recovery_speed: float = 5.0
 @export_range(1.0, 15.0, 0.5) var shoulder_recovery_speed: float = 3.0
-@export_range(0.2, 2.0, 0.05) var fade_full_distance: float = 0.75
-@export_range(0.5, 3.0, 0.05) var fade_start_distance: float = 1.5
+@export_range(0.2, 3.0, 0.05) var fade_full_distance: float = 2.1
+@export_range(0.5, 3.5, 0.05) var fade_start_distance: float = 2.85
 @export_range(1.0, 15.0, 0.5) var fade_recovery_speed: float = 3.0
 
 @onready var camera_boom: SpringArm3D = get_parent() as SpringArm3D
@@ -104,9 +104,8 @@ func _safe_shoulder_offset() -> float:
 
 
 func _update_player_visibility(delta: float) -> void:
-    # In narrow passages the camera may legitimately need to enter the
-    # player's own silhouette. Fade the suit and visor instead of rendering
-    # an abrupt full-screen close-up of the mesh.
+    # Start fading before the suit reaches the lens and hide it completely
+    # while the boom is compressed. Alpha is Compatibility-renderer safe.
     var desired_opacity: float = smoothstep(
         fade_full_distance, maxf(fade_full_distance + 0.01, fade_start_distance), _distance
     )

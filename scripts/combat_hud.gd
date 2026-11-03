@@ -100,6 +100,7 @@ func _on_enemy_state_changed(next_state: int) -> void:
         1: threat_label.text = "HELIX  |  SEARCHING"
         2: threat_label.text = "HELIX  |  ENGAGING"
         3: threat_label.text = "HELIX  |  NEUTRALIZED"
+        4: threat_label.text = "HELIX  |  SEARCHING LAST SEEN"
 
 
 func _on_echo_distracted(_position: Vector3) -> void:

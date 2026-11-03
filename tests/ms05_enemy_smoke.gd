@@ -42,6 +42,25 @@ func _run() -> void:
     await _frames(5)
     var enemy: StaticBody3D = encounter.get_node("HelixTrooper") as StaticBody3D
     var player: CharacterBody3D = encounter.get_node("Arena/Player") as CharacterBody3D
+    var shoulder_camera: Camera3D = player.get_node("CameraPivot/CameraBoom/Camera3D") as Camera3D
+    var suit: MeshInstance3D = player.get_node("VisualRoot/Body") as MeshInstance3D
+    var left_arm: MeshInstance3D = player.get_node("VisualRoot/ArmLeft") as MeshInstance3D
+    var rifle_visual: MeshInstance3D = player.get_node("VisualRoot/WeaponPivot/VX7/RifleMesh") as MeshInstance3D
+    # Near-cover fade regression: no half-transparent suit or weapon in
+    # front of the reticle; no camera/weapon transform changes.
+    var initial_camera_transform: Transform3D = shoulder_camera.transform
+    shoulder_camera.set("_distance", 1.95)
+    shoulder_camera.call("_update_player_visibility", 0.2)
+    for mesh: MeshInstance3D in [suit, left_arm, rifle_visual]:
+        var mat: StandardMaterial3D = mesh.material_override as StandardMaterial3D
+        _check(mat != null and mat.albedo_color.a < 0.02,
+            "Near-cover camera must hide " + mesh.name + " instead of ghosting it")
+    shoulder_camera.set("_distance", 3.5)
+    shoulder_camera.call("_update_player_visibility", 1.0)
+    _check((suit.material_override as StandardMaterial3D).albedo_color.a > 0.99,
+        "Player silhouette must return in open space")
+    _check(shoulder_camera.transform == initial_camera_transform,
+        "Camera fade must not shift the tested rifle aim geometry")
     var ability: Node = player.get_node("ShiftAbility")
     var rifle: Node = player.get_node("VisualRoot/WeaponPivot/VX7")
     _check(enemy.collision_layer == 1, "VX-7 world hit mask must hit trooper")
@@ -102,12 +121,24 @@ func _run() -> void:
     await _frames(3)
     _check(not bool(enemy.call("_can_see_player")), "Crate blocks player detection")
     enemy.call("advance_ai", 0.6)
+    _check(int(enemy.get("state")) == 4, "Lost contact must enter a distinct SEARCH state")
+    _check(threat_cue.text.contains("SEARCHING LAST SEEN"),
+        "Search status must be visible rather than jumping directly to UNAWARE")
     _check(not (enemy.get_node("VisualRoot/WarningFlash") as MeshInstance3D).visible,
         "Cover must cancel an already-started shot warning")
     _check(is_equal_approx(float(player.get("health")), second_hp),
         "Cover placed during windup must prevent the shot")
+    # Moving behind an opaque crate must not magically update the last
+    # position the enemy saw or cause a blind shot.
+    player.global_position = Vector3(8.4, 1.03, 8.0)
+    await _frames(3)
+    _check(not bool(enemy.call("_can_see_player")), "Lateral cover movement stays hidden")
     enemy.call("advance_ai", 1.5)
+    _check(int(enemy.get("state")) == 4, "Guard searches for over two seconds after lost contact")
+    _check(absf((enemy.get("_last_known_position") as Vector3).x - 8.0) < 0.01,
+        "Guard cannot track the hidden player's position through cover")
     enemy.call("advance_ai", 1.5)
+    _check(int(enemy.get("state")) == 0, "Search expires back to IDLE without a visible target")
     _check(is_equal_approx(float(player.get("health")), second_hp),
         "Cover must prevent damage through collision")
     _check(int(enemy.get("state")) != 2, "Guard loses active attack behind cover")

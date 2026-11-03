@@ -9,7 +9,7 @@ signal windup_started()
 signal echo_distracted(world_position: Vector3)
 signal echo_released()
 
-enum State { IDLE, ALERT, ATTACK, DEAD }
+enum State { IDLE, ALERT, ATTACK, DEAD, SEARCH }
 
 @export_range(1.0, 500.0, 1.0) var max_health: float = 100.0
 @export_range(1.0, 60.0, 0.5) var detection_range: float = 12.5
@@ -21,6 +21,7 @@ enum State { IDLE, ALERT, ATTACK, DEAD }
 @export_range(0.2, 5.0, 0.05) var fire_interval_seconds: float = 1.35
 @export_range(0.0, 50.0, 1.0) var shot_damage: float = 12.0
 @export_range(1.0, 30.0, 0.5) var turn_speed: float = 9.0
+@export_range(0.5, 8.0, 0.1) var search_seconds: float = 2.6
 
 const SIGHT_MASK: int = 3 # World (1) and player (2).
 const WORLD_MASK: int = 1
@@ -48,6 +49,8 @@ var _cooldown_remaining: float = 0.0
 var _flash_remaining: float = 0.0
 var _hit_remaining: float = 0.0
 var _lost_sight_remaining: float = 0.0
+var _search_remaining: float = 0.0
+var _last_known_position: Vector3 = Vector3.ZERO
 var _normal_visor_material: Material
 var _hit_material: StandardMaterial3D
 
@@ -163,25 +166,39 @@ func advance_ai(delta: float) -> void:
         return
 
     var spotted: bool = _can_see_player()
+    if spotted:
+        # Never update the last-known point while the player is occluded.
+        _last_known_position = _player_aim_point()
     if state == State.IDLE:
         if spotted and _within_fov(_player_aim_point()):
             _enter_alert()
     elif state == State.ALERT:
-        _turn_toward(_player_aim_point(), delta)
         if spotted:
+            _turn_toward(_player_aim_point(), delta)
             _lost_sight_remaining = 0.6
             _alert_remaining = maxf(0.0, _alert_remaining - delta)
             if _alert_remaining <= 0.0:
                 _set_state(State.ATTACK)
         else:
+            _turn_toward(_last_known_position, delta)
             _lost_sight_remaining -= delta
             if _lost_sight_remaining <= 0.0:
+                _enter_search()
+    elif state == State.SEARCH:
+        # Watch the last seen point for a short time instead of instantly
+        # forgetting contact or tracking through a solid crate.
+        if spotted and _within_fov(_player_aim_point()):
+            _enter_alert()
+        else:
+            _turn_toward(_last_known_position, delta)
+            _search_remaining = maxf(0.0, _search_remaining - delta)
+            if _search_remaining <= 0.0:
                 _set_state(State.IDLE)
     elif state == State.ATTACK:
-        _turn_toward(_player_aim_point(), delta)
         if not spotted or eye.global_position.distance_to(_player_aim_point()) > attack_range:
-            _enter_alert()
+            _enter_search()
             return
+        _turn_toward(_player_aim_point(), delta)
         if _windup_remaining > 0.0:
             _windup_remaining = maxf(0.0, _windup_remaining - delta)
             if _windup_remaining <= 0.0:
@@ -259,6 +276,11 @@ func _enter_alert() -> void:
     _set_state(State.ALERT)
 
 
+func _enter_search() -> void:
+    _search_remaining = search_seconds
+    _set_state(State.SEARCH)
+
+
 func _cancel_windup() -> void:
     _windup_remaining = 0.0
     warning_flash.visible = false
@@ -296,6 +318,7 @@ func _on_echo_spawned(ghost: Node3D, at: Vector3) -> void:
         return
     _echo = ghost
     _echo_position = at
+    _last_known_position = at
     _enter_alert()
     distraction_beacon.visible = true
     alert_lamp.visible = false
