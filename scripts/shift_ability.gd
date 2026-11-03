@@ -183,7 +183,9 @@ func _remove_echo() -> void:
     if echo_instance == null:
         return
     if is_instance_valid(echo_instance):
-        echo_ended.emit(echo_instance.global_position)
+        # A top-level echo's local position is world-space, even after detaching.
+        # global_position is unavailable during scene teardown (_exit_tree).
+        echo_ended.emit(echo_instance.position)
         echo_instance.queue_free()
     echo_instance = null
     echo_remaining_seconds = 0.0
