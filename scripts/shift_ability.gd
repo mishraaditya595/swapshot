@@ -46,6 +46,8 @@ var _clearance_shape: CapsuleShape3D
 var _valid_material: StandardMaterial3D
 var _invalid_material: StandardMaterial3D
 var _echo_material: StandardMaterial3D
+var _deploy_cue: AudioStreamWAV
+var _shift_cue: AudioStreamWAV
 
 
 func _ready() -> void:
@@ -66,6 +68,8 @@ func _ready() -> void:
     preview_mesh.visible = false
     anchor_mesh.visible = false
     cue_player.volume_db = -16.0
+    _deploy_cue = _make_cue(440.0)
+    _shift_cue = _make_cue(760.0)
     _say("SHIFT  |  Aim at floor, Q deploy")
     _update_timer_label()
 
@@ -233,6 +237,10 @@ func reset_lifecycle() -> void:
 
 
 func _exit_tree() -> void:
+    # Stop any in-flight cue before releasing the audio stream on scene unload.
+    if is_instance_valid(cue_player):
+        cue_player.stop()
+        cue_player.stream = null
     _remove_echo()
 
 
@@ -384,6 +392,13 @@ func try_shift() -> bool:
 
 
 func _play_cue(frequency_hz: float) -> void:
+    # Reuse the two short streams instead of reallocating while the player spams Q.
+    cue_player.stop()
+    cue_player.stream = _deploy_cue if frequency_hz < 600.0 else _shift_cue
+    cue_player.play()
+
+
+func _make_cue(frequency_hz: float) -> AudioStreamWAV:
     # Tiny generated pulse: no external audio dependency or Web asset download.
     var wav := AudioStreamWAV.new()
     wav.format = AudioStreamWAV.FORMAT_16_BITS
@@ -399,8 +414,7 @@ func _play_cue(frequency_hz: float) -> void:
         bytes[index * 2] = sample & 0xFF
         bytes[index * 2 + 1] = (sample >> 8) & 0xFF
     wav.data = bytes
-    cue_player.stream = wav
-    cue_player.play()
+    return wav
 
 
 func _say(message: String) -> void:
