@@ -29,6 +29,22 @@ health, enemies, jump, UI menu systems, third-party assets or plugins here.
   Its origin stays on the capsule centerline: a separate camera script sweeps
   sideways at the camera endpoint before applying the over-the-shoulder offset,
   preventing the sweep origin or camera from starting inside nearby cover.
+- After the November 3 hosted-browser recording showed abrupt camera close-ups
+  beside cover and the upper landing, apply a collision-safe recovery policy:
+  **immediate inward retraction** (never allow a blocked camera to clip through
+  geometry), but **speed-limited return** to the normal 3.5 m follow distance
+  and shoulder offset. Cache the lateral physics-shape query instead of
+  allocating it each physics tick. Preserve the existing centered boom probe
+  so walls/corners still pass clearance checks.
+- Close-up avatar visibility: fade both suit and visor with duplicated
+  StandardMaterial3D alpha materials when the camera comes closer than 1.5 m;
+  fully suppress the near-field mesh below ~0.75 m, then smoothly restore it.
+  Do **not** use GeometryInstance3D.transparency: Compatibility ignores it.
+  Keep this limited to the two small prototype meshes for Web performance.
+- Regression approach: add a headless close-wall/recovery/mesh-visibility
+  scenario before the fix, require a failing run, then prove the same scenario
+  passes after the fix alongside the existing wall/cover/ramp cases. Human
+  browser recording must still confirm actual camera comfort.
 - Click to capture mouse, Escape and window focus loss to release.
 - A 32 m square physical arena: four walls, three cover crates, and a **ramp**
   leading to an elevated platform. The ramp starts flush with the floor and
@@ -51,6 +67,9 @@ health, enemies, jump, UI menu systems, third-party assets or plugins here.
 
 ## Risks and rollback
 
-SpringArm sweep and wall-edge behavior require human evaluation; tune arm
-offset/margin if camera pushes awkwardly. Restore the starter main scene and
+SpringArm sweep and wall-edge behavior require human evaluation. In extremely
+narrow spaces the camera must still retract immediately for collision safety;
+this cannot be eliminated entirely without permitting geometry clipping.
+The close-up fade and eased recovery must be verified in a new manually
+deployed browser build. Restore the starter main scene and
 project inputs in the PR if runtime import fails; do not merge a blocking PR.
