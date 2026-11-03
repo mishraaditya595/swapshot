@@ -31,7 +31,7 @@ func _run() -> void:
     root.add_child(arena)
     await _frames(5)
     var player: CharacterBody3D = arena.get_node("Player") as CharacterBody3D
-    var rifle: Node3D = player.get_node("CameraPivot/CameraBoom/Camera3D/VX7") as Node3D
+    var rifle: Node3D = player.get_node("VisualRoot/WeaponPivot/VX7") as Node3D
     var target: StaticBody3D = arena.get_node("TargetNear") as StaticBody3D
     var camera: Camera3D = player.get_node("CameraPivot/CameraBoom/Camera3D") as Camera3D
     _check(rifle != null and target != null, "Rifle and target not instantiated")
@@ -39,6 +39,43 @@ func _run() -> void:
         quit(1)
         return
     var muzzle: Marker3D = rifle.get_node("Muzzle") as Marker3D
+    var visuals: Node3D = player.get_node("VisualRoot") as Node3D
+    var mount: Node3D = visuals.get_node("WeaponPivot") as Node3D
+    var pivot: Node3D = player.get_node("CameraPivot") as Node3D
+    var boom: SpringArm3D = pivot.get_node("CameraBoom") as SpringArm3D
+    _check(rifle.get_parent() == mount, "Rifle must be character-mounted")
+
+    # Reproduce owner's browser report: the camera turned while the visor
+    # and rifle remained pointed forward. Exercise stationary left/right,
+    # back-facing 180-degree yaw and pitched aiming.
+    Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+    var original_forward: Vector3 = -muzzle.global_basis.z
+    for motion in [
+        Vector2(480.0, -160.0), Vector2(-960.0, 320.0),
+        Vector2(480.0, -160.0), Vector2(-PI / 0.0025, 0.0)
+    ]:
+        player.call("_apply_mouse_look", motion)
+        await _frames(3)
+        _check(
+            absf(wrapf(visuals.rotation.y - pivot.rotation.y, -PI, PI)) < 0.01,
+            "Player visual yaw must follow combat camera yaw"
+        )
+        _check(
+            is_equal_approx(mount.rotation.x, boom.rotation.x),
+            "Shoulder rifle pitch must follow camera pitch"
+        )
+        _check(
+            (-muzzle.global_basis.z).dot(-camera.global_basis.z) > 0.999,
+            "Visible muzzle must aim in the camera crosshair direction"
+        )
+    _check(
+        original_forward.dot(-muzzle.global_basis.z) < -0.99,
+        "A 180-degree camera turn must aim the rifle backwards"
+    )
+    # Restore the original target direction for the firing/cover tests.
+    player.call("_apply_mouse_look", Vector2(PI / 0.0025, 0.0))
+    await _frames(3)
+    Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
     rifle.set("hip_spread_degrees", 0.0)
     rifle.set("ads_spread_degrees", 0.0)
@@ -86,7 +123,7 @@ func _run() -> void:
     var shape := CollisionShape3D.new()
     var blocker := BoxShape3D.new()
     # The narrow block covers the muzzle line without covering the camera ray.
-    blocker.size = Vector3(0.35, 1.2, 0.2)
+    blocker.size = Vector3(0.10, 1.2, 0.2)
     shape.shape = blocker
     barrier.add_child(shape)
     arena.add_child(barrier)
@@ -115,7 +152,7 @@ func _run() -> void:
     _check(target.collision_layer == 0, "Destroyed dummy must cease blocking subsequent shots")
     arena.queue_free()
     if failures.is_empty():
-        print("MS-02 SMOKE PASS: ammo, cadence, damage, reload, cover, HUD")
+        print("MS-02 SMOKE PASS: aim alignment, ammo, cadence, damage, reload, cover, HUD")
         quit(0)
     else:
         printerr("MS-02 SMOKE FAIL: %d checks" % failures.size())
