@@ -1,59 +1,39 @@
-# SWAPSHOT MS-02 review — VX-7 rifle
+# SWAPSHOT MS-02 review — VX-7 rifle and visual aim alignment
 
-**Repository / base..head:** `mishraaditya595/swapshot`, main..feat/ms-02-vx7-rifle, implementing [PR #8](https://github.com/mishraaditya595/swapshot/pull/8).
-**Scope/milestone:** P0 / MS-02 only.
-**Reviewed:** VX7 scene/script and character-mounted revisions; player controller and scene, shoulder camera, FX, target, HUD, InputMap, arena instancing, regression tests, workflow and tracker.
-**Test environment:** GitHub Actions Linux Godot 4.7.2 stable for updated code; owner's earlier 42-second browser recording covers the pre-fix preview. No editor GUI or post-fix browser run in this conversation runtime.
-**Decision:** INSUFFICIENT EVIDENCE for full gameplay acceptance; automated evidence PASS.
+**Repository / scope:** `mishraaditya595/swapshot`, `main..feat/ms-02-vx7-rifle`; one implementing [PR #8](https://github.com/mishraaditya595/swapshot/pull/8), milestone MS-02.
 
-## Owner browser evidence (Nov 3) and P1 follow-up
+**Decision:** **MS-02 acceptance evidence sufficient** for the stated greybox rifle milestone. Browser control/visual feedback is supported by owner-recorded gameplay, and target damage/cover safety and edge cases are supported by engine-level regressions. This is not a claim of a finished/polished shooter. Merge requires fresh CI and pre-merge policy checks.
 
-The owner supplied a 42-second browser recording of PR #8 and confirmed firing, reload and ADS inputs function. The recording shows an aim-facing defect: the cyan visor/character retains world yaw when the camera turns, and source confirms the gun was camera-parented. The follow-up mounts VX-7 to the visual body and synchronizes yaw/pitch; see [aim alignment plan](../plans/MS-02-aim-alignment.md). **The updated code still needs a new hosted browser playtest.**
+## Owner Web playtests (November 3, 2026)
 
-## Findings
+1. **Pre-correction:** Owner supplied a ~42-second PR #8 browser recording, confirmed that firing, reloading and right-mouse aiming worked, and reported an obvious yaw mismatch: character visor/weapon remained facing forward when the camera turned. Source revealed a movement-direction-only `VisualRoot` turn and a camera-parented VX-7.
+2. **Post-correction:** Owner supplied `Screen Recording 2026-11-03 at 13.58.00.mov` (~46 seconds) showing PR #8 running in a macOS Brave browser, then stated that the rotation logic and firing mechanics look fine and weapon placement is better. Independent frame review observed the character and shoulder-mounted rifle moving together during look rotation, visible muzzle/tracer feedback, the ammo counter decreasing across sustained firing, and traversal of the ramp and nearby crates. No obvious repeat of the old facing mismatch was seen.
+3. **Limits:** The second recording does **not** independently prove target damage values, every fire-rate edge case, close-cover no-penetration, reload timing, performance/FPS or all pointer-lock transitions. Those physics/state cases are separately covered by engine tests where applicable. A native graphical Godot editor test was not run. The recordings were user-provided in this conversation; they are not checked into the repository or publicly linked.
 
-### P1 — Updated combat pose has not yet been browser-verified
-- **Evidence:** The owner provided a Web recording showing the original alignment issue. No updated recording exists for the shoulder-mounted fix; deployment remains manual.
-- **Reproduction:** Actions → SWAPSHOT Deploy Web to GitHub Pages (Manual) → Run workflow → source `pr`, PR `8`. Play with WASD/LMB/RMB/R/Escape near crates and on the ramp.
-- **Expected:** No click-to-capture ghost shots; ADS and recoil feel responsive; muzzle/camera ray disagreement does not let shots through close cover.
-- **Observed:** Original video shows the mismatched visual facing. Revised implementation has not been rendered/playtested; headless tests cannot certify visual comfort.
-- **Smallest next test:** Owner records one hosted Web run covering the MS-02 acceptance gate and updates this report.
+## Brainstorming and correction
 
-### P2 — Prototype visuals, no audio asset
-- **Evidence:** `scenes/weapons/vx7.tscn` uses a low-poly placeholder mesh; `scripts/rifle_fx.gd` creates procedural tracers and impact spheres. `shot_fired` and `dry_fired` signals are audio hooks, not audible clips.
-- **Expected:** Readable minimal feedback for MS-02; sound polish can be scheduled for MS-12.
-- **Observed:** Visual effects are implemented, **not visually playtested**.
-- **Smallest next test:** Confirm muzzle, tracer, impact and target destruction are visible and inexpensive in a hosted browser build.
-- **Confidence:** code-inferred; no observed playtest.
-
-## Follow-up headless regression evidence
-
-[CI run 41596720686](https://github.com/mishraaditya595/swapshot/actions/runs/41596720686), commit `0a566be`, passed Godot 4.7.2 headless import, startup, MS-01 regression, static audit and the expanded MS-02 smoke. Godot reported `MS-02 SMOKE PASS: aim alignment, ammo, cadence, damage, reload, cover, HUD`. The new test checks left/right/180-degree stationary look, shoulder rifle yaw/pitch versus camera direction and the original obstruction checks. A first test iteration exposed that headless Godot cannot acquire the OS pointer: the test now drives the same pure combat pose update used by real pointer-locked input. It **does not** prove native browser pointer lock or the revised rifle looks comfortable on screen.
+[Follow-up design](../plans/MS-02-aim-alignment.md) compared body-only rotation, rifle-only reparenting, and a combined visual-body yaw plus character-relative shoulder weapon. The selected combined approach parents VX-7 under `VisualRoot/WeaponPivot`, aligns player visuals to `CameraPivot` yaw during captured mouse-look, matches rifle pitch to `CameraBoom` and leaves the physics body and collision-safe camera independent. Shots still use the camera aim ray, the camera-to-muzzle check and the muzzle-to-target ray.
 
 ## Verification matrix
 
-| Check | Result | Evidence |
+| Requirement / check | Result | Evidence |
 | --- | --- | --- |
-| Static audit, Python tests, milestone tracker validator | PASS | [CI run 41596902344](https://github.com/mishraaditya595/swapshot/actions/runs/41596902344) |
-| Godot 4.7.2 headless import + startup | PASS | [latest CI run 41596902344](https://github.com/mishraaditya595/swapshot/actions/runs/41596902344) |
-| MS-01 movement/camera smoke | PASS | [latest CI run 41596902344](https://github.com/mishraaditya595/swapshot/actions/runs/41596902344); existing regression retained |
-| MS-02 aim alignment, cadence, hit damage, partial/empty reload, muzzle obstruction, recoil/hit marker, target death, HUD smoke | PASS | [latest CI run 41596902344](https://github.com/mishraaditya595/swapshot/actions/runs/41596902344), `MS-02 SMOKE PASS: aim alignment, ammo, cadence, damage, reload, cover, HUD` |
-| Automated conservative code review | PASS | [Pre-Merge run 41596960362](https://github.com/mishraaditya595/swapshot/actions/runs/41596960362) |
-| PR milestone acceptance | EXPECTED FAIL | Milestone intentionally unchecked pending manual gameplay |
-| Manual rifle/ADS/pointer lock/camera feel | PARTIAL on earlier preview; updated build NOT RUN | Owner confirms fire, reload, aim controls; original preview shows body/weapon mismatch |
-| Hosted HTML5 browser export and playtest | Earlier preview recorded; updated build NOT RUN | Owner-supplied pre-fix PR #8 browser video; updated preview must be manually deployed |
-| SHIFT / guard / echo and mission loop | OUT OF SCOPE | MS-03 through MS-06 |
+| Shooting, reload and ADS controls in Web | OWNER PASS | Pre-correction PR #8 browser recording and owner's explicit observations |
+| Stationary turning and character/rifle pose in Web | OWNER PASS | New ~46-second PR #8 recording and owner's positive follow-up; no obvious previous mismatch |
+| Ammo/tracer/muzzle feedback in Web | OBSERVED | New recording shows counter decrement, tracer/muzzle visual during firing |
+| Rifle cadence, 24-round ammo, partial/empty reload and HUD | ENGINE PASS | [CI run 41597083512](https://github.com/mishraaditya595/swapshot/actions/runs/41597083512) |
+| Camera yaw, 180-degree rotation, rifle pitch and muzzle forward alignment | ENGINE PASS | Same run, MS-02 smoke |
+| Training target health and hitmarker; target death/collider disable | ENGINE PASS | Same run, MS-02 smoke |
+| Camera-to-muzzle and muzzle-to-target cover obstruction | ENGINE PASS | Same run, MS-02 close-cover physics regression |
+| MS-01 movement, camera clearance and ramp traversal | ENGINE PASS | Same run, existing MS-01 regression |
+| Godot 4.7.2 import/startup, Python/static audit and milestone validator | ENGINE PASS (prior to acceptance-doc update) | Same run |
+| Manual local editor GUI / exhaustive pointer-lock or FPS check | NOT RUN | Not part of the verified browser-first MS-02 acceptance scope |
+| SHIFT, guard AI and complete mission loop | OUT OF SCOPE | Later milestones |
 
-## MS-02 acceptance matrix
+## Findings and follow-up
 
-| Requirement | Implemented? | Verified? | Notes |
-| --- | --- | --- | --- |
-| VX-7 automatic hitscan / single cadence owner | Yes | Headless PASS | Camera target ray + muzzle checks |
-| ADS, recoil, 24-round ammo, 1.5 s reload | Yes | Ammo/reload PASS; visual ADS NOT RUN | Need browser feel check |
-| Damageable targets and VFX/HUD | Yes | Damage/HUD PASS; rendered VFX NOT RUN | Test scene has two targets |
-| Prevent shots through nearby cover | Yes | Headless PASS | Narrow blocker leaves camera aim path unobstructed |
-| Preserve MS-01 camera/movement | Yes | MS-01 smoke PASS; manual regression NOT RUN | No changes to MS-01 controller scripts |
+**Resolved P1 — Rifle and character facing desynchronization.** The original browser evidence and source diagnosed the mismatch. The follow-up code, engine tests and new browser review provide corroborating evidence that the character-relative weapon alignment is acceptable.
 
-## Risks and next action
+**Nonblocking P2 — Visual readability and polish.** The weapon is still a small placeholder mesh and the character can become dark against the arena's low-lit surfaces near the ramp/cover. These do not block the MS-02 mechanical acceptance; richer weapon shape, lighting and animation can be scheduled for later art/polish milestones. There are no rifle audio assets yet; `shot_fired` and `dry_fired` remain hooks.
 
-The original owner preview confirmed a P1 visual aim-facing mismatch. Source change and latest headless regression address the cause, but do not prove the corrected visual pose or native pointer capture; keep PR in draft and the milestone partially checked. Owner should manually deploy PR #8 and verify controls and close-cover behavior; then update acceptance evidence and only then mark the milestone complete.
+**Remaining operational gate:** After checking the milestone task list and linking PR #8 in the completion line, verify the latest **SWAPSHOT CI** and **SWAPSHOT Pre-Merge** runs before marking the PR ready or merging. Only the owner should authorize merge; no automatic deployment should occur.
