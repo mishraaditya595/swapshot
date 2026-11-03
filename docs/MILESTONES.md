@@ -92,9 +92,9 @@
 
 - [ ] **MS-05 complete** — **Implementing PR:** [#13](https://github.com/mishraaditya595/swapshot/pull/13)
   - [ ] Create a modular security trooper scene, damage / death responses and readable silhouettes.
-  - [ ] Implement explicit idle, alert, attack and dead states with line-of-sight checks.
-  - [ ] Give the enemy telegraphed fire, rate-limited damage and simple cover-aware repositioning if feasible.
-  - [ ] React to nearby SHIFT echoes without targeting expired echoes or attacking after death.
+  - [x] Implement explicit idle, alert, attack and dead states with line-of-sight checks.
+  - [x] Give the enemy telegraphed fire, rate-limited damage and simple cover-aware repositioning if feasible.
+  - [x] React to nearby SHIFT echoes without targeting expired echoes or attacking after death.
   - [ ] Stage a short encounter with one or two guards and verify no shots through walls.
 
 **Acceptance gate:** An enemy detects, engages, reacts to SHIFT/echo and can be defeated; enemy attacks cease immediately on death.
