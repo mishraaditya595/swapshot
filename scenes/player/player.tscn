@@ -1,0 +1,63 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/player_controller.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scripts/shoulder_camera.gd" id="2_camera"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleCollider"]
+radius = 0.36
+height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="SuitMaterial"]
+albedo_color = Color(0.15, 0.27, 0.36, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="VisorMaterial"]
+albedo_color = Color(0.23, 0.91, 0.88, 1)
+emission_enabled = true
+emission = Color(0.04, 0.35, 0.37, 1)
+
+[sub_resource type="CapsuleMesh" id="SuitMesh"]
+material = SubResource("SuitMaterial")
+radius = 0.34
+mid_height = 1.1
+
+[sub_resource type="BoxMesh" id="VisorMesh"]
+material = SubResource("VisorMaterial")
+size = Vector3(0.4, 0.22, 0.12)
+
+[sub_resource type="SphereShape3D" id="CameraProbe"]
+radius = 0.24
+
+[node name="Player" type="CharacterBody3D" groups=["player"]]
+collision_layer = 2
+collision_mask = 1
+floor_snap_length = 0.3
+script = ExtResource("1_controller")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleCollider")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+
+[node name="Body" type="MeshInstance3D" parent="VisualRoot"]
+mesh = SubResource("SuitMesh")
+
+[node name="Visor" type="MeshInstance3D" parent="VisualRoot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, -0.32)
+mesh = SubResource("VisorMesh")
+
+[node name="CameraPivot" type="Node3D" parent="."]
+position = Vector3(0, 0.48, 0)
+
+[node name="CameraBoom" type="SpringArm3D" parent="CameraPivot"]
+position = Vector3(0, 0.13, 0)
+spring_length = 3.5
+shape = SubResource("CameraProbe")
+collision_mask = 1
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/CameraBoom"]
+process_physics_priority = 10
+script = ExtResource("2_camera")
+current = true
+fov = 75.0
+near = 0.05

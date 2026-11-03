@@ -4,7 +4,7 @@
 
 SWAPSHOT is a single-player, third-person tactical shooter built for **GitHub Game Off 2026** (theme: **SHIFT**). Play as Vex, a covert operative infiltrating the Helix facility. Plant a holographic anchor, SHIFT into a better position, leave an echo behind, and turn firefights into flanking opportunities.
 
-**Status: repository bootstrap.** The Godot project opens to an empty starter scene; movement, combat, enemy AI, SHIFT, and an exported playable build **have not yet been implemented**.
+**Status: MS-01 Web-first gameplay foundation accepted in PR #4 (merge pending).** The feature branch includes a third-person movement/camera training arena, with manual macOS browser QA recorded in [the MS-01 review](docs/reviews/MS-01-review.md). Rifle combat, enemy AI and SHIFT are planned for later milestones. The playable Web snapshot is published only when the owner manually triggers deployment; a successful preview is not the final game release.
 
 ## Scope
 
@@ -17,7 +17,7 @@ SWAPSHOT is a single-player, third-person tactical shooter built for **GitHub Ga
 
 1. Install [Godot 4.7.2 stable](https://godotengine.org/download/archive/4.7.2-stable/) (standard/non-.NET).
 2. Clone this repository and import `project.godot` through the Godot Project Manager.
-3. Open or run `scenes/main.tscn`. The scene is currently a deliberately minimal scaffold, **not a playable demo**.
+3. Run `scenes/main.tscn` to enter the training arena. **WASD** moves, **mouse** looks after clicking the viewport, and **Esc** releases the cursor. Traverse the ramp to reach the elevated platform; jump/combat/SHIFT are reserved for later milestones.
 4. Run the static review audit and tests:
 
 ```bash
@@ -32,7 +32,18 @@ godot --headless --path . --import
 godot --headless --path . --quit-after 2
 ```
 
-The commands above check source/import integrity; they do **not** prove the gameplay is fun or the Web export works.
+For the MS-01 branch, also run `godot --headless --path . --script res://tests/ms01_scene_smoke.gd`. The project owner opted for manual **browser-first** gameplay QA instead of a local editor session; the completed macOS browser acceptance record and the corrected camera regression are in [the review report](docs/reviews/MS-01-review.md). Headless tests alone do not prove camera comfort. The final public Web release still requires separate browser testing.
+
+## Manual browser deployment
+
+The [GitHub Pages deployment workflow](https://github.com/mishraaditya595/swapshot/actions/workflows/deploy-web-manual.yml)
+runs **only** when the owner chooses **Run workflow**. PR opens, updates and
+merges do not publish or refresh the game. For a PR #N, choose source `pr`
+and enter its number; the preview lives at `/swapshot/pr-N/`. For the latest
+merged `main`, choose source `main` with no PR number; it publishes to
+`/swapshot/play/`. A playable PR #4 snapshot was manually deployed and
+tested on November 3, 2026. See [the acceptance record](docs/reviews/MS-01-review.md)
+for actual results and limitations.
 
 ## Browser PR previews
 

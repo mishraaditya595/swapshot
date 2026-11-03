@@ -1,0 +1,170 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
+
+[sub_resource type="StandardMaterial3D" id="FloorMat"]
+albedo_color = Color(0.16, 0.21, 0.28, 1)
+roughness = 1.0
+
+[sub_resource type="StandardMaterial3D" id="WallMat"]
+albedo_color = Color(0.28, 0.36, 0.45, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="CoverMat"]
+albedo_color = Color(0.55, 0.34, 0.20, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="PlatformMat"]
+albedo_color = Color(0.19, 0.47, 0.52, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="FloorMesh"]
+material = SubResource("FloorMat")
+size = Vector3(32, 0.5, 32)
+
+[sub_resource type="BoxShape3D" id="FloorShape"]
+size = Vector3(32, 0.5, 32)
+
+[sub_resource type="BoxMesh" id="WallMesh"]
+material = SubResource("WallMat")
+size = Vector3(32, 3.5, 0.8)
+
+[sub_resource type="BoxShape3D" id="WallShape"]
+size = Vector3(32, 3.5, 0.8)
+
+[sub_resource type="BoxMesh" id="CrateMesh"]
+material = SubResource("CoverMat")
+size = Vector3(3, 2, 3)
+
+[sub_resource type="BoxShape3D" id="CrateShape"]
+size = Vector3(3, 2, 3)
+
+[sub_resource type="BoxMesh" id="PlatformMesh"]
+material = SubResource("PlatformMat")
+size = Vector3(6, 0.5, 6)
+
+[sub_resource type="BoxShape3D" id="PlatformShape"]
+size = Vector3(6, 0.5, 6)
+
+[sub_resource type="BoxMesh" id="RampMesh"]
+material = SubResource("PlatformMat")
+size = Vector3(3.5, 0.3, 6.4)
+
+[sub_resource type="BoxShape3D" id="RampShape"]
+size = Vector3(3.5, 0.3, 6.4)
+
+[node name="TrainingArena" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.9, 0.55, -0.3)
+light_energy = 1.3
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.25, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("FloorMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("FloorShape")
+
+[node name="NorthWall" type="StaticBody3D" parent="."]
+position = Vector3(0, 1.75, -16)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="NorthWall"]
+mesh = SubResource("WallMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NorthWall"]
+shape = SubResource("WallShape")
+
+[node name="SouthWall" type="StaticBody3D" parent="."]
+position = Vector3(0, 1.75, 16)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="SouthWall"]
+mesh = SubResource("WallMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SouthWall"]
+shape = SubResource("WallShape")
+
+[node name="WestWall" type="StaticBody3D" parent="."]
+position = Vector3(-16, 1.75, 0)
+rotation = Vector3(0, 1.5707963, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WestWall"]
+mesh = SubResource("WallMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WestWall"]
+shape = SubResource("WallShape")
+
+[node name="EastWall" type="StaticBody3D" parent="."]
+position = Vector3(16, 1.75, 0)
+rotation = Vector3(0, 1.5707963, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="EastWall"]
+mesh = SubResource("WallMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EastWall"]
+shape = SubResource("WallShape")
+
+[node name="CoverA" type="StaticBody3D" parent="."]
+position = Vector3(-4, 1, 3)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CoverA"]
+mesh = SubResource("CrateMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CoverA"]
+shape = SubResource("CrateShape")
+
+[node name="CoverB" type="StaticBody3D" parent="."]
+position = Vector3(3, 1, -3)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CoverB"]
+mesh = SubResource("CrateMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CoverB"]
+shape = SubResource("CrateShape")
+
+[node name="CoverC" type="StaticBody3D" parent="."]
+position = Vector3(-7, 1, -7)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CoverC"]
+mesh = SubResource("CrateMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CoverC"]
+shape = SubResource("CrateShape")
+
+[node name="UpperLanding" type="StaticBody3D" parent="."]
+position = Vector3(9, 1.2, -10.5)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="UpperLanding"]
+mesh = SubResource("PlatformMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="UpperLanding"]
+shape = SubResource("PlatformShape")
+
+[node name="AccessRamp" type="StaticBody3D" parent="."]
+position = Vector3(9, 0.58, -4.5)
+rotation = Vector3(0.229, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="AccessRamp"]
+mesh = SubResource("RampMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AccessRamp"]
+shape = SubResource("RampShape")
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector3(0, 1.1, 10.5)
+
+[node name="Instructions" type="CanvasLayer" parent="."]
+
+[node name="ControlHints" type="Label" parent="Instructions"]
+offset_left = 18.0
+offset_top = 16.0
+offset_right = 680.0
+offset_bottom = 75.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.8, 0.97, 0.97, 1)
+theme_override_font_sizes/font_size = 19
+text = "SWAPSHOT // TRAINING ARENA
+WASD move  |  Mouse look: click to capture  |  Esc release"
