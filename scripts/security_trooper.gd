@@ -332,7 +332,7 @@ func apply_damage(amount: float) -> void:
         distraction_beacon.visible = false
         lock_cue.stop()
         # Sink the toppled mesh so it rests on the floor instead of hovering.
-        var collapse: Tween = create_tween().set_parallel(true)
+        var collapse: Tween = create_tween().set_parallel(true).set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
         collapse.tween_property(visual_root, "rotation:z", deg_to_rad(88.0), 0.42).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
         collapse.tween_property(visual_root, "position:y", -0.61, 0.42).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
         set_physics_process(false)

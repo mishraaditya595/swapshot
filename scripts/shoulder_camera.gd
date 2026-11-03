@@ -7,7 +7,7 @@ extends Camera3D
 ## At very close distances the player meshes fade, so camera retraction does
 ## not fill the view with the back of the character.
 
-@export_range(0.0, 1.5, 0.05) var shoulder_offset: float = 0.70
+@export_range(0.0, 1.5, 0.05) var shoulder_offset: float = 0.55
 @export_range(0.0, 0.2, 0.005) var clearance_margin: float = 0.04
 @export_range(1.0, 15.0, 0.5) var distance_recovery_speed: float = 5.0
 @export_range(1.0, 15.0, 0.5) var shoulder_recovery_speed: float = 3.0

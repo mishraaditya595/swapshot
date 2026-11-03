@@ -71,7 +71,7 @@ position = Vector3(0, 0.48, 0)
 
 [node name="CameraBoom" type="SpringArm3D" parent="CameraPivot"]
 position = Vector3(0, 0.13, 0)
-spring_length = 3.85
+spring_length = 3.5
 shape = SubResource("CameraProbe")
 collision_mask = 1
 
