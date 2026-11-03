@@ -121,7 +121,7 @@
 
 **Target:** Nov 10, 2026 · **Priority:** P0 · **Depends on:** MS-06 (unless explicitly reordered)
 
-- [ ] **MS-07 complete** — **Implementing PR:** —
+- [ ] **MS-07 complete** — **Implementing PR:** [#16](https://github.com/mishraaditya595/swapshot/pull/16) (draft; human playtest and acceptance outstanding)
   - [ ] Playtest camera feel, aiming, fire cadence, movement friction and SHIFT responsiveness.
   - [ ] Tune key values from observed play rather than assumed timings; capture changes in docs.
   - [ ] Reproduce and resolve remaining P0/P1 combat/SHIFT regressions from MS-01 through MS-06.
@@ -129,6 +129,8 @@
   - [ ] Document go/no-go decision for expanding into 3 zones; cut scope if the firefight is not fun.
 
 **Acceptance gate:** A complete P0 slice has no known progression blockers, reliably passes validation, and has explicit human feedback before expanding the mission.
+
+**MS-07 evidence status (Nov 3):** [Draft PR #16](https://github.com/mishraaditya595/swapshot/pull/16) adds a SHIFT-echo spawn exclusion, targeted Godot regressions, [playtest worksheet](../tests/MS-07-BROWSER-QA.md) and [review/Go-No-Go report](reviews/MS-07-review.md). Automated checks and the current Web playtest must be recorded before any tasks or the milestone are checked. **Decision: HOLD** on expanding into three zones until human gameplay feedback and the P0 safety gate are satisfied. The prior MS-06 4-HP win is a tuning lead, not new MS-07 evidence; follow [issue #15](https://github.com/mishraaditya595/swapshot/issues/15) for repeat-run difficulty analysis.
 
 ### MS-08 — Loading Dock: onboarding and first mission section
 
