@@ -89,6 +89,8 @@ func request_reload() -> bool:
 
 func fire_once() -> bool:
     # The same cooldown is used by input-driven and test-driven firing.
+    if not bool(player.get("is_alive")):
+        return false
     if is_reloading or _fire_cooldown > 0.0:
         return false
     _fire_cooldown = 60.0 / fire_rate_rpm

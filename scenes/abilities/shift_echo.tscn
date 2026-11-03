@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=5 format=3]
 
 [sub_resource type="CapsuleMesh" id="EchoBody"]
 radius = 0.34
@@ -6,6 +6,16 @@ mid_height = 1.1
 
 [sub_resource type="BoxMesh" id="EchoVisor"]
 size = Vector3(0.4, 0.22, 0.12)
+
+[sub_resource type="SphereMesh" id="EchoBeacon"]
+radius = 0.19
+height = 0.38
+
+[sub_resource type="CylinderMesh" id="EchoBase"]
+top_radius = 0.64
+bottom_radius = 0.64
+height = 0.028
+radial_segments = 24
 
 [node name="ShiftEcho" type="Node3D"]
 
@@ -15,3 +25,13 @@ mesh = SubResource("EchoBody")
 [node name="Visor" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, -0.32)
 mesh = SubResource("EchoVisor")
+
+[node name="Beacon" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.18, 0)
+mesh = SubResource("EchoBeacon")
+cast_shadow = 0
+
+[node name="BaseGlow" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.96, 0)
+mesh = SubResource("EchoBase")
+cast_shadow = 0

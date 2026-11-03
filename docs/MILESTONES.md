@@ -90,14 +90,14 @@
 
 **Target:** Nov 7, 2026 · **Priority:** P0 · **Depends on:** MS-04 (unless explicitly reordered)
 
-- [ ] **MS-05 complete** — **Implementing PR:** —
-  - [ ] Create a modular security trooper scene, damage / death responses and readable silhouettes.
-  - [ ] Implement explicit idle, alert, attack and dead states with line-of-sight checks.
-  - [ ] Give the enemy telegraphed fire, rate-limited damage and simple cover-aware repositioning if feasible.
-  - [ ] React to nearby SHIFT echoes without targeting expired echoes or attacking after death.
-  - [ ] Stage a short encounter with one or two guards and verify no shots through walls.
+- [x] **MS-05 complete** — **Implementing PR:** [#13](https://github.com/mishraaditya595/swapshot/pull/13)
+  - [x] Create a modular security trooper scene, damage / death responses and readable silhouettes.
+  - [x] Implement explicit idle, alert, attack and dead states with line-of-sight checks.
+  - [x] Give the enemy telegraphed fire, rate-limited damage and simple cover-aware repositioning if feasible.
+  - [x] React to nearby SHIFT echoes without targeting expired echoes or attacking after death.
+  - [x] Stage a short encounter with one or two guards and verify no shots through walls.
 
-**Acceptance gate:** An enemy detects, engages, reacts to SHIFT/echo and can be defeated; enemy attacks cease immediately on death.
+**Acceptance gate:** An enemy detects, engages, reacts to SHIFT/echo and can be defeated; enemy attacks cease immediately on death. **Met on Nov 3, 2026:** The owner approved the 71-second Brave/macOS PR #13 gameplay recording after reviewing the final camera fade, cover/search behavior, encounter HUD and defeat banner. The earlier 49-second recording showed SHIFT echo distraction and reacquisition twice. Headless physics smoke tests check walls, timed attacks, echo cleanup and post-death attack cancellation. Full death/restart UX, sound-level measurements and FPS profiling remain separate MS-06/MS-14 work; they were not claimed as tested in the recordings. See [MS-05 review](reviews/MS-05-review.md) and [the passing pre-acceptance CI](https://github.com/mishraaditya595/swapshot/actions/runs/41641206280).
 
 ### MS-06 — Complete P0 gameplay loop: health, HUD, victory and restart
 

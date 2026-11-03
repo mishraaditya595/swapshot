@@ -107,6 +107,8 @@ func _run() -> void:
     ability.call("_advance_lifecycle", 0.15)
     _check(ability.get("echo_instance") == null, "Echo ends after 1.5 seconds")
     _check(ended[0] == 1, "Echo end signal must fire once")
+    _check((ability.get_node("ShiftHUD/Status") as Label).text.contains("ECHO ENDED"),
+        "Echo expiry must clear SHIFT COMPLETE message without waiting for cooldown")
     await _frames(2)
     if echo != null:
         _check(not is_instance_valid(echo), "Echo must be freed")

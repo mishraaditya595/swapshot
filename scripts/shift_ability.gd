@@ -142,7 +142,7 @@ func _advance_lifecycle(delta: float) -> void:
         else:
             var ratio: float = echo_remaining_seconds / echo_lifetime_seconds
             var tint: Color = _echo_material.albedo_color
-            tint.a = 0.38 * ratio
+            tint.a = 0.60 * ratio
             _echo_material.albedo_color = tint
             echo_instance.scale = Vector3.ONE * (
                 1.0 + 0.035 * sin(echo_remaining_seconds * 18.0)
@@ -194,6 +194,8 @@ func _remove_echo() -> void:
     echo_instance = null
     echo_remaining_seconds = 0.0
     _echo_material = null
+    if owner_alive and is_inside_tree():
+        _say("ECHO ENDED  |  SHIFT RECHARGING" if cooldown_remaining_seconds > 0.0 else "SHIFT READY  |  Q to deploy")
 
 
 func _spawn_echo(world_pose: Transform3D) -> void:
@@ -202,9 +204,11 @@ func _spawn_echo(world_pose: Transform3D) -> void:
     add_child(ghost)
     ghost.top_level = true
     ghost.global_transform = world_pose
-    _echo_material = _indicator_material(Color(0.30, 0.95, 0.94, 0.38))
+    _echo_material = _indicator_material(Color(0.30, 0.95, 0.94, 0.60))
     (ghost.get_node("Body") as MeshInstance3D).material_override = _echo_material
     (ghost.get_node("Visor") as MeshInstance3D).material_override = _echo_material
+    (ghost.get_node("Beacon") as MeshInstance3D).material_override = _echo_material
+    (ghost.get_node("BaseGlow") as MeshInstance3D).material_override = _echo_material
     echo_instance = ghost
     echo_remaining_seconds = echo_lifetime_seconds
     echo_spawned.emit(ghost, ghost.global_position)

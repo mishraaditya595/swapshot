@@ -1,0 +1,129 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/security_trooper.gd" id="1_ai"]
+
+[sub_resource type="CapsuleShape3D" id="Collider"]
+radius = 0.43
+height = 1.9
+
+[sub_resource type="StandardMaterial3D" id="Armor"]
+albedo_color = Color(0.13, 0.17, 0.21, 1)
+roughness = 0.86
+
+[sub_resource type="StandardMaterial3D" id="Helmet"]
+albedo_color = Color(0.22, 0.26, 0.29, 1)
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="Amber"]
+albedo_color = Color(0.97, 0.47, 0.13, 1)
+emission_enabled = true
+emission = Color(0.7, 0.25, 0.02, 1)
+
+[sub_resource type="StandardMaterial3D" id="Gunmetal"]
+albedo_color = Color(0.07, 0.09, 0.12, 1)
+
+[sub_resource type="CapsuleMesh" id="BodyMesh"]
+radius = 0.39
+mid_height = 1.08
+material = SubResource("Armor")
+
+[sub_resource type="BoxMesh" id="HeadMesh"]
+size = Vector3(0.53, 0.37, 0.5)
+material = SubResource("Helmet")
+
+[sub_resource type="BoxMesh" id="ShouldersMesh"]
+size = Vector3(1.23, 0.28, 0.55)
+material = SubResource("Armor")
+
+[sub_resource type="BoxMesh" id="VisorMesh"]
+size = Vector3(0.42, 0.13, 0.08)
+material = SubResource("Amber")
+
+[sub_resource type="BoxMesh" id="GunMesh"]
+size = Vector3(0.2, 0.2, 0.82)
+material = SubResource("Gunmetal")
+
+[sub_resource type="SphereMesh" id="SignalMesh"]
+radius = 0.115
+height = 0.23
+
+[sub_resource type="BoxMesh" id="LegMesh"]
+size = Vector3(0.28, 0.65, 0.34)
+material = SubResource("Gunmetal")
+
+[node name="SecurityTrooper" type="StaticBody3D" groups=["enemy"]]
+collision_layer = 1
+collision_mask = 1
+script = ExtResource("1_ai")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("Collider")
+
+[node name="VisualRoot" type="Node3D" parent="."]
+rotation = Vector3(0, 3.1415927, 0)
+
+[node name="Body" type="MeshInstance3D" parent="VisualRoot"]
+mesh = SubResource("BodyMesh")
+
+[node name="LegLeft" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(-0.25, -0.67, 0)
+mesh = SubResource("LegMesh")
+
+[node name="LegRight" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0.25, -0.67, 0)
+mesh = SubResource("LegMesh")
+
+[node name="Head" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.67, 0)
+mesh = SubResource("HeadMesh")
+
+[node name="Shoulders" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.32, 0)
+mesh = SubResource("ShouldersMesh")
+
+[node name="Visor" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 0.69, -0.28)
+mesh = SubResource("VisorMesh")
+
+[node name="Weapon" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0.51, 0.16, -0.32)
+mesh = SubResource("GunMesh")
+
+[node name="Eye" type="Marker3D" parent="VisualRoot"]
+position = Vector3(0, 0.62, -0.23)
+
+[node name="Muzzle" type="Marker3D" parent="VisualRoot"]
+position = Vector3(0.51, 0.17, -0.79)
+
+[node name="AlertLamp" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 1.24, 0)
+scale = Vector3(1.65, 1.65, 1.65)
+mesh = SubResource("SignalMesh")
+visible = false
+
+[node name="WarningFlash" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0.51, 0.17, -0.83)
+scale = Vector3(3.1, 3.1, 3.1)
+mesh = SubResource("SignalMesh")
+visible = false
+
+[node name="MuzzleFlash" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0.51, 0.17, -0.84)
+scale = Vector3(2.4, 2.4, 2.4)
+mesh = SubResource("SignalMesh")
+visible = false
+
+[node name="DistractionBeacon" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0, 1.43, 0)
+scale = Vector3(2.3, 2.3, 2.3)
+mesh = SubResource("SignalMesh")
+cast_shadow = 0
+visible = false
+
+[node name="LockCue" type="AudioStreamPlayer3D" parent="."]
+unit_size = 5.0
+max_distance = 24.0
+
+[node name="ShotCue" type="AudioStreamPlayer3D" parent="."]
+unit_size = 5.0
+max_distance = 24.0
