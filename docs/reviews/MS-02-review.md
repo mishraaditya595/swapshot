@@ -26,6 +26,10 @@ The owner supplied a 42-second browser recording of PR #8 and confirmed firing, 
 - **Smallest next test:** Confirm muzzle, tracer, impact and target destruction are visible and inexpensive in a hosted browser build.
 - **Confidence:** code-inferred; no observed playtest.
 
+## Follow-up headless regression evidence
+
+[CI run 41596720686](https://github.com/mishraaditya595/swapshot/actions/runs/41596720686), commit `0a566be`, passed Godot 4.7.2 headless import, startup, MS-01 regression, static audit and the expanded MS-02 smoke. Godot reported `MS-02 SMOKE PASS: aim alignment, ammo, cadence, damage, reload, cover, HUD`. The new test checks left/right/180-degree stationary look, shoulder rifle yaw/pitch versus camera direction and the original obstruction checks. A first test iteration exposed that headless Godot cannot acquire the OS pointer: the test now drives the same pure combat pose update used by real pointer-locked input. It **does not** prove native browser pointer lock or the revised rifle looks comfortable on screen.
+
 ## Verification matrix
 
 | Check | Result | Evidence |
