@@ -6,7 +6,15 @@
 **Scope:** P0, MS-05
 **CI environment:** GitHub Actions Ubuntu runner, Godot 4.7.2 stable, Python 3.12
 **Verified gameplay commit:** `b7e93485692dcc354143873685f932c437dd9cad`
-**Decision:** LATEST CHANGES VERIFIED IN CI; FINAL BROWSER REVIEW STILL PENDING
+**Decision:** PASS WITH MINOR ISSUES — MS-05 OWNER-ACCEPTED, NOV 3, 2026
+
+## Owner acceptance, November 3, 2026
+
+The owner explicitly accepted the latest gameplay after reviewing the third uploaded PR #13 recording (approximately 71 seconds, Brave on macOS) and requested the PR be prepared for merge. The recording shows the close-cover camera fade without the previously obstructive translucent body, the guard displaying SEARCHING LAST SEEN during cover and reacquiring the player after exposure, armor staying at 52/100 while protected, brighter wall details, and the objective switching to MISSION COMPLETE / HELIX TROOPER NEUTRALIZED at approximately 66 seconds. A preceding approximately 49-second recording showed two successful SHIFT echo distractions and reacquisitions.
+
+The reviewed files are the playable PR branch up through gameplay commit b7e93485692dcc354143873685f932c437dd9cad. The exact deployed Web SHA is not available from the recordings, so this record is **visual owner acceptance of the gameplay**, not an asserted matching build hash. Godot 4.7.2 CI [41641206280](https://github.com/mishraaditya595/swapshot/actions/runs/41641206280) passed static auditing, import/startup and MS-01 through MS-05 physics smoke tests on the current gameplay changes before this documentation-only acceptance commit.
+
+**Scope result: PASS WITH MINOR ISSUES.** No remaining P0/P1 issue was demonstrated in the acceptance recording. The guard stays intentionally stationary, and the remaining low-poly asset polish belongs to MS-12. The video has no usable audio/fps measurement and does not exercise player death/Enter retry; the full game-over, victory and retry loop belongs to MS-06, and performance validation belongs to MS-14. These are recorded as unverified or deferred, not falsely marked as passed.
 
 ## Source review
 
@@ -22,22 +30,22 @@ Source review identified one P1 input edge case: the initial health guard return
 | Godot 4.7.2 import | PASS | Same run, import completed without engine errors |
 | Existing MS-01 through MS-04 physics tests | PASS | Four explicit `SMOKE PASS` lines in Godot job logs |
 | MS-05 physics test | PASS | Final run printed `MS-05 SMOKE PASS: states, LOS, cover, cadence, damage, rifle, SHIFT, death and cleanup` |
-| Human Web playtest | PARTIAL | Two owner clips on Nov 3, approximately 16.9 and 49 seconds. The second shows cover protection, cyan echo distraction/reacquisition, armor damage and a collapse. Neither clip establishes its deployed SHA. Latest camera/search/UI changes need another browser pass. |
-| Hosted browser performance and input | PARTIAL | Second clip shows mouse-controlled movement, combat, cover and SHIFT. Audio, engine FPS/frame pacing, full death/restart attempt and browser console are not verified. |
-| PR milestone acceptance | FAIL by design while unfinished | Final preview/playtest required; see [Pre-Merge run 41631866787](https://github.com/mishraaditya595/swapshot/actions/runs/41631866787) |
+| Human Web playtest | PASS for MS-05 acceptance | Three owner clips on Nov 3 (about 16.9, 49 and 71 seconds); last clip reviewed and owner explicitly accepted it. The third shows final camera/search/mission-complete behavior; second shows SHIFT distraction. Exact deployed SHA not identified. |
+| Hosted browser performance and input | PARTIAL, non-blocking for MS-05 | Browser movement and combat observed; recorded audio, engine FPS/frame pacing, death/restart and console checks remain unverified and are carried to MS-06/MS-14. |
+| PR milestone acceptance | OWNER ACCEPTED; fresh policy CI pending | Nov 3 owner sign-off after third gameplay clip. Marked complete in docs/MILESTONES.md; rerun pre-merge checks after this commit. |
 
 ## Scope acceptance
 
 | Requirement | Implemented? | Verified? |
 | --- | --- | --- |
-| Modular, damageable trooper | Yes | Headless smoke passed; silhouette still needs visual browser QA |
+| Modular, damageable trooper | Yes | Godot smoke plus owner-approved browser silhouette, hit and death presentation |
 | Idle, alert, attack, dead | Yes | MS-05 smoke passed in latest CI run |
 | Wall-protected, timed shots with real damage | Yes | MS-05 smoke passed in final gameplay CI run |
 | SHIFT echo distraction and cleanup | Yes | MS-05 smoke passed in second CI run |
-| One firefight preview | Yes | Two browser clips reviewed; cover, SHIFT and enemy defeat observed, but latest camera/search/presentation changes require playback verification |
+| One firefight preview | Yes | Owner approved the third 71-second clip showing the latest camera, search, objective and enemy-defeat behavior |
 | MS-06 full health/death/retry | Deferred by scope | NOT RUN |
 
-## Owner Web playtest procedure
+## Browser regression steps for subsequent changes
 
 Run `deploy-web-manual.yml` with source `pr` and PR `13`. Record the tested commit SHA, browser, operating system and date. In the deployed game, approach the Helix trooper and look for the amber alert lamp. Wait for its muzzle warning and observe the hit cue. Hide behind a crate, confirm no hits cross the crate, then reappear and shoot until the guard falls. Deploy an anchor with Q, SHIFT with Left Shift, and watch the guard turn toward the hologram; confirm it reacquires the player when the echo disappears. Finally, check camera movement, ADS, reload, SHIFT placement, pointer lock, sound and frame pacing. Report actual outcomes under the PR acceptance section.
 
@@ -45,7 +53,7 @@ Run `deploy-web-manual.yml` with source `pr` and PR `13`. Record the tested comm
 
 - MS-05 has a simple Enter-to-restart fallback after death; the full game-over screen, victory flow and checkpoints remain MS-06. The fallback has not been exercised in the supplied browser recordings.
 - The guard does not move around cover. The player must approach or reposition with SHIFT.
-- Browser readability, actual combat feel and performance are unverified. Do not merge until the owner accepts these behaviors.
+- Browser combat readability and feel are now owner-accepted for MS-05. Actual engine FPS/frame pacing and audio levels are not measured; retain these as release QA work.
 
 ## Exact automated checks
 
@@ -63,7 +71,7 @@ Executed by SWAPSHOT CI on the gameplay commit (run 41631866801), with successfu
 - `godot --headless --path . --script res://tests/ms05_enemy_smoke.gd`
 - `godot --headless --path . --quit-after 2`
 
-These ran in CI using the pinned Godot executable path. The manual PR Web preview workflow and hands-on browser playtest remain NOT RUN.
+These ran in CI using the pinned Godot executable path. The manual Web deployment and three owner-supplied browser playtest recordings have now been performed. The exact deployed build hash and audio/FPS measurements are not recorded.
 
 ## Resolved source-review finding
 
@@ -114,3 +122,8 @@ The new PR changes address each issue:
 **Automated evidence:** [SWAPSHOT CI #41640766303](https://github.com/mishraaditya595/swapshot/actions/runs/41640766303) succeeded on gameplay commit b7e93485692dcc354143873685f932c437dd9cad. Static checks and the Godot 4.7.2 import job passed; all five gameplay smoke suites printed SMOKE PASS. [Automated code review](https://github.com/mishraaditya595/swapshot/actions/runs/41640766327) succeeded. The separate milestone acceptance check remains incomplete pending owner review.
 
 **Latest browser replay:** Deploy PR #13 from the new head and record its SHA. Move beside and behind a crate to check that no partially transparent suit remains in front of the reticle, and that the character returns to view in open space. Let the trooper detect you, break sight behind cover, watch SEARCHING LAST SEEN for several seconds, and peek to provoke reacquisition. Eliminate the guard and check the completed mission banner. Test wall brightness, audio, frame pacing, and, in a separate attempt, death followed by Enter-to-restart. Keep this PR unmerged until the owner accepts the new build.
+
+
+## Final acceptance supersedes earlier pending notes
+
+The prior sections headed "November 3 recording follow-up" and "Second browser clip" preserve the issues and playtest steps that were open *at those earlier checkpoints*. The third recording and explicit owner approval resolve the MS-05 camera/search/mission UI acceptance questions. The current acceptance decision and matrix at the top of this review supersede their older "pending" language. Proceed through fresh CI and the normal merge policy before merging PR #13.
