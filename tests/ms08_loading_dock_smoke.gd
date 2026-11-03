@@ -109,7 +109,7 @@ func _run() -> void:
         "Successful SHIFT advances training and records one shift")
     _check(ability.get("echo_instance") != null,
         "SHIFT leaves the current P0 echo behind")
-    _check(is_equal_approx((player.get_node("CameraPivot") as Node3D).rotation.y, old_y),
+    _check(is_equal_approx((player.get_node("CameraPivot") as Node3D).rotation.y, old_yaw),
         "SHIFT preserves camera yaw")
     _check(not bool(ability.call("try_shift")),
         "Cooldown blocks repeated SHIFT input")
