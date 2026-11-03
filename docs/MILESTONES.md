@@ -45,6 +45,8 @@
 
 ### MS-02 — Rifle: shooting, aiming, damage and reload
 
+**Active implementing PR:** [#8](https://github.com/mishraaditya595/swapshot/pull/8) (draft; pending CI and manual Web acceptance). Keep the completion checkbox unmarked until every task and the acceptance gate have verified evidence.
+
 **Target:** Nov 4, 2026 · **Priority:** P0 · **Depends on:** MS-01 (unless explicitly reordered)
 
 - [ ] **MS-02 complete** — **Implementing PR:** —
