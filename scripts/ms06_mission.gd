@@ -154,9 +154,14 @@ func _activate_reinforcements() -> bool:
 func _find_spawn(guard: StaticBody3D, slot: int, chosen: Array[Vector3]) -> Vector3:
     var collision: CollisionShape3D = guard.get_node("CollisionShape3D") as CollisionShape3D
     var space: PhysicsDirectSpaceState3D = get_world_3d().direct_space_state
+    # A still-live echo must remain readable as a decoy, not become a
+    # reinforcement entry point while the player is already elsewhere.
+    var active_echo: Node3D = ability.get("echo_instance") as Node3D
     for attempt in range(SPAWN_SITES.size()):
         var point: Vector3 = SPAWN_SITES[(slot + attempt) % SPAWN_SITES.size()]
         if point.distance_to(player.global_position) < MIN_SPAWN_DISTANCE:
+            continue
+        if is_instance_valid(active_echo) and point.distance_to(active_echo.global_position) < 2.5:
             continue
         if bool(ability.get("anchor_active")) and point.distance_to(
             ability.get("anchor_point") as Vector3
