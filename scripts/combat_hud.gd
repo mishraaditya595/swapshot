@@ -4,7 +4,7 @@ extends CanvasLayer
 @onready var crosshair: Label = $Crosshair
 @onready var hit_marker: Label = $HitMarker
 @onready var reload_label: Label = $Reload
-@onready var weapon: Node = get_node("../CameraPivot/CameraBoom/Camera3D/VX7")
+@onready var weapon: Node = get_node("../VisualRoot/WeaponPivot/VX7")
 var _hit_left: float = 0.0
 
 
