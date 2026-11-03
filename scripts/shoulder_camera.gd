@@ -7,7 +7,7 @@ extends Camera3D
 ## At very close distances the player meshes fade, so camera retraction does
 ## not fill the view with the back of the character.
 
-@export_range(0.0, 1.5, 0.05) var shoulder_offset: float = 0.55
+@export_range(0.0, 1.5, 0.05) var shoulder_offset: float = 0.70
 @export_range(0.0, 0.2, 0.005) var clearance_margin: float = 0.04
 @export_range(1.0, 15.0, 0.5) var distance_recovery_speed: float = 5.0
 @export_range(1.0, 15.0, 0.5) var shoulder_recovery_speed: float = 3.0
@@ -24,6 +24,7 @@ var _visual_opacity: float = 1.0
 var _side_query: PhysicsShapeQueryParameters3D
 var _suit_material: StandardMaterial3D
 var _visor_material: StandardMaterial3D
+var _fade_materials: Array[StandardMaterial3D] = []
 
 
 func _ready() -> void:
@@ -38,6 +39,15 @@ func _ready() -> void:
     # instead, leaving shared scene materials and other players untouched.
     _suit_material = _make_fade_material(player.get_node("VisualRoot/Body") as MeshInstance3D)
     _visor_material = _make_fade_material(player.get_node("VisualRoot/Visor") as MeshInstance3D)
+    _fade_materials.append(_suit_material)
+    _fade_materials.append(_visor_material)
+    # All added character and weapon meshes fade near a retracted lens.
+    for child in player.get_node("VisualRoot").find_children("*", "MeshInstance3D", true, false):
+        var mesh: MeshInstance3D = child as MeshInstance3D
+        if mesh.name == "Body" or mesh.name == "Visor":
+            continue
+        if mesh.mesh != null and mesh.mesh.surface_get_material(0) is StandardMaterial3D:
+            _fade_materials.append(_make_fade_material(mesh))
 
 
 func _make_fade_material(mesh: MeshInstance3D) -> StandardMaterial3D:
@@ -105,7 +115,7 @@ func _update_player_visibility(delta: float) -> void:
         desired_opacity, _visual_opacity + fade_recovery_speed * delta
     )
 
-    for material: StandardMaterial3D in [_suit_material, _visor_material]:
+    for material: StandardMaterial3D in _fade_materials:
         if material == null:
             continue
         if absf(material.albedo_color.a - _visual_opacity) < 0.001:

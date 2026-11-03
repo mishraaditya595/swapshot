@@ -5,6 +5,40 @@
 [node name="CombatHUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
 
+[node name="DamageFlash" type="ColorRect" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.94, 0.08, 0.02, 0.18)
+
+[node name="Health" type="Label" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -290.0
+offset_top = 18.0
+offset_right = -20.0
+offset_bottom = 56.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 24
+text = "ARMOR  100 / 100"
+horizontal_alignment = 2
+
+[node name="Threat" type="Label" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -315.0
+offset_top = 22.0
+offset_right = 315.0
+offset_bottom = 64.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1.0, 0.73, 0.37, 1)
+theme_override_font_sizes/font_size = 24
+text = "HELIX  |  UNAWARE"
+horizontal_alignment = 1
+
 [node name="Crosshair" type="Label" parent="."]
 anchors_preset = 8
 anchor_left = 0.5
@@ -76,11 +110,11 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -150.0
-offset_top = 62.0
+offset_top = 72.0
 offset_right = 150.0
-offset_bottom = 101.0
+offset_bottom = 117.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.56, 0.29, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 23
 text = "ARMOR HIT"
 horizontal_alignment = 1

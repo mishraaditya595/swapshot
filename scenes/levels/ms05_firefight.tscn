@@ -1,9 +1,26 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/levels/greybox_arena.tscn" id="1_arena"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/security_trooper.tscn" id="2_trooper"]
 
+[sub_resource type="Environment" id="FirefightAtmosphere"]
+background_mode = 1
+background_color = Color(0.10, 0.14, 0.19, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.61, 0.71, 0.82, 1)
+ambient_light_energy = 0.85
+
 [node name="MS05Firefight" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("FirefightAtmosphere")
+
+[node name="CombatFillLight" type="OmniLight3D" parent="."]
+position = Vector3(7, 5, 5)
+light_color = Color(0.71, 0.87, 0.99, 1)
+light_energy = 0.8
+omni_range = 21.0
+shadow_enabled = false
 
 [node name="Arena" parent="." instance=ExtResource("1_arena")]
 
@@ -14,10 +31,10 @@ position = Vector3(8.0, 1.03, -1.0)
 
 [node name="HelixHint" type="Label" parent="EncounterHUD"]
 offset_left = 18.0
-offset_top = 78.0
+offset_top = 74.0
 offset_right = 735.0
 offset_bottom = 115.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.74, 0.42, 1)
-theme_override_font_sizes/font_size = 16
-text = "HELIX TROOPER  |  Hide behind crates · SHIFT to leave an echo and flank"
+theme_override_font_sizes/font_size = 20
+text = "OBJECTIVE  //  Defeat the Helix trooper   •   Crates block fire   •   SHIFT creates a decoy"

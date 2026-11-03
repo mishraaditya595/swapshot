@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/player_controller.gd" id="1_controller"]
 [ext_resource type="Script" path="res://scripts/shoulder_camera.gd" id="2_camera"]
@@ -28,6 +28,10 @@ mid_height = 1.1
 material = SubResource("VisorMaterial")
 size = Vector3(0.4, 0.22, 0.12)
 
+[sub_resource type="BoxMesh" id="PlatingMesh"]
+material = SubResource("SuitMaterial")
+size = Vector3(0.30, 0.63, 0.28)
+
 [sub_resource type="SphereShape3D" id="CameraProbe"]
 radius = 0.24
 
@@ -45,6 +49,14 @@ shape = SubResource("CapsuleCollider")
 [node name="Body" type="MeshInstance3D" parent="VisualRoot"]
 mesh = SubResource("SuitMesh")
 
+[node name="ArmLeft" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(-0.43, 0.05, 0)
+mesh = SubResource("PlatingMesh")
+
+[node name="ArmRight" type="MeshInstance3D" parent="VisualRoot"]
+position = Vector3(0.43, 0.05, 0)
+mesh = SubResource("PlatingMesh")
+
 [node name="Visor" type="MeshInstance3D" parent="VisualRoot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, -0.32)
 mesh = SubResource("VisorMesh")
@@ -59,7 +71,7 @@ position = Vector3(0, 0.48, 0)
 
 [node name="CameraBoom" type="SpringArm3D" parent="CameraPivot"]
 position = Vector3(0, 0.13, 0)
-spring_length = 3.5
+spring_length = 3.85
 shape = SubResource("CameraProbe")
 collision_mask = 1
 

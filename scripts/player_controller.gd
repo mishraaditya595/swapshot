@@ -56,6 +56,9 @@ func _unhandled_input(event: InputEvent) -> void:
         get_viewport().set_input_as_handled()
         return
     if not is_alive:
+        if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ENTER:
+            get_tree().reload_current_scene()
+            get_viewport().set_input_as_handled()
         return
 
     if event is InputEventMouseButton:
