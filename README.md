@@ -19,7 +19,7 @@ SWAPSHOT is a single-player third-person shooter for **GitHub Game Off 2026**, w
 
 1. Install [Godot 4.7.2 stable](https://godotengine.org/download/archive/4.7.2-stable/) (standard/non-.NET).
 2. Clone this repository and import `project.godot` through the Godot Project Manager.
-3. Run `scenes/main.tscn` to enter the training arena. **WASD** moves, **mouse** looks after clicking the viewport, **left mouse** fires the VX-7, **right mouse** aims (ADS), **R** reloads, **Q** places a valid anchor, **Left Shift** teleports to the placed anchor, and **Esc** releases the cursor. The initial click to capture the mouse cannot shoot. Traverse the ramp, shoot the targets, and try SHIFT from clear floor positions. MS-03 introduces placement safety; anchor expiry, cooldown, echo and enemy AI are later milestones.
+3. Run `scenes/main.tscn` to enter the training arena. **WASD** moves, **mouse** looks after clicking the viewport, **left mouse** fires the VX-7, **right mouse** aims (ADS), **R** reloads, **Q** places a valid anchor, **Left Shift** teleports to the placed anchor, and **Esc** releases the cursor. The initial click to capture the mouse cannot shoot. Traverse the ramp, shoot the targets, and try SHIFT from clear floor positions. MS-03 adds placement safety. MS-04 adds eight-second anchor expiry, four-second post-SHIFT cooldown and a 1.5-second echo. Enemy AI is a later milestone.
 4. Run the static review audit and tests:
 
 ```bash
@@ -34,7 +34,7 @@ godot --headless --path . --import
 godot --headless --path . --quit-after 2
 ```
 
-To check gameplay regressions, run `godot --headless --path . --script res://tests/ms01_scene_smoke.gd` and `godot --headless --path . --script res://tests/ms02_rifle_smoke.gd`. For SHIFT safety, run `godot --headless --path . --script res://tests/ms03_shift_smoke.gd`. The [MS-01 review report](docs/reviews/MS-01-review.md) records the owner's macOS browser playtest and a corrected camera regression. The project uses manual **browser-first** gameplay QA instead of a local editor session. Headless tests cannot establish whether the camera feels comfortable, and the final public Web release still needs its own browser test.
+To check gameplay regressions, run `godot --headless --path . --script res://tests/ms01_scene_smoke.gd` and `godot --headless --path . --script res://tests/ms02_rifle_smoke.gd`. For SHIFT safety, run `godot --headless --path . --script res://tests/ms03_shift_smoke.gd`. For lifecycle tests, run `godot --headless --path . --script res://tests/ms04_shift_lifecycle_smoke.gd`. The [MS-01 review report](docs/reviews/MS-01-review.md) records the owner's macOS browser playtest and a corrected camera regression. The project uses manual **browser-first** gameplay QA instead of a local editor session. Headless tests cannot establish whether the camera feels comfortable, and the final public Web release still needs its own browser test.
 
 ## Manual browser deployment
 
