@@ -1,6 +1,6 @@
 # MS-01 — third-person movement and training arena
 
-**Milestone:** MS-01 · **Status:** implementation proposal; manual acceptance pending.
+**Milestone:** MS-01 · **Status:** browser-based acceptance recorded on November 3, 2026; merge pending.
 **Basis:** AGENTS.md, docs/GAME_DESIGN.md, docs/ARCHITECTURE.md and docs/MILESTONES.md.
 
 ## Intent and boundaries
@@ -56,20 +56,27 @@ health, enemies, jump, UI menu systems, third-party assets or plugins here.
 
 1. Static audit, Python regression suite, tracker structural validator.
 2. Godot 4.7.2 headless import/startup plus the MS-01 physics smoke script.
-3. Human editor playtest: launch, click to lock, look 360 degrees, pitch stops
-   before vertical inversion, test W/A/S/D and diagonals, back into a wall,
-   circle cover, ascend/descend ramp, push against corner boundaries, walk
-   very close to a wall while rotating camera, Escape and click to recapture,
-   alt-tab away and back. Record Godot/OS/commit and observed results.
-4. Keep final MS-01 checklist gate **unchecked** until the manual record proves
-   camera collision and full controllability. A headless scene check is not
-   equivalent to this acceptance gate.
+3. **MS-01 owner-selected Web-first acceptance:** rather than requiring a
+   local Godot editor session, launch the manually deployed HTML5 build in
+   a desktop browser. Record the tested PR SHA, OS, movement, mouse-look,
+   Escape release/recapture, application focus loss/return (Command+Tab on
+   macOS), head-on wall/crate blocking, backward/sideways escape from contact,
+   ramp/landing traversal, and near-obstacle camera behavior. Manual recordings
+   and owner-reported outcomes are valid evidence for this Web-first milestone.
+   Native Godot GUI startup is **not** claimed; CI still checks Godot 4.7.2
+   headless import/startup and physics. The final Web release milestone
+   retains its separate hosted-release QA gate.
+4. Record the acceptance decision and any nonblocking visuals in the
+   implementing PR and review report. Do not equate passing engine physics
+   with manually observed camera feel, and do not mark a test that was not
+   actually performed.
 
 ## Risks and rollback
 
 SpringArm sweep and wall-edge behavior require human evaluation. In extremely
 narrow spaces the camera must still retract immediately for collision safety;
 this cannot be eliminated entirely without permitting geometry clipping.
-The close-up fade and eased recovery must be verified in a new manually
-deployed browser build. Restore the starter main scene and
+The close-up fade and eased recovery were checked in the user's November 3
+recording of the manually deployed build. Keep the minor close-platform dark
+geometry occlusion as a later polish observation. Restore the starter main scene and
 project inputs in the PR if runtime import fails; do not merge a blocking PR.
