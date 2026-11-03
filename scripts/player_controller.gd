@@ -1,6 +1,13 @@
 extends CharacterBody3D
 ## MS-01 third-person locomotion. Combat and SHIFT are implemented in later milestones.
 
+signal health_changed(remaining: float, maximum: float)
+signal died()
+
+@export_range(1.0, 500.0, 1.0) var max_health: float = 100.0
+var health: float = 100.0
+var is_alive: bool = true
+
 @export var move_speed: float = 6.0
 @export var acceleration: float = 22.0
 @export var deceleration: float = 28.0
@@ -15,12 +22,36 @@ extends CharacterBody3D
 
 
 func _ready() -> void:
+    health = max_health
+    health_changed.emit(health, max_health)
     # A click enters look mode. Escape (or losing window focus) releases it.
     Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
     get_window().focus_exited.connect(_release_mouse)
 
 
+# MS-05 minimal damage receiver. MS-06 owns the HUD, retry and full death flow.
+func apply_damage(amount: float) -> void:
+    if not is_alive or amount <= 0.0:
+        return
+    health = maxf(0.0, health - amount)
+    health_changed.emit(health, max_health)
+    if health <= 0.0:
+        is_alive = false
+        velocity = Vector3.ZERO
+        $ShiftAbility.set_owner_alive(false)
+        died.emit()
+
+
+func reset_health() -> void:
+    health = max_health
+    is_alive = true
+    health_changed.emit(health, max_health)
+    $ShiftAbility.set_owner_alive(true)
+
+
 func _unhandled_input(event: InputEvent) -> void:
+    if not is_alive:
+        return
     if event.is_action_pressed("release_mouse"):
         _release_mouse()
         get_viewport().set_input_as_handled()
@@ -51,6 +82,9 @@ func _apply_mouse_look(relative_motion: Vector2) -> void:
 
 
 func _physics_process(delta: float) -> void:
+    if not is_alive:
+        velocity = Vector3.ZERO
+        return
     var input_vector: Vector2 = Input.get_vector(
         "move_left", "move_right", "move_forward", "move_backward"
     )
