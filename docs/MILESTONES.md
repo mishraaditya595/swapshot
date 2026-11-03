@@ -121,7 +121,7 @@
 
 **Target:** Nov 10, 2026 · **Priority:** P0 · **Depends on:** MS-06 (unless explicitly reordered)
 
-- [ ] **MS-07 complete** — **Implementing PR:** [#16](https://github.com/mishraaditya595/swapshot/pull/16) (draft; human playtest and acceptance outstanding)
+- [ ] **MS-07 complete** — **Implementing PR:** [#16](https://github.com/mishraaditya595/swapshot/pull/16)
   - [ ] Playtest camera feel, aiming, fire cadence, movement friction and SHIFT responsiveness.
   - [ ] Tune key values from observed play rather than assumed timings; capture changes in docs.
   - [ ] Reproduce and resolve remaining P0/P1 combat/SHIFT regressions from MS-01 through MS-06.
