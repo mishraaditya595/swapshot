@@ -45,7 +45,7 @@
 
 ### MS-02 — Rifle: shooting, aiming, damage and reload
 
-**Active implementing PR:** [#8](https://github.com/mishraaditya595/swapshot/pull/8) (draft; pending CI and manual Web acceptance). Keep the completion checkbox unmarked until every task and the acceptance gate have verified evidence.
+**Active implementing PR:** [#8](https://github.com/mishraaditya595/swapshot/pull/8) (draft; owner identified aim-facing mismatch; updated branch needs new browser acceptance). Keep the completion checkbox unmarked until every task and the acceptance gate have verified evidence.
 
 **Target:** Nov 4, 2026 · **Priority:** P0 · **Depends on:** MS-01 (unless explicitly reordered)
 
@@ -55,6 +55,8 @@
   - [ ] Add damageable target(s), hit effects, crosshair feedback and minimal muzzle feedback.
   - [x] Block camera-origin shots obstructed at the muzzle by nearby cover.
   - [x] Add source-level or in-engine tests for fire-rate, reload, empty-magazine and obstruction edge cases.
+
+**Owner PR #8 browser feedback (Nov 3):** firing, reloading and aiming inputs work, but character/weapon facing remained forward during look rotation. See [aim follow-up design](plans/MS-02-aim-alignment.md). New preview gameplay verification remains outstanding.
 
 **MS-02 automated verification (Nov 3):** Godot 4.7.2 headless import, MS-01 regression, MS-02 rifle smoke (ammo, cadence, reload, target damage, close-cover obstruction, HUD), startup, and Python/static audit passed in [CI run 41586986466](https://github.com/mishraaditya595/swapshot/actions/runs/41586986466). This is **not** hosted Web/manual QA; ADS feel, VFX readability, pointer capture, and the full acceptance gate remain unchecked pending an owner playtest. See [MS-02 review](reviews/MS-02-review.md).
 
