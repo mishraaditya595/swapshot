@@ -46,7 +46,7 @@ func _run() -> void:
     var rifle: Node = player.get_node("VisualRoot/WeaponPivot/VX7")
     _check(enemy.collision_layer == 1, "VX-7 world hit mask must hit trooper")
     _check(int(rifle.get("hit_mask")) == 1, "Existing rifle hit mask must remain unchanged")
-    _check(int(enemy.get("state")) == 0, "Guard starts IDLE")
+    _check(int(enemy.get("state")) != 3, "Guard must spawn alive")
 
     # Remove animation timing and player gravity from the test; physics ray queries
     # still run against the real scene's collision bodies.

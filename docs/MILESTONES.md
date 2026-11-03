@@ -90,7 +90,7 @@
 
 **Target:** Nov 7, 2026 · **Priority:** P0 · **Depends on:** MS-04 (unless explicitly reordered)
 
-- [ ] **MS-05 complete** — **Implementing PR:** —
+- [ ] **MS-05 complete** — **Implementing PR:** [#13](https://github.com/mishraaditya595/swapshot/pull/13)
   - [ ] Create a modular security trooper scene, damage / death responses and readable silhouettes.
   - [ ] Implement explicit idle, alert, attack and dead states with line-of-sight checks.
   - [ ] Give the enemy telegraphed fire, rate-limited damage and simple cover-aware repositioning if feasible.

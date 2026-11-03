@@ -4,8 +4,12 @@ extends CanvasLayer
 @onready var crosshair: Label = $Crosshair
 @onready var hit_marker: Label = $HitMarker
 @onready var reload_label: Label = $Reload
+@onready var incoming: Label = $Incoming
+@onready var owner_player: CharacterBody3D = get_parent() as CharacterBody3D
 @onready var weapon: Node = get_node("../VisualRoot/WeaponPivot/VX7")
 var _hit_left: float = 0.0
+var _incoming_left: float = 0.0
+var _previous_health: float = 100.0
 
 
 func _ready() -> void:
@@ -15,12 +19,17 @@ func _ready() -> void:
     _set_ammo(int(weapon.get("ammo")), int(weapon.get("magazine_capacity")))
     _set_reload(bool(weapon.get("is_reloading")))
     hit_marker.visible = false
+    incoming.visible = false
+    _previous_health = float(owner_player.get("health"))
+    owner_player.connect("health_changed", _on_health_changed)
 
 
 func _process(delta: float) -> void:
     crosshair.text = "·" if bool(weapon.get("is_aiming")) else "+"
     _hit_left = maxf(0.0, _hit_left - delta)
     hit_marker.visible = _hit_left > 0.0
+    _incoming_left = maxf(0.0, _incoming_left - delta)
+    incoming.visible = _incoming_left > 0.0
 
 
 func _set_ammo(loaded: int, capacity: int) -> void:
@@ -35,3 +44,11 @@ func _set_hit(damageable_hit: bool) -> void:
     if damageable_hit:
         _hit_left = 0.13
         hit_marker.visible = true
+
+
+func _on_health_changed(remaining: float, _maximum: float) -> void:
+    if remaining < _previous_health:
+        incoming.text = "ARMOR HIT  -%d" % int(roundf(_previous_health - remaining))
+        _incoming_left = 0.7
+        incoming.visible = true
+    _previous_health = remaining

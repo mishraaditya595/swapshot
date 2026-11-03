@@ -9,3 +9,15 @@
 
 [node name="HelixTrooper" parent="." instance=ExtResource("2_trooper")]
 position = Vector3(8.0, 1.03, -1.0)
+
+[node name="EncounterHUD" type="CanvasLayer" parent="."]
+
+[node name="HelixHint" type="Label" parent="EncounterHUD"]
+offset_left = 18.0
+offset_top = 78.0
+offset_right = 735.0
+offset_bottom = 115.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.74, 0.42, 1)
+theme_override_font_sizes/font_size = 16
+text = "HELIX TROOPER  |  Hide behind crates · SHIFT to leave an echo and flank"
