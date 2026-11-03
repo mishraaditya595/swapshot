@@ -1,6 +1,6 @@
-# Technical architecture (planned, not yet implemented)
+# Technical architecture
 
-Engine Godot **4.7.2** / GDScript / GL Compatibility. Build modular scenes with minimal coupling:
+The planned architecture uses Godot **4.7.2**, GDScript, and the GL Compatibility renderer. Components should remain small enough to test independently. The table describes intended responsibilities, not the current implementation state:
 
 | System | Intended role | Likely Godot primitive |
 | --- | --- | --- |
@@ -20,10 +20,10 @@ Engine Godot **4.7.2** / GDScript / GL Compatibility. Build modular scenes with 
 - `tests/`: mechanic regressions and manual-playtest procedure
 - `docs/`: design, approved specs/plans, notes and decisions
 
-## SHIFT state-machine invariant
+## SHIFT state machine
 
-IDLE → ANCHOR_ACTIVE (with expiry) → validate again on request → TELEPORT → ECHO_ACTIVE + COOLDOWN → IDLE. Error branches return to a safe state without teleport or resource consumption. Invalid destinations should never be accepted; teleport should preserve orientation/camera intent and avoid velocity exploits. Race conditions at anchor expiry, death, cooldown and scene transitions need explicit tests.
+The intended sequence is `IDLE` → `ANCHOR_ACTIVE` (until expiry) → revalidate on activation → `TELEPORT` → `ECHO_ACTIVE` and `COOLDOWN` → `IDLE`. If validation fails, the player stays in place and the ability is not consumed. On a successful teleport, preserve the intended camera direction and prevent velocity exploits. Test the timing edge cases around anchor expiry, death, cooldown, and scene transitions.
 
 ## Dependency policy
 
-Default to built-in Godot nodes, GDScript and Python standard library for repository tooling. Do not add addons, C# dependencies, binary art packs or remote runners without a clear benefit, license/security review and developer approval.
+Use built-in Godot nodes, GDScript, and Python's standard library for repository tools by default. New addons, C# dependencies, binary art packs, or remote runners require a specific benefit, a license and security review, and developer approval.
