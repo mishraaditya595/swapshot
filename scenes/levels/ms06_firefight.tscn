@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/levels/ms05_firefight.tscn" id="1_firefight"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/security_trooper.tscn" id="2_trooper"]
