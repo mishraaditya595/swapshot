@@ -136,7 +136,7 @@
 
 **Target:** Nov 11–13, 2026 · **Priority:** P1 · **Depends on:** MS-07 (unless explicitly reordered)
 
-- [ ] **MS-08 complete** — **Implementing PR:** —
+- [ ] **MS-08 complete** — **Implementing PR:** [#17](https://github.com/mishraaditya595/swapshot/pull/17)
   - [ ] Greybox the Loading Dock with reusable containers, cover and tactical flanking lanes.
   - [ ] Teach movement, aim, anchor deployment and SHIFT through concise contextual prompts.
   - [ ] Stage a 2–3-minute opening encounter with distinct SHIFT opportunities.
@@ -144,6 +144,8 @@
   - [ ] Playtest new-player clarity, encounter pacing, spawn safety and cover integrity.
 
 **Acceptance gate:** A new player can understand SHIFT and clear the opening section without external instruction.
+
+**MS-08 work-order exception (Nov 3):** The owner explicitly authorized implementation of MS-08 while MS-07 remains unchecked with a HOLD decision. [Draft PR #17](https://github.com/mishraaditya595/swapshot/pull/17) contains the implementation for review. The exception does not complete MS-07 or waive MS-08's hosted new-player browser acceptance. Tasks remain unchecked until their respective verification evidence is recorded; see [MS-08 review](reviews/MS-08-review.md) and [browser worksheet](../tests/MS-08-BROWSER-QA.md).
 
 ### MS-09 — Security Core: vertical combat and terminal objective
 

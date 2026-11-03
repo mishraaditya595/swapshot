@@ -1,0 +1,46 @@
+# MS-08 Loading Dock browser playtest
+
+Use a fresh hosted build of [PR #17](https://github.com/mishraaditya595/swapshot/pull/17). The [manual Web deployment workflow](https://github.com/mishraaditya595/swapshot/actions/workflows/deploy-web-manual.yml) takes source `pr` and PR number `17`; it publishes under `/swapshot/pr-17/`. The preview is not automatically deployed by opening the PR.
+
+Record the build commit, browser/OS, approximate FPS and the number of attempts. Keep the opening run unscripted: do not read the control checklist before playing. Note any prompt that was missed or misunderstood.
+
+## First-time run
+
+- [ ] Spawn at the entrance, follow the cyan floor marker using WASD, and discover the rifle lesson.
+- [ ] Aim with RMB, hit the orange practice target with LMB and try R to reload.
+- [ ] Find a clear floor landing, press Q and read the anchor status. Press Left Shift while it is active.
+- [ ] Notice the echo and any guard distraction. Try at least one useful cargo flank.
+- [ ] Defeat both guards. Check that the counter reaches `2 / 2` and the exit changes to cyan.
+- [ ] Walk to the illuminated gate and press E. Confirm the outcome says `SECURITY CORE IS NEXT`, without entering an unfinished zone.
+- [ ] Record first clear time, SHIFT count, remaining armor, what felt unclear, and whether outside help was needed.
+
+## Safety, controls and replay
+
+- [ ] Try placing on a wall, beyond range and into or behind a container. Rejections should not consume a charge.
+- [ ] Place a valid anchor, then stand near an obstructed route; confirm SHIFT does not clip through cargo or into guards.
+- [ ] Let an anchor expire; try repeated Q and Shift input during cooldown. No duplicate shift or stuck indicator.
+- [ ] Check cover from both sides with the rifle and enemy fire. Shots should not pass through solid crates or containers.
+- [ ] Walk against a container and a high wall while panning the camera. Record any obstruction or abrupt jump, especially beneath wall trim or other overhead geometry.
+- [ ] Approach a live guard to point-blank range. Record whether it tracks, warns and fires as expected. This was an observation in PR #16, not a confirmed defect.
+- [ ] Lose a fight; use Enter or the retry button. Confirm that both guards, full armor, ammunition, the tutorial and the locked gate reset.
+- [ ] Win and replay. Confirm all objectives and UI return to their initial state, and test one additional clear.
+- [ ] Check Esc pointer release, recapture after returning to the tab, audio, smaller viewport readability, FPS and browser-console errors.
+
+## Feedback record
+
+| Field | Observation |
+| --- | --- |
+| PR head SHA / preview URL | |
+| Browser / OS / viewport | |
+| First-run time and attempts | |
+| SHIFTs / armor at clear | |
+| First confusing prompt | |
+| Useful flank or missed SHIFT opportunity | |
+| Camera near overhead shapes | |
+| Guard behavior at point blank | |
+| Mouse, audio, FPS, console | |
+| Victory replay and death retry | |
+| New player understood SHIFT without outside instructions? | |
+| Accept MS-08 or request changes? | |
+
+Attach a short recording or reproducible steps for any collision, camera or AI issue. A headless smoke PASS is separate from this browser acceptance.
