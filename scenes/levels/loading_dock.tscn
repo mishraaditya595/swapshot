@@ -1,0 +1,329 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://scripts/ms08_loading_dock.gd" id="1_director"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/target_dummy.tscn" id="3_target"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/security_trooper.tscn" id="4_guard"]
+[ext_resource type="PackedScene" path="res://scenes/levels/props/dock_container.tscn" id="5_container"]
+[ext_resource type="PackedScene" path="res://scenes/levels/props/dock_crate.tscn" id="6_crate"]
+
+[sub_resource type="Environment" id="DockAtmosphere"]
+background_mode = 1
+background_color = Color(0.17, 0.23, 0.28, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.59, 0.75, 0.84, 1)
+ambient_light_energy = 1.0
+
+[sub_resource type="StandardMaterial3D" id="Concrete"]
+albedo_color = Color(0.16, 0.22, 0.28, 1)
+roughness = 0.96
+
+[sub_resource type="StandardMaterial3D" id="WallSteel"]
+albedo_color = Color(0.27, 0.35, 0.41, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="CyanGuide"]
+shading_mode = 0
+albedo_color = Color(0.20, 0.85, 0.85, 1)
+emission_enabled = true
+emission = Color(0.14, 0.56, 0.64, 1)
+emission_energy_multiplier = 0.9
+
+[sub_resource type="StandardMaterial3D" id="AmberDoor"]
+albedo_color = Color(0.49, 0.29, 0.15, 1)
+roughness = 0.74
+
+[sub_resource type="BoxMesh" id="FloorMesh"]
+size = Vector3(36, 0.5, 44)
+material = SubResource("Concrete")
+
+[sub_resource type="BoxShape3D" id="FloorCollider"]
+size = Vector3(36, 0.5, 44)
+
+[sub_resource type="BoxMesh" id="WallShortMesh"]
+size = Vector3(36, 4.2, 0.7)
+material = SubResource("WallSteel")
+
+[sub_resource type="BoxShape3D" id="WallShortCollider"]
+size = Vector3(36, 4.2, 0.7)
+
+[sub_resource type="BoxMesh" id="WallLongMesh"]
+size = Vector3(44, 4.2, 0.7)
+material = SubResource("WallSteel")
+
+[sub_resource type="BoxShape3D" id="WallLongCollider"]
+size = Vector3(44, 4.2, 0.7)
+
+[sub_resource type="BoxMesh" id="GuideMesh"]
+size = Vector3(3.5, 0.035, 2.5)
+material = SubResource("CyanGuide")
+
+[sub_resource type="BoxMesh" id="DoorMesh"]
+size = Vector3(4.8, 3.0, 0.16)
+material = SubResource("AmberDoor")
+
+[sub_resource type="BoxMesh" id="BeaconMesh"]
+size = Vector3(4.8, 0.24, 0.22)
+material = SubResource("CyanGuide")
+
+[sub_resource type="BoxShape3D" id="RouteShape"]
+size = Vector3(9, 2.5, 4.0)
+
+[node name="LoadingDock" type="Node3D"]
+script = ExtResource("1_director")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("DockAtmosphere")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.9, 0.5, -0.3)
+light_energy = 1.1
+shadow_enabled = true
+
+[node name="DockFillLight" type="OmniLight3D" parent="."]
+position = Vector3(0, 4.8, 5)
+light_color = Color(0.70, 0.87, 1.0, 1)
+light_energy = 0.8
+omni_range = 18.0
+shadow_enabled = false
+
+[node name="GateFillLight" type="OmniLight3D" parent="."]
+position = Vector3(0, 3.7, -18.7)
+light_color = Color(0.3, 0.93, 0.94, 1)
+light_energy = 0.6
+omni_range = 10.0
+shadow_enabled = false
+
+[node name="Floor" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.25, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("FloorMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("FloorCollider")
+
+[node name="NorthWall" type="StaticBody3D" parent="."]
+position = Vector3(0, 2.1, -22)
+
+[node name="Mesh" type="MeshInstance3D" parent="NorthWall"]
+mesh = SubResource("WallShortMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NorthWall"]
+shape = SubResource("WallShortCollider")
+
+[node name="SouthWall" type="StaticBody3D" parent="."]
+position = Vector3(0, 2.1, 22)
+
+[node name="Mesh" type="MeshInstance3D" parent="SouthWall"]
+mesh = SubResource("WallShortMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SouthWall"]
+shape = SubResource("WallShortCollider")
+
+[node name="WestWall" type="StaticBody3D" parent="."]
+position = Vector3(-18, 2.1, 0)
+rotation = Vector3(0, 1.5707963, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="WestWall"]
+mesh = SubResource("WallLongMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WestWall"]
+shape = SubResource("WallLongCollider")
+
+[node name="EastWall" type="StaticBody3D" parent="."]
+position = Vector3(18, 2.1, 0)
+rotation = Vector3(0, 1.5707963, 0)
+
+[node name="Mesh" type="MeshInstance3D" parent="EastWall"]
+mesh = SubResource("WallLongMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EastWall"]
+shape = SubResource("WallLongCollider")
+
+[node name="ContainerWestArrival" parent="." instance=ExtResource("5_container")]
+position = Vector3(-9.3, 1.4, 9)
+
+[node name="ContainerWestDivider" parent="." instance=ExtResource("5_container")]
+position = Vector3(-6.8, 1.4, 0)
+
+[node name="ContainerWestNorth" parent="." instance=ExtResource("5_container")]
+position = Vector3(-10.5, 1.4, -8)
+
+[node name="ContainerEastArrival" parent="." instance=ExtResource("5_container")]
+position = Vector3(9.4, 1.4, 7)
+
+[node name="ContainerEastDivider" parent="." instance=ExtResource("5_container")]
+position = Vector3(6.8, 1.4, -4.5)
+
+[node name="ContainerEastNorth" parent="." instance=ExtResource("5_container")]
+position = Vector3(10.5, 1.4, -11)
+
+[node name="CrateTrainingCover" parent="." instance=ExtResource("6_crate")]
+position = Vector3(3.6, 1, 10)
+
+[node name="CrateWestCover" parent="." instance=ExtResource("6_crate")]
+position = Vector3(-3.6, 1, -7)
+
+[node name="CrateCentralCover" parent="." instance=ExtResource("6_crate")]
+position = Vector3(0.3, 1, -10.5)
+
+[node name="CrateEastCover" parent="." instance=ExtResource("6_crate")]
+position = Vector3(3.8, 1, -13)
+
+[node name="EntryGuide" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.04, 12)
+mesh = SubResource("GuideMesh")
+cast_shadow = 0
+
+[node name="ExitGuide" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.04, -18.5)
+mesh = SubResource("GuideMesh")
+cast_shadow = 0
+
+[node name="GateDoor" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.5, -21.52)
+mesh = SubResource("DoorMesh")
+
+[node name="GateBeacon" type="MeshInstance3D" parent="."]
+position = Vector3(0, 3.16, -21.25)
+mesh = SubResource("BeaconMesh")
+cast_shadow = 0
+
+[node name="ExitPoint" type="Marker3D" parent="."]
+position = Vector3(0, 1.1, -18.7)
+
+[node name="RouteZone" type="Area3D" parent="."]
+position = Vector3(0, 1.25, 12)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RouteZone"]
+shape = SubResource("RouteShape")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector3(0, 1.1, 17)
+
+[node name="PracticeTarget" parent="." instance=ExtResource("3_target")]
+position = Vector3(1.0, 1.0, 7)
+
+[node name="GuardWest" parent="." instance=ExtResource("4_guard")]
+position = Vector3(-7.0, 1.03, -15.0)
+shot_damage = 8.0
+fire_interval_seconds = 1.7
+
+[node name="GuardEast" parent="." instance=ExtResource("4_guard")]
+position = Vector3(7.0, 1.03, -17.0)
+shot_damage = 8.0
+fire_interval_seconds = 1.7
+
+[node name="DockHUD" type="CanvasLayer" parent="."]
+
+[node name="HeaderBackdrop" type="ColorRect" parent="DockHUD"]
+offset_left = 10.0
+offset_top = 94.0
+offset_right = 1210.0
+offset_bottom = 178.0
+mouse_filter = 2
+color = Color(0.02, 0.06, 0.10, 0.78)
+
+[node name="Objective" type="Label" parent="DockHUD"]
+offset_left = 18.0
+offset_top = 99.0
+offset_right = 1200.0
+offset_bottom = 133.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 25
+text = "OBJECTIVE / CLEAR DOCK SECURITY 0 / 2"
+
+[node name="Hint" type="Label" parent="DockHUD"]
+offset_left = 18.0
+offset_top = 139.0
+offset_right = 1190.0
+offset_bottom = 177.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.76, 0.98, 0.98, 1)
+theme_override_font_sizes/font_size = 19
+text = "01 / WASD MOVE TO THE CYAN COVER MARKER"
+
+[node name="Clock" type="Label" parent="DockHUD"]
+offset_left = 18.0
+offset_top = 205.0
+offset_right = 690.0
+offset_bottom = 248.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.65, 0.92, 0.96, 1)
+theme_override_font_sizes/font_size = 22
+text = "LOADING DOCK 00:00 | SHIFTS 0"
+
+[node name="Feedback" type="Label" parent="DockHUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -510.0
+offset_top = 271.0
+offset_right = 510.0
+offset_bottom = 315.0
+mouse_filter = 2
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.62, 0.96, 0.91, 1)
+theme_override_font_sizes/font_size = 24
+
+[node name="Outcome" type="CanvasLayer" parent="."]
+layer = 15
+visible = false
+
+[node name="Dim" type="ColorRect" parent="Outcome"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.01, 0.035, 0.06, 0.86)
+
+[node name="Card" type="ColorRect" parent="Outcome"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -430.0
+offset_top = -205.0
+offset_right = 430.0
+offset_bottom = 205.0
+color = Color(0.07, 0.13, 0.18, 0.98)
+
+[node name="Kicker" type="Label" parent="Outcome/Card"]
+offset_left = 26.0
+offset_top = 20.0
+offset_right = 834.0
+offset_bottom = 65.0
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.68, 0.89, 0.94, 1)
+theme_override_font_sizes/font_size = 23
+text = "HELIX FACILITY / OPERATION ZERO HOUR"
+
+[node name="Title" type="Label" parent="Outcome/Card"]
+offset_left = 16.0
+offset_top = 83.0
+offset_right = 844.0
+offset_bottom = 153.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 43
+text = "LOADING DOCK SECURED"
+
+[node name="Details" type="Label" parent="Outcome/Card"]
+offset_left = 26.0
+offset_top = 158.0
+offset_right = 834.0
+offset_bottom = 310.0
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.88, 0.94, 0.96, 1)
+theme_override_font_sizes/font_size = 23
+text = "SECURITY CORE IS NEXT"
+
+[node name="ReplayButton" type="Button" parent="Outcome/Card"]
+offset_left = 223.0
+offset_top = 324.0
+offset_right = 637.0
+offset_bottom = 387.0
+theme_override_font_sizes/font_size = 25
+text = "REPLAY LOADING DOCK [ENTER]"

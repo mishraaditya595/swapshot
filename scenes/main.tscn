@@ -1,7 +1,7 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/levels/ms06_firefight.tscn" id="1_encounter"]
+[ext_resource type="PackedScene" path="res://scenes/levels/loading_dock.tscn" id="1_dock"]
 
 [node name="Swapshot" type="Node3D"]
 
-[node name="Firefight" parent="." instance=ExtResource("1_encounter")]
+[node name="LoadingDock" parent="." instance=ExtResource("1_dock")]
