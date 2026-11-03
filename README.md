@@ -34,6 +34,17 @@ godot --headless --path . --quit-after 2
 
 The commands above check source/import integrity; they do **not** prove the gameplay is fun or the Web export works.
 
+## Browser PR previews
+
+Web deployment is **manual only**. Opening, updating, or merging a PR does
+not deploy anything. After the [manual Pages deployment infrastructure](docs/PR_WEB_PREVIEWS.md)
+is merged and GitHub Pages is enabled, choose **Actions → SWAPSHOT Deploy Web
+to GitHub Pages (Manual) → Run workflow** to publish a specific open PR
+(`/swapshot/pr-N/`) or the latest merged `main` (`/swapshot/play/`).
+The [preview hub](https://mishraaditya595.github.io/swapshot/) lists
+previously deployed snapshots. Browser QA is still required before a gameplay
+milestone can be accepted.
+
 ## Development milestones
 
 **[View the full milestone/PR checklist](docs/MILESTONES.md)** — the single source of truth from the first gameplay GDScript to release. Each milestone is its own PR. Coding agents must tick its verified tasks, check off the completed milestone and record the **actual PR number/link in the same file** before asking to merge. Milestone MS-00 (repository bootstrap) is already completed by [PR #1](https://github.com/mishraaditya595/swapshot/pull/1); gameplay milestones remain pending.

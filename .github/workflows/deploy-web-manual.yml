@@ -1,0 +1,299 @@
+name: SWAPSHOT Deploy Web to GitHub Pages (Manual)
+
+# Owner-initiated only. Opening/updating/merging PRs and pushes to main
+# can run CI, but NEVER build or deploy a Pages site.
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "Which revision should be published?"
+        required: true
+        default: pr
+        type: choice
+        options:
+          - pr
+          - main
+      pr_number:
+        description: "PR number when source=pr (e.g. 4); leave blank for main"
+        required: false
+        type: string
+
+concurrency:
+  group: swapshot-manual-pages
+  cancel-in-progress: false
+
+# Default and export jobs never receive deployment or repository write tokens.
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    name: Validate manually selected game revision
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      sha: ${{ steps.select.outputs.sha }}
+      dest: ${{ steps.select.outputs.dest }}
+      label: ${{ steps.select.outputs.label }}
+      source: ${{ steps.select.outputs.source }}
+    steps:
+      - name: Resolve PR head or latest main commit
+        id: select
+        uses: actions/github-script@v7
+        env:
+          PREVIEW_SOURCE: ${{ inputs.source }}
+          PREVIEW_PR: ${{ inputs.pr_number }}
+        with:
+          script: |
+            const source = process.env.PREVIEW_SOURCE;
+            const raw = (process.env.PREVIEW_PR || '').trim();
+            const repoName = context.repo.owner + '/' + context.repo.repo;
+            if (source === 'pr') {
+              if (!/^[1-9]\d{0,8}$/.test(raw)) {
+                throw new Error('Choose source=pr and provide a valid PR number');
+              }
+              const number = Number(raw);
+              const { data: pr } = await github.rest.pulls.get({
+                ...context.repo, pull_number: number
+              });
+              if (pr.head.repo?.full_name !== repoName || pr.base.ref !== 'main') {
+                throw new Error('Only same-repo PRs targeting main are supported');
+              }
+              if (pr.state !== 'open') {
+                throw new Error('Use source=main for merged changes; PR must be open');
+              }
+              core.setOutput('sha', pr.head.sha);
+              core.setOutput('dest', 'pr-' + number);
+              core.setOutput('label', 'PR #' + number);
+              core.setOutput('source', 'pr');
+            } else if (source === 'main') {
+              if (raw) throw new Error('Leave PR number empty when source=main');
+              const { data: branch } = await github.rest.repos.getBranch({
+                ...context.repo, branch: 'main'
+              });
+              core.setOutput('sha', branch.commit.sha);
+              core.setOutput('dest', 'play');
+              core.setOutput('label', 'latest main build');
+              core.setOutput('source', 'main');
+            } else {
+              throw new Error('Invalid source input: choose pr or main');
+            }
+
+  build:
+    name: Export selected Godot revision for Web
+    needs: resolve
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - name: Check out trusted Web export configuration from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: trusted
+          persist-credentials: false
+
+      - name: Check out explicitly selected game revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+          path: game
+          persist-credentials: false
+
+      - name: Restore matching Godot 4.7.2 Web template cache
+        uses: actions/cache@v4
+        id: web-template
+        with:
+          path: |
+            ~/.local/share/godot/export_templates/4.7.2.stable/web_nothreads_release.zip
+            ~/.local/share/godot/export_templates/4.7.2.stable/web_nothreads_debug.zip
+          key: swapshot-godot-4.7.2-stable-web-nothreads-v2
+
+      - name: Install Godot 4.7.2 stable editor
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 \
+            https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip \
+            -o "$RUNNER_TEMP/godot-editor.zip"
+          mkdir -p "$RUNNER_TEMP/godot-bin"
+          unzip -q "$RUNNER_TEMP/godot-editor.zip" -d "$RUNNER_TEMP/godot-bin"
+          chmod +x "$RUNNER_TEMP/godot-bin/Godot_v4.7.2-stable_linux.x86_64"
+          "$RUNNER_TEMP/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --version
+
+      - name: Install official Godot 4.7.2 non-threaded Web templates
+        if: steps.web-template.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Official release archive (~1.2 GiB); only Web variants are cached.
+          curl --fail --location --retry 3 \
+            https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz \
+            -o "$RUNNER_TEMP/export-templates.tpz"
+          dir="$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          mkdir -p "$dir"
+          for template in web_nothreads_release web_nothreads_debug; do
+            unzip -p "$RUNNER_TEMP/export-templates.tpz" "templates/$template.zip" > "$dir/$template.zip"
+            test -s "$dir/$template.zip"
+            unzip -tqq "$dir/$template.zip"
+          done
+          rm -f "$RUNNER_TEMP/export-templates.tpz"
+
+      - name: Import and export selected game revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The source PR cannot replace the trusted CI Web export preset.
+          cp "$GITHUB_WORKSPACE/trusted/.github/web-preview-export-presets.cfg" \
+            "$GITHUB_WORKSPACE/game/export_presets.cfg"
+          test -s "$HOME/.local/share/godot/export_templates/4.7.2.stable/web_nothreads_release.zip"
+          test -s "$HOME/.local/share/godot/export_templates/4.7.2.stable/web_nothreads_debug.zip"
+          mkdir -p "$RUNNER_TEMP/web-preview"
+          godot="$RUNNER_TEMP/godot-bin/Godot_v4.7.2-stable_linux.x86_64"
+          "$godot" --headless --path "$GITHUB_WORKSPACE/game" --import \
+            2>&1 | tee "$RUNNER_TEMP/web-import.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error:|ERROR:' "$RUNNER_TEMP/web-import.log"; then
+            echo "Godot import failed" >&2
+            exit 1
+          fi
+          "$godot" --headless --path "$GITHUB_WORKSPACE/game" \
+            --export-release Web "$RUNNER_TEMP/web-preview/index.html" \
+            2>&1 | tee "$RUNNER_TEMP/web-export.log"
+          if grep -E 'SCRIPT ERROR:|Parse Error:|ERROR:' "$RUNNER_TEMP/web-export.log"; then
+            echo "Godot Web export failed" >&2
+            exit 1
+          fi
+          python3 "$GITHUB_WORKSPACE/trusted/.github/scripts/verify_web_preview.py" \
+            "$RUNNER_TEMP/web-preview"
+
+      - name: Upload selected browser build
+        uses: actions/upload-artifact@v4
+        with:
+          name: swapshot-manual-web-build
+          path: ${{ runner.temp }}/web-preview/
+          if-no-files-found: error
+          retention-days: 7
+
+  stage:
+    name: Stage selected snapshot on GitHub Pages
+    needs: [resolve, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check source is still the explicitly selected revision
+        uses: actions/github-script@v7
+        env:
+          PREVIEW_SOURCE: ${{ needs.resolve.outputs.source }}
+          PREVIEW_SHA: ${{ needs.resolve.outputs.sha }}
+          PREVIEW_DEST: ${{ needs.resolve.outputs.dest }}
+        with:
+          script: |
+            const source = process.env.PREVIEW_SOURCE;
+            const sha = process.env.PREVIEW_SHA;
+            const dest = process.env.PREVIEW_DEST;
+            if (source === 'pr') {
+              const number = Number(dest.replace(/^pr-/, ''));
+              const { data: pr } = await github.rest.pulls.get({
+                ...context.repo, pull_number: number
+              });
+              if (pr.state !== 'open' || pr.base.ref !== 'main' ||
+                  pr.head.repo?.full_name !== context.repo.owner + '/' + context.repo.repo ||
+                  pr.head.sha !== sha) {
+                throw new Error('PR changed or closed during export; run deployment again');
+              }
+            } else if (source === 'main') {
+              const { data: branch } = await github.rest.repos.getBranch({
+                ...context.repo, branch: 'main'
+              });
+              if (branch.commit.sha !== sha) {
+                throw new Error('main changed during export; run deployment again');
+              }
+            } else {
+              throw new Error('Invalid source');
+            }
+
+      - name: Check out trusted publishing scripts from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+
+      - name: Download build from this manual workflow run
+        uses: actions/download-artifact@v4
+        with:
+          name: swapshot-manual-web-build
+          path: ${{ runner.temp }}/preview
+
+      - name: Verify downloaded browser assets
+        shell: bash
+        run: python3 .github/scripts/verify_web_preview.py "$RUNNER_TEMP/preview"
+
+      - name: Preserve selected snapshot in gh-pages branch
+        shell: bash
+        env:
+          DEST: ${{ needs.resolve.outputs.dest }}
+          PREVIEW_SHA: ${{ needs.resolve.outputs.sha }}
+          PREVIEW_LABEL: ${{ needs.resolve.outputs.label }}
+        run: |
+          set -euo pipefail
+          cp .github/scripts/render_pr_previews.py "$RUNNER_TEMP/render_pr_previews.py"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin gh-pages; then
+            git fetch origin gh-pages
+            git checkout -B gh-pages FETCH_HEAD
+          else
+            git checkout --orphan gh-pages
+            git rm -r -f --ignore-unmatch .
+          fi
+          mkdir -p "$DEST"
+          find "$DEST" -mindepth 1 -maxdepth 1 -exec rm -rf -- {} +
+          cp -a "$RUNNER_TEMP/preview/." "$DEST/"
+          python3 "$RUNNER_TEMP/render_pr_previews.py" "$PWD"
+          touch .nojekyll
+          git add --all
+          if ! git diff --cached --quiet; then
+            git commit -m "ci: manually publish $PREVIEW_LABEL ($PREVIEW_SHA)"
+            git push origin gh-pages
+          fi
+          mkdir -p "$RUNNER_TEMP/pages-dist"
+          rsync -a --exclude='.git' ./ "$RUNNER_TEMP/pages-dist/"
+          test -s "$RUNNER_TEMP/pages-dist/$DEST/index.html"
+          echo "Staged: https://mishraaditya595.github.io/swapshot/$DEST/" \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Configure Pages for manual deployment
+        uses: actions/configure-pages@v5
+
+      - name: Upload complete Pages site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/pages-dist
+
+  deploy:
+    name: Deploy selected revision to GitHub Pages
+    needs: [resolve, stage]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Show manually published playable URL
+        shell: bash
+        env:
+          DEST: ${{ needs.resolve.outputs.dest }}
+          PREVIEW_LABEL: ${{ needs.resolve.outputs.label }}
+        run: |
+          echo "### Browser-playable $PREVIEW_LABEL" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://mishraaditya595.github.io/swapshot/$DEST/" \
+            >> "$GITHUB_STEP_SUMMARY"
