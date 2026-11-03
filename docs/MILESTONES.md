@@ -77,7 +77,7 @@
 
 **Target:** Nov 6, 2026 · **Priority:** P0 · **Depends on:** MS-03 (unless explicitly reordered)
 
-- [ ] **MS-04 complete** — **Implementing PR:** —
+- [ ] **MS-04 complete** — **Implementing PR:** [#12](https://github.com/mishraaditya595/swapshot/pull/12)
   - [ ] Implement a single active anchor, eight-second expiry and a four-second post-SHIFT cooldown (tunable).
   - [ ] Spawn a 1.5-second holographic echo after successful teleport; dispose it reliably.
   - [ ] Emit clear state signals for the HUD and future enemy AI; add simple SHIFT visuals / audio cues.
