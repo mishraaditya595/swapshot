@@ -5,8 +5,8 @@
 **Branch / PR:** `feat/ms-05-security-trooper`, [#13](https://github.com/mishraaditya595/swapshot/pull/13)
 **Scope:** P0, MS-05
 **CI environment:** GitHub Actions Ubuntu runner, Godot 4.7.2 stable, Python 3.12
-**Verified gameplay commit:** `b1f17a839cdf1250a6c451ba8abc5e69a566258a`
-**Decision:** UPDATED AFTER VIDEO REVIEW; CODE VERIFIED, REVISED BROWSER BUILD NOT YET PLAYTESTED
+**Verified gameplay commit:** `b7e93485692dcc354143873685f932c437dd9cad`
+**Decision:** LATEST CHANGES VERIFIED IN CI; FINAL BROWSER REVIEW STILL PENDING
 
 ## Source review
 
@@ -22,8 +22,8 @@ Source review identified one P1 input edge case: the initial health guard return
 | Godot 4.7.2 import | PASS | Same run, import completed without engine errors |
 | Existing MS-01 through MS-04 physics tests | PASS | Four explicit `SMOKE PASS` lines in Godot job logs |
 | MS-05 physics test | PASS | Final run printed `MS-05 SMOKE PASS: states, LOS, cover, cadence, damage, rifle, SHIFT, death and cleanup` |
-| Human Web playtest | PARTIAL, superseded build | Owner supplied a 16.9-second Brave/macOS recording on Nov 3; confirms a basic firefight and revealed presentation issues. The exact deployed commit SHA was not provided. Revised PR head needs a new recording. |
-| Hosted browser performance and input | PARTIAL | Recording shows mouse-controlled movement, enemy fire, SHIFT and elimination; no audio track, FPS measurements, browser console or explicit cover/distraction verification. |
+| Human Web playtest | PARTIAL | Two owner clips on Nov 3, approximately 16.9 and 49 seconds. The second shows cover protection, cyan echo distraction/reacquisition, armor damage and a collapse. Neither clip establishes its deployed SHA. Latest camera/search/UI changes need another browser pass. |
+| Hosted browser performance and input | PARTIAL | Second clip shows mouse-controlled movement, combat, cover and SHIFT. Audio, engine FPS/frame pacing, full death/restart attempt and browser console are not verified. |
 | PR milestone acceptance | FAIL by design while unfinished | Final preview/playtest required; see [Pre-Merge run 41631866787](https://github.com/mishraaditya595/swapshot/actions/runs/41631866787) |
 
 ## Scope acceptance
@@ -34,7 +34,7 @@ Source review identified one P1 input edge case: the initial health guard return
 | Idle, alert, attack, dead | Yes | MS-05 smoke passed in latest CI run |
 | Wall-protected, timed shots with real damage | Yes | MS-05 smoke passed in final gameplay CI run |
 | SHIFT echo distraction and cleanup | Yes | MS-05 smoke passed in second CI run |
-| One firefight preview | Yes | Initial browser clip reviewed; follow-up build still requires manual acceptance |
+| One firefight preview | Yes | Two browser clips reviewed; cover, SHIFT and enemy defeat observed, but latest camera/search/presentation changes require playback verification |
 | MS-06 full health/death/retry | Deferred by scope | NOT RUN |
 
 ## Owner Web playtest procedure
@@ -43,7 +43,7 @@ Run `deploy-web-manual.yml` with source `pr` and PR `13`. Record the tested comm
 
 ## Remaining risks
 
-- MS-05 has no player restart/game-over implementation. Dying requires restarting the current scene outside the gameplay UI; MS-06 owns that loop.
+- MS-05 has a simple Enter-to-restart fallback after death; the full game-over screen, victory flow and checkpoints remain MS-06. The fallback has not been exercised in the supplied browser recordings.
 - The guard does not move around cover. The player must approach or reposition with SHIFT.
 - Browser readability, actual combat feel and performance are unverified. Do not merge until the owner accepts these behaviors.
 
@@ -97,3 +97,20 @@ Deploy PR #13 again and record the **actual deployed SHA**:
 6. Allow defeat in a separate attempt: check persistent armor, damage overlay, cursor release and Enter retry. Exercise ADS/reload, camera clipping near crates, audio, FPS and pacing.
 
 **Acceptance remains pending.** Keep PR #13 in draft and MS-05 incomplete until a human tests the revised deployed SHA. Automated cover/echo checks are not a substitute for browser acceptance.
+
+## Second browser clip and follow-up fixes, November 3
+
+The owner supplied a second PR #13 Brave/macOS clip, approximately 49 seconds long. It shows amber shot warnings and armor damage in 12-point steps, several seconds of protection behind cover, two SHIFT echo distractions with reacquisition messages, and the trooper collapsing. The video does not identify the deployed commit SHA or provide usable audio/FPS measurements.
+
+The clip also exposed a partially transparent player model blocking the camera near cover at about 19 seconds, rapid loss of enemy alertness, a dark upper wall and an unchanged mission label after the guard was defeated.
+
+The new PR changes address each issue:
+
+- Camera: scripts/shoulder_camera.gd begins fading at 2.85 m and makes the suit and weapon fully transparent by 2.1 m. The boom, muzzle and crosshair rays remain fixed. The MS-05 smoke test checks near-cover body, arm and rifle opacity and recovery in open space.
+- Enemy: scripts/security_trooper.gd gains a SEARCH state after the existing four state IDs. A trooper that loses sight watches its last visible target point for 2.6 seconds without firing or following a hidden player through cover, then returns to idle if no sightline returns. The test moves the player behind a solid barrier and verifies the stored point, attack cancellation and reacquisition.
+- Arena: scenes/levels/ms05_firefight.tscn adds ambient/fill lighting and non-colliding wall ribs and light strips. No physics cover or SHIFT landing geometry changes.
+- Interface: scripts/combat_hud.gd and scenes/ui/combat_hud.tscn add contrast panels and clearer danger/cyan state colors. scripts/ms05_presentation.gd changes the objective to MISSION COMPLETE when the lone trooper is eliminated. Full victory/retry flow remains MS-06.
+
+**Automated evidence:** [SWAPSHOT CI #41640766303](https://github.com/mishraaditya595/swapshot/actions/runs/41640766303) succeeded on gameplay commit b7e93485692dcc354143873685f932c437dd9cad. Static checks and the Godot 4.7.2 import job passed; all five gameplay smoke suites printed SMOKE PASS. [Automated code review](https://github.com/mishraaditya595/swapshot/actions/runs/41640766327) succeeded. The separate milestone acceptance check remains incomplete pending owner review.
+
+**Latest browser replay:** Deploy PR #13 from the new head and record its SHA. Move beside and behind a crate to check that no partially transparent suit remains in front of the reticle, and that the character returns to view in open space. Let the trooper detect you, break sight behind cover, watch SEARCHING LAST SEEN for several seconds, and peek to provoke reacquisition. Eliminate the guard and check the completed mission banner. Test wall brightness, audio, frame pacing, and, in a separate attempt, death followed by Enter-to-restart. Keep this PR unmerged until the owner accepts the new build.
