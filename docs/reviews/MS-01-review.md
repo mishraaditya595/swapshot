@@ -1,9 +1,9 @@
 # MS-01 — SWAPSHOT code review and regression fix report
 
-**Repository:** `mishraaditya595/swapshot`, draft [PR #4](https://github.com/mishraaditya595/swapshot/pull/4)  
+**Repository:** `mishraaditya595/swapshot`, [PR #4](https://github.com/mishraaditya595/swapshot/pull/4)  
 **Scope:** MS-01, third-person movement, camera and greybox arena (P0)  
 **Verification engine:** Godot 4.7.2 stable, Linux headless, via GitHub Actions  
-**Review decision:** INSUFFICIENT EVIDENCE to complete MS-01: user browser recording exposed a new P1 camera-framing issue. Automated recovery/fade regressions are now green; a fresh browser QA pass on the updated build remains required. **Do not merge until manual acceptance is recorded.**
+**Review decision:** PASS WITH ISSUES for MS-01's Web-first gameplay foundation. The updated Web build was manually tested on macOS by the project owner (video plus subsequent control/collision confirmations). The original abrupt camera zoom is not apparent in the updated recording. A small dark-surface occlusion is recorded as a nonblocking polish observation. Native editor GUI and release-level Web QA are not claimed; merge remains subject to fresh CI and review.
 
 ## Source-confirmed defects and fixes
 
@@ -20,7 +20,7 @@
 - **Correction:** `scenes/levels/greybox_arena.tscn` restores the AccessRamp transform without the problematic inline scene comments, aligns the top to the raised platform at ~1.45 m and the bottom to the ground, and gives the ramp slight overlap with the platform. No jumping system is introduced.
 - **Green verification:** [Godot CI](https://github.com/mishraaditya595/swapshot/actions/runs/41432377054) confirms the ramp node's transform, a physical mid-ramp collision hit, traversal from the ground to the platform, return descent, grounded states and elevation.
 
-### Recorded near-obstacle zoom and abrupt recovery — automatic fix verified, browser feel pending (P1)
+### Recorded near-obstacle zoom and abrupt recovery — automated and browser retests completed (P1)
 
 - **Human evidence:** November 3 user-supplied browser screen recording (approximately 10.8–11.3 seconds near cover/ramp and 17–18.5 seconds near elevated geometry) showed a camera pushing close to the avatar and snapping back to the normal follow distance. This was a real usability defect, not an FOV change.
 - **Root cause:** `SpringArm3D` sets its child position to the collision endpoint every physics frame; when the obstruction disappears, its full 3.5 m distance returns in one tick. The existing custom shoulder offset also changed immediately; the camera was allowed inside the visible player mesh on close collisions. Safe geometry tests were not sufficient to detect this.
@@ -28,7 +28,7 @@
 - **Correction:** `scripts/shoulder_camera.gd` constrains distance and shoulder offset to the **safe current frame** collision endpoint immediately, but restores the normal distance at 5 m/s and right offset at 3 m/s after clearance. A cached `PhysicsShapeQueryParameters3D` avoids unnecessary per-tick allocation. Duplicated suit/visor `StandardMaterial3D` alpha materials fade away when the camera is very near and recover after obstruction. Using `GeometryInstance3D.transparency` was ruled out because the Compatibility renderer ignores it.
 - **Green verification:** [Godot 4.7.2 CI 41582259952](https://github.com/mishraaditya595/swapshot/actions/runs/41582259952) passed the previously failing cases and all prior camera intersection, player movement, collision and ramp traversal smoke tests. The static audit also passed.
 - **Safety limitation:** This does **not** promise a fixed-distance camera in a narrow corridor: immediate inward retraction remains necessary to avoid putting the camera through solid geometry. The change removes instant outward recovery and obstructed player visuals, without trading away collision safety.
-- **Manual retest pending:** The user should trigger the Web deployment manually for the updated PR #4 commit, replay the troublesome paths near cover/ramp/landing and walls, test extreme pitch/orbit and pointer lock/focus. A Godot headless PASS does not prove the browser camera feels good.
+- **Updated browser retest:** The [successful manually triggered Web deployment](https://github.com/mishraaditya595/swapshot/actions/runs/41582737996) published PR #4 commit `cc0f6f152c3675ee3df996900f96c67dac9df4b7`. In the ~30-second November 3 macOS browser recording, WASD movement, mouse-look, obstacle interaction and ramp/landing traversal looked usable, and the earlier abrupt camera pop was not visibly reproduced. The owner also confirmed Escape, Command+Tab focus switching and movement away from head-on collisions. These observations are distinct from the automated physics results.
 
 ## Verification matrix
 
@@ -41,14 +41,19 @@
 | Godot headless import/startup | PASS | Current CI run, Godot 4.7.2 |
 | Scene physics, camera clearance, recovery and avatar fade regression | PASS | [Godot CI 41582259952](https://github.com/mishraaditya595/swapshot/actions/runs/41582259952): `MS-01 SMOKE PASS` after red test |
 | GitHub automated code risk scan | PASS | Pre-Merge automated review |
-| PR milestone acceptance | FAIL (expected) | Real gameplay/manual requirement not checked |
-| Updated browser build: mouse lock, Escape/focus release and camera *feel* | NOT RUN after fix | November 3 recording confirms defect in old build; a new manual deployment and playtest is required |
-| Manually deployed Web build | Old build recorded; new build NOT RUN | Later release milestone also retains final Web acceptance gate |
+| PR milestone acceptance | PENDING fresh run | Update tracker and PR acceptance evidence for owner-confirmed Web-first manual QA, then verify new policy run |
+| Updated browser build: movement, mouse-look and camera *feel* | PASS (observed) | User's November 3 ~30-second recording of the revised hosted PR #4 game; earlier snap is not apparent |
+| Updated Web build / controls and obstacle collisions | PASS (user-reported) | [Manual deployment 41582737996](https://github.com/mishraaditya595/swapshot/actions/runs/41582737996) plus Escape, Command+Tab and backward/sideways collision recovery confirmation |
 
 **Red-green evidence:** The initial new scenario tests FAILED before the fixes. The same tests PASSED after the camera and ramp changes. One intermediate descent assertion was relaxed from an arbitrary end-position requirement to checking that the player really returned to the ground, avoiding a misleading failure despite completed descent.
 
-## Remaining manual acceptance
+## November 3 manual acceptance record
 
-Open `scenes/main.tscn` in Godot **4.7.2** in a real window. Capture and release the pointer with click/Escape, move on all WASD diagonals, pitch and yaw at normal and extreme angles, hug all boundaries and crate edges while rotating, ascend/descend the access ramp, and alt-tab away/back. Record actual OS, Godot version, commit SHA, observed behavior, any failures and their steps. In particular, inspect camera framing when the shoulder offset retracts: the headless sphere checks prove clearance, not camera comfort.
+- **Tested revision:** `cc0f6f152c3675ee3df996900f96c67dac9df4b7`, deployed by [GitHub Pages workflow run 41582737996](https://github.com/mishraaditya595/swapshot/actions/runs/41582737996) to the manually maintained `/swapshot/pr-4/` path. Game code is unchanged by subsequent acceptance-document commits, so they do not require a new Web export to test the camera.
+- **Environment:** macOS, desktop browser. The user supplied a ~30-second screen recording in this conversation; the original MOV is **not** attached to the repository or PR as a permanent public file. The observations and test answers are preserved here as a written QA record.
+- **Observed in recording:** WASD and mouse-look, character navigation beside cover/crates, ramp/elevated geometry, reduced near-obstacle camera snap compared with the initial recording. No clear penetration of visible obstacles.
+- **Explicit owner confirmations:** Escape releases the cursor; macOS Command+Tab app switching works; walls and crates block head-on movement; backward and sideways movement continue working after contact. This is successful collision blocking, **not** an immovable-player softlock.
+- **Nonblocking observation (P2):** near 9–11 seconds of the new recording, a dark wall/landing surface fills much of the view. This appears to be close-geometry occlusion/shadowing, not the previously reproduced full-distance camera snap. Reassess in a later camera/level-art polish pass if it affects combat readability.
+- **Not tested / not asserted:** Godot native editor GUI (owner chose browser-only manual QA), exhaustive diagonal/corner paths, keyboard/controller accessibility, browser performance on multiple devices, or the final itch.io release. Godot 4.7.2 **headless** import/startup and the physics test are already covered by engine CI.
 
-Do not tick the two remaining MS-01 checklist tasks, call the milestone complete or merge PR #4 until this recorded manual evidence exists. No combat or SHIFT features were changed.
+**Acceptance decision:** The P0 MS-01 playability gate has been met for the user's explicitly preferred Web-first workflow. The recorded manual browser test plus engine CI cover launch, controllability, mouse capture/release and focus, obstacle collision, camera behavior, and ramp traversal. The limited P2 visual observation does not block the initial gameplay foundation. Mark MS-01 complete in the tracker only with a fresh policy-and-CI check. The user still controls whether to merge PR #4 and when to manually deploy future builds. No combat or SHIFT features were changed.
