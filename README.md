@@ -4,7 +4,7 @@
 
 SWAPSHOT is a single-player, third-person tactical shooter built for **GitHub Game Off 2026** (theme: **SHIFT**). Play as Vex, a covert operative infiltrating the Helix facility. Plant a holographic anchor, SHIFT into a better position, leave an echo behind, and turn firefights into flanking opportunities.
 
-**Status: MS-01 foundation in development.** The current feature branch adds a third-person movement/camera training arena. Rifle combat, enemy AI, SHIFT, and a published playable build are **not yet implemented**; manual MS-01 acceptance is pending.
+**Status: MS-01 Web-first gameplay foundation accepted in PR #4 (merge pending).** The feature branch includes a third-person movement/camera training arena, with manual macOS browser QA recorded in [the MS-01 review](docs/reviews/MS-01-review.md). Rifle combat, enemy AI and SHIFT are planned for later milestones. The playable Web snapshot is published only when the owner manually triggers deployment; a successful preview is not the final game release.
 
 ## Scope
 
@@ -32,7 +32,18 @@ godot --headless --path . --import
 godot --headless --path . --quit-after 2
 ```
 
-For the MS-01 branch, also run `godot --headless --path . --script res://tests/ms01_scene_smoke.gd`, then record a **real editor playtest** of movement, camera collisions, walls, ramp, pointer capture and release. Automated checks do **not** prove camera comfort or the Web export works.
+For the MS-01 branch, also run `godot --headless --path . --script res://tests/ms01_scene_smoke.gd`. The project owner opted for manual **browser-first** gameplay QA instead of a local editor session; the completed macOS browser acceptance record and the corrected camera regression are in [the review report](docs/reviews/MS-01-review.md). Headless tests alone do not prove camera comfort. The final public Web release still requires separate browser testing.
+
+## Manual browser deployment
+
+The [GitHub Pages deployment workflow](https://github.com/mishraaditya595/swapshot/actions/workflows/deploy-web-manual.yml)
+runs **only** when the owner chooses **Run workflow**. PR opens, updates and
+merges do not publish or refresh the game. For a PR #N, choose source `pr`
+and enter its number; the preview lives at `/swapshot/pr-N/`. For the latest
+merged `main`, choose source `main` with no PR number; it publishes to
+`/swapshot/play/`. A playable PR #4 snapshot was manually deployed and
+tested on November 3, 2026. See [the acceptance record](docs/reviews/MS-01-review.md)
+for actual results and limitations.
 
 ## Development milestones
 
