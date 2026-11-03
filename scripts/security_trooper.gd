@@ -39,6 +39,7 @@ const WORLD_MASK: int = 1
 
 var state: State = State.IDLE
 var health: float = 100.0
+var combat_enabled: bool = true
 var player: CharacterBody3D = null
 var _shift_ability: Node = null
 var _echo: Node3D = null
@@ -133,13 +134,31 @@ func _exit_tree() -> void:
     _disconnect_shift()
 
 
+func set_combat_enabled(enabled: bool) -> void:
+    if state == State.DEAD:
+        return
+    combat_enabled = enabled
+    visible = enabled
+    collision_layer = 1 if enabled else 0
+    collision_mask = 1 if enabled else 0
+    set_physics_process(enabled)
+    if not enabled:
+        _cancel_windup()
+        muzzle_flash.visible = false
+        alert_lamp.visible = false
+        distraction_beacon.visible = false
+        lock_cue.stop()
+        shot_cue.stop()
+        _clear_echo()
+
+
 func _physics_process(delta: float) -> void:
     advance_ai(delta)
 
 
 # Physics-time progression is callable by headless tests without wall-clock sleeps.
 func advance_ai(delta: float) -> void:
-    if delta <= 0.0 or state == State.DEAD or get_tree().paused:
+    if delta <= 0.0 or state == State.DEAD or not combat_enabled or get_tree().paused:
         return
     _cooldown_remaining = maxf(0.0, _cooldown_remaining - delta)
     _flash_remaining = maxf(0.0, _flash_remaining - delta)
@@ -287,7 +306,7 @@ func _cancel_windup() -> void:
 
 
 func _fire() -> void:
-    if state != State.ATTACK or not _player_is_alive():
+    if not combat_enabled or state != State.ATTACK or not _player_is_alive():
         return
     var point: Vector3 = _player_aim_point()
     if muzzle.global_position.distance_to(point) > attack_range:
@@ -309,7 +328,7 @@ func _fire() -> void:
 
 
 func _on_echo_spawned(ghost: Node3D, at: Vector3) -> void:
-    if state == State.DEAD or not is_instance_valid(ghost):
+    if not combat_enabled or state == State.DEAD or not is_instance_valid(ghost):
         return
     if eye.global_position.distance_to(at + Vector3.UP * 0.3) > echo_notice_range:
         return
@@ -340,7 +359,7 @@ func _clear_echo() -> void:
 
 
 func apply_damage(amount: float) -> void:
-    if state == State.DEAD or amount <= 0.0:
+    if not combat_enabled or state == State.DEAD or amount <= 0.0:
         return
     health = maxf(0.0, health - amount)
     damaged.emit(health)

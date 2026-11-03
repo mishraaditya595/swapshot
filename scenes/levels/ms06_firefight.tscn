@@ -24,21 +24,46 @@ fire_interval_seconds = 1.65
 
 [node name="ElapsedBackdrop" type="ColorRect" parent="MissionHUD"]
 offset_left = 10.0
-offset_top = 192.0
-offset_right = 510.0
-offset_bottom = 224.0
+offset_top = 239.0
+offset_right = 620.0
+offset_bottom = 285.0
 mouse_filter = 2
 color = Color(0.02, 0.06, 0.1, 0.68)
 
 [node name="Elapsed" type="Label" parent="MissionHUD"]
 offset_left = 18.0
-offset_top = 193.0
-offset_right = 510.0
-offset_bottom = 226.0
+offset_top = 246.0
+offset_right = 610.0
+offset_bottom = 283.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.67, 0.94, 0.96, 1)
-theme_override_font_sizes/font_size = 17
-text = "MISSION TIME  00:00  |  SHIFT FLANKS  0"
+theme_override_font_sizes/font_size = 22
+text = "MISSION  00:00  |  SHIFTS  0"
+
+[node name="WaveBannerBackdrop" type="ColorRect" parent="MissionHUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -275.0
+offset_top = 190.0
+offset_right = 275.0
+offset_bottom = 237.0
+mouse_filter = 2
+color = Color(0.02, 0.06, 0.10, 0.85)
+
+[node name="WaveBanner" type="Label" parent="MissionHUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -266.0
+offset_top = 196.0
+offset_right = 266.0
+offset_bottom = 235.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1.0, 0.74, 0.38, 1)
+theme_override_font_sizes/font_size = 23
+horizontal_alignment = 1
+text = "WAVE 1 / HELIX PATROL"
 
 [node name="Outcome" type="CanvasLayer" parent="."]
 layer = 15
@@ -56,49 +81,67 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -345.0
-offset_top = -158.0
-offset_right = 345.0
-offset_bottom = 158.0
+offset_left = -420.0
+offset_top = -200.0
+offset_right = 420.0
+offset_bottom = 200.0
 color = Color(0.07, 0.13, 0.18, 0.98)
 
 [node name="Kicker" type="Label" parent="Outcome/Card"]
 offset_left = 30.0
 offset_top = 22.0
-offset_right = 660.0
-offset_bottom = 53.0
+offset_right = 810.0
+offset_bottom = 61.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.6, 0.8, 0.86, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 22
 text = "HELIX FACILITY  /  OPERATION ZERO HOUR"
 horizontal_alignment = 1
 
 [node name="Title" type="Label" parent="Outcome/Card"]
 offset_left = 22.0
-offset_top = 60.0
-offset_right = 668.0
-offset_bottom = 126.0
+offset_top = 70.0
+offset_right = 818.0
+offset_bottom = 145.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.4, 1, 0.9, 1)
-theme_override_font_sizes/font_size = 42
+theme_override_font_sizes/font_size = 48
 text = "SECTOR SECURED"
 horizontal_alignment = 1
 
 [node name="Details" type="Label" parent="Outcome/Card"]
 offset_left = 24.0
-offset_top = 139.0
-offset_right = 666.0
-offset_bottom = 250.0
+offset_top = 159.0
+offset_right = 816.0
+offset_bottom = 312.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.88, 0.94, 0.96, 1)
-theme_override_font_sizes/font_size = 19
-text = "GUARDS NEUTRALIZED  3 / 3"
+theme_override_font_sizes/font_size = 25
+text = "GUARDS NEUTRALIZED  6 / 6"
 horizontal_alignment = 1
 
 [node name="ReplayButton" type="Button" parent="Outcome/Card"]
-offset_left = 174.0
-offset_top = 259.0
-offset_right = 516.0
-offset_bottom = 300.0
-theme_override_font_sizes/font_size = 20
+offset_left = 218.0
+offset_top = 323.0
+offset_right = 622.0
+offset_bottom = 378.0
+theme_override_font_sizes/font_size = 25
 text = "REPLAY ENCOUNTER  [ENTER]"
+
+[node name="ReinforcementWest" parent="." instance=ExtResource("2_trooper")]
+position = Vector3(-11.2, 1.03, -10.8)
+max_health = 120.0
+shot_damage = 9.0
+fire_interval_seconds = 1.60
+
+[node name="ReinforcementNorth" parent="." instance=ExtResource("2_trooper")]
+position = Vector3(0.0, 1.03, -12.8)
+max_health = 120.0
+shot_damage = 9.0
+fire_interval_seconds = 1.60
+
+[node name="ReinforcementHigh" parent="." instance=ExtResource("2_trooper")]
+position = Vector3(10.8, 2.48, -11.0)
+max_health = 120.0
+shot_damage = 9.0
+fire_interval_seconds = 1.60
