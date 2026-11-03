@@ -8,7 +8,16 @@
 
 ## Findings
 
-No code-proven P0/P1 issue found in the initial diff review. The placement path checks player range, vertical limit, slope, player-eye visibility, expanded capsule and floor support; the activation path repeats the checks before moving the player. Rejected actions do not change player position or consume the current anchor.
+The owner reported a P1 visual-positioning regression in their November 3 browser recording: the deployed anchor marker moved with the player. Source inspection confirmed that `Anchor` and `Preview` inherited the transform of the `Player` through `ShiftAbility`. The marker fix sets both mesh nodes to `top_level` so they stay in world space, and the new headless regression moves and turns the player after deployment. A fresh Web retest is still required. The placement path checks player range, vertical limit, slope, player-eye visibility, expanded capsule and floor support; the activation path repeats the checks before moving the player. Rejected actions do not change player position or consume the current anchor.
+
+### P1 observed: anchor marker inherited player movement
+
+- **Evidence:** Owner-provided November 3 browser recording (`Screen Recording 2026-11-03 at 15.33.41.mov`) and `scenes/abilities/shift_ability.tscn` under the player scene.
+- **Reproduction:** Place an anchor with Q, then walk and rotate without teleporting. Previously the disc followed the player even though `anchor_point` stayed in global coordinates.
+- **Expected:** The disc stays at the selected floor point and agrees with the teleport destination.
+- **Observed:** The marker inherited its parent transform; the landing coordinate was stored separately.
+- **Fix:** Set `Anchor` and `Preview` mesh nodes to `top_level`; assert the anchor mesh stays fixed after translating and rotating the player. New Web footage after redeployment is pending.
+- **Confidence:** Observed in video and confirmed from the scene hierarchy.
 
 ### P1 risk to test: browser controls and visual feedback
 

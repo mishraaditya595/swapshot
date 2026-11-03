@@ -36,6 +36,10 @@ func _ready() -> void:
     _clearance_shape.height = capsule.height + 0.08
     _valid_material = _indicator_material(Color(0.32, 0.96, 0.90, 0.8))
     _invalid_material = _indicator_material(Color(1.0, 0.43, 0.24, 0.8))
+    # These are world-space indicators. Keep the player as the ability's
+    # owner, but never inherit its movement or rotation after placement.
+    preview_mesh.top_level = true
+    anchor_mesh.top_level = true
     anchor_mesh.material_override = _valid_material
     preview_mesh.visible = false
     anchor_mesh.visible = false

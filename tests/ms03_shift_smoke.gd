@@ -92,8 +92,33 @@ func _run() -> void:
         "Active anchor cannot be replaced by spam"
     )
 
-    # A new obstruction may appear after Q and before Left Shift.
+    # Regression from the owner's Nov 3 browser recording: the deployed
+    # anchor mesh moved with the player because it inherited Player's
+    # transform. Both indicators must use world-space transforms.
+    var anchor_marker: MeshInstance3D = ability.get_node("Anchor") as MeshInstance3D
+    var preview_marker: MeshInstance3D = ability.get_node("Preview") as MeshInstance3D
+    _check(anchor_marker.top_level, "Anchor marker must use world-space transforms")
+    _check(preview_marker.top_level, "Preview marker must use world-space transforms")
+    var saved_anchor_marker: Vector3 = anchor_marker.global_position
+    var saved_anchor_point: Vector3 = ability.get("anchor_point")
     var original_position: Vector3 = player.global_position
+    player.global_position += Vector3(1.25, 0.0, 0.0)
+    player.rotation.y = 0.6
+    await _frames(4)
+    _check(
+        anchor_marker.global_position.distance_to(saved_anchor_marker) < 0.001,
+        "Deployed anchor marker followed player movement or rotation"
+    )
+    _check(
+        anchor_marker.global_position.distance_to(saved_anchor_point + Vector3.UP * 0.045) < 0.001,
+        "Anchor marker disagrees with saved teleport destination"
+    )
+    player.global_position = original_position
+    player.rotation.y = 0.0
+    player.velocity = Vector3.ZERO
+    await _frames(4)
+
+    # A new obstruction may appear after Q and before Left Shift.
     blocked = _make_blocker(Vector3(0.0, 0.95, 7.0))
     arena.add_child(blocked)
     await _frames(3)
@@ -137,7 +162,7 @@ func _run() -> void:
 
     arena.queue_free()
     if failures.is_empty():
-        print("MS-03 SMOKE PASS: range, slope, floor, capsule, revalidation, retry, camera, velocity")
+        print("MS-03 SMOKE PASS: range, slope, floor, capsule, anchored visual, revalidation, retry, camera, velocity")
         quit(0)
     else:
         printerr("MS-03 SMOKE FAIL: %d checks" % failures.size())
