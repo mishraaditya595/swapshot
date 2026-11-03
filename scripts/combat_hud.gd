@@ -89,37 +89,42 @@ func _bind_enemy() -> void:
     _on_enemy_state_changed(int(_enemy.get("state")))
 
 
+func _set_threat(message: String, tint: Color = Color(1.0, 0.74, 0.39)) -> void:
+    threat_label.text = message
+    threat_label.add_theme_color_override("font_color", tint)
+
+
 func _on_enemy_state_changed(next_state: int) -> void:
     if not bool(owner_player.get("is_alive")):
         return
     if is_instance_valid(_enemy) and _enemy.get("_echo") != null:
-        threat_label.text = "HELIX  |  DISTRACTED BY ECHO"
+        _set_threat("HELIX  /  DISTRACTED BY ECHO", Color(0.40, 1.0, 0.94))
         return
     match next_state:
-        0: threat_label.text = "HELIX  |  UNAWARE"
-        1: threat_label.text = "HELIX  |  SEARCHING"
-        2: threat_label.text = "HELIX  |  ENGAGING"
-        3: threat_label.text = "HELIX  |  NEUTRALIZED"
-        4: threat_label.text = "HELIX  |  SEARCHING LAST SEEN"
+        0: _set_threat("HELIX  /  NO CONTACT", Color(0.70, 0.86, 0.90))
+        1: _set_threat("HELIX  /  TARGET ACQUIRED")
+        2: _set_threat("HELIX  /  ENGAGING")
+        3: _set_threat("HELIX  /  NEUTRALIZED", Color(0.40, 1.0, 0.90))
+        4: _set_threat("HELIX  /  SEARCHING LAST SEEN")
 
 
 func _on_echo_distracted(_position: Vector3) -> void:
-    threat_label.text = "HELIX  |  DISTRACTED BY ECHO"
+    _set_threat("HELIX  /  DISTRACTED BY ECHO", Color(0.40, 1.0, 0.94))
 
 
 func _on_echo_released() -> void:
-    threat_label.text = "HELIX  |  REACQUIRING PLAYER"
+    _set_threat("HELIX  /  REACQUIRING PLAYER")
 
 
 func _on_windup_started() -> void:
-    threat_label.text = "HELIX  |  SHOT INCOMING!"
+    _set_threat("HELIX  /  SHOT INCOMING!", Color(1.0, 0.46, 0.25))
 
 
 func _on_enemy_shot(_hit: bool) -> void:
     if not bool(owner_player.get("is_alive")):
         return
-    threat_label.text = "HELIX  |  CYCLING WEAPON"
+    _set_threat("HELIX  /  CYCLING WEAPON")
 
 
 func _on_enemy_destroyed() -> void:
-    threat_label.text = "HELIX  |  NEUTRALIZED"
+    _set_threat("HELIX  /  NEUTRALIZED", Color(0.40, 1.0, 0.90))

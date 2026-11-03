@@ -207,6 +207,11 @@ func _run() -> void:
         "apply_damage must reduce enemy health")
     enemy.call("apply_damage", 500.0)
     _check(int(enemy.get("state")) == 3, "Lethal damage enters DEAD state")
+    var mission: Label = encounter.get_node("EncounterHUD/HelixHint") as Label
+    _check(mission.text.contains("MISSION COMPLETE") and mission.text.contains("NEUTRALIZED"),
+        "Eliminating the only trooper must complete the on-screen objective")
+    _check(mission.get_theme_color("font_color").g > 0.9,
+        "Completed objective must use the friendly/cyan color rather than danger amber")
     await _frames(35)
     _check((enemy.get_node("VisualRoot") as Node3D).position.y < -0.55,
         "Dead trooper must settle toward the floor")
