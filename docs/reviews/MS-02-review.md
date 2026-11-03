@@ -26,10 +26,10 @@
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Static audit, Python tests, milestone tracker validator | PASS | [CI run 41586482031](https://github.com/mishraaditya595/swapshot/actions/runs/41586482031) |
+| Static audit, Python tests, milestone tracker validator | PASS | [CI run 41586986466](https://github.com/mishraaditya595/swapshot/actions/runs/41586986466) |
 | Godot 4.7.2 headless import + startup | PASS | same run, Godot import job |
 | MS-01 movement/camera smoke | PASS | same run; existing regression retained |
-| MS-02 cadence, hit damage, partial/empty reload, muzzle obstruction, HUD smoke | PASS | same run, `MS-02 SMOKE PASS: ammo, cadence, damage, reload, cover, HUD` |
+| MS-02 cadence, hit damage, partial/empty reload, clear-camera/muzzle obstruction, recoil/hit marker, target death, HUD smoke | PASS | same run, `MS-02 SMOKE PASS: ammo, cadence, damage, reload, cover, HUD` (latest run verified 2026-11-03) |
 | Automated conservative code review | PASS | [Pre-Merge run 41586422543](https://github.com/mishraaditya595/swapshot/actions/runs/41586422543) |
 | PR milestone acceptance | EXPECTED FAIL | Milestone intentionally unchecked pending manual gameplay |
 | Manual rifle/ADS/pointer lock/camera feel | NOT RUN | Owner Web test required |
