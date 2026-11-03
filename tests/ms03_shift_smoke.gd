@@ -166,6 +166,7 @@ func _run() -> void:
     _check(ability.call("try_shift"), "Camera-ray anchor must SHIFT safely")
 
     arena.queue_free()
+    await _frames(2)
     if failures.is_empty():
         print("MS-03 SMOKE PASS: range, slope, floor, capsule, anchored visual, revalidation, retry, camera, velocity")
         quit(0)
