@@ -72,6 +72,46 @@ func _run() -> void:
         _check(boom.rotation.x > 0.1, "Mouse-look delta did not change pitch")
     print("MS-01 HEADLESS LIMIT: pointer capture and Escape release need editor QA")
 
+    # Recorded browser regression: SpringArm used to snap straight from a
+    # close wall into its full 3.5 m distance in one physics tick. The player
+    # mesh also filled the screen when the camera retracted inside its body.
+    pivot.rotation.y = 0.0
+    boom.rotation.x = 0.0
+    player.global_position = Vector3(0.0, 0.9, 15.15)
+    player.velocity = Vector3.ZERO
+    for frame in range(6):
+        await physics_frame
+    var blocked_distance: float = camera.position.z
+    _check(blocked_distance < 0.75, "Rear wall did not retract camera for zoom test")
+    var body_mesh: MeshInstance3D = player.get_node("VisualRoot/Body") as MeshInstance3D
+    var visor_mesh: MeshInstance3D = player.get_node("VisualRoot/Visor") as MeshInstance3D
+    var suit_fade: StandardMaterial3D = body_mesh.material_override as StandardMaterial3D
+    var visor_fade: StandardMaterial3D = visor_mesh.material_override as StandardMaterial3D
+    _check(
+        suit_fade != null and suit_fade.albedo_color.a < 0.3,
+        "Obstructed camera must fade the player's body instead of filling the screen"
+    )
+    _check(
+        visor_fade != null and visor_fade.albedo_color.a < 0.3,
+        "Obstructed camera must fade the player's visor as well"
+    )
+
+    player.global_position = Vector3(0.0, 0.9, 8.0)
+    player.velocity = Vector3.ZERO
+    await physics_frame
+    _check(
+        camera.position.z <= blocked_distance + 0.15,
+        "Camera must not snap to full distance in one physics frame after cover"
+    )
+    for frame in range(90):
+        await physics_frame
+    _check(camera.position.z > 3.3, "Camera failed to recover normal follow distance")
+    suit_fade = body_mesh.material_override as StandardMaterial3D
+    _check(
+        suit_fade != null and suit_fade.albedo_color.a > 0.95,
+        "Body should return to full visibility at normal camera distance"
+    )
+
     # Static colliders must stop movement at the south wall.
     pivot.rotation.y = 0.0
     if boom != null:
