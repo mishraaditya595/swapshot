@@ -2,8 +2,8 @@
 
 **Repository / base..head:** `mishraaditya595/swapshot`, main..feat/ms-02-vx7-rifle, implementing [PR #8](https://github.com/mishraaditya595/swapshot/pull/8).
 **Scope/milestone:** P0 / MS-02 only.
-**Reviewed:** VX7 scene and script; FX, target, HUD, InputMap, arena/player instancing, new smoke test, workflow and tracker.
-**Test environment:** GitHub Actions Linux Godot 4.7.2 stable; this conversation runtime has no Godot editor or hosted PR browser run.
+**Reviewed:** VX7 scene/script and character-mounted revisions; player controller and scene, shoulder camera, FX, target, HUD, InputMap, arena instancing, regression tests, workflow and tracker.
+**Test environment:** GitHub Actions Linux Godot 4.7.2 stable for updated code; owner's earlier 42-second browser recording covers the pre-fix preview. No editor GUI or post-fix browser run in this conversation runtime.
 **Decision:** INSUFFICIENT EVIDENCE for full gameplay acceptance; automated evidence PASS.
 
 ## Owner browser evidence (Nov 3) and P1 follow-up
@@ -34,14 +34,14 @@ The owner supplied a 42-second browser recording of PR #8 and confirmed firing, 
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Static audit, Python tests, milestone tracker validator | PASS | [CI run 41586986466](https://github.com/mishraaditya595/swapshot/actions/runs/41586986466) |
-| Godot 4.7.2 headless import + startup | PASS | same run, Godot import job |
-| MS-01 movement/camera smoke | PASS | same run; existing regression retained |
-| MS-02 cadence, hit damage, partial/empty reload, clear-camera/muzzle obstruction, recoil/hit marker, target death, HUD smoke | PASS | same run, `MS-02 SMOKE PASS: ammo, cadence, damage, reload, cover, HUD` (latest run verified 2026-11-03) |
-| Automated conservative code review | PASS | [Pre-Merge run 41586422543](https://github.com/mishraaditya595/swapshot/actions/runs/41586422543) |
+| Static audit, Python tests, milestone tracker validator | PASS | [CI run 41596902344](https://github.com/mishraaditya595/swapshot/actions/runs/41596902344) |
+| Godot 4.7.2 headless import + startup | PASS | [latest CI run 41596902344](https://github.com/mishraaditya595/swapshot/actions/runs/41596902344) |
+| MS-01 movement/camera smoke | PASS | [latest CI run 41596902344](https://github.com/mishraaditya595/swapshot/actions/runs/41596902344); existing regression retained |
+| MS-02 aim alignment, cadence, hit damage, partial/empty reload, muzzle obstruction, recoil/hit marker, target death, HUD smoke | PASS | [latest CI run 41596902344](https://github.com/mishraaditya595/swapshot/actions/runs/41596902344), `MS-02 SMOKE PASS: aim alignment, ammo, cadence, damage, reload, cover, HUD` |
+| Automated conservative code review | PASS | [Pre-Merge run 41596960362](https://github.com/mishraaditya595/swapshot/actions/runs/41596960362) |
 | PR milestone acceptance | EXPECTED FAIL | Milestone intentionally unchecked pending manual gameplay |
-| Manual rifle/ADS/pointer lock/camera feel | NOT RUN | Owner Web test required |
-| Hosted HTML5 browser export and playtest | NOT RUN | Manual deployment required |
+| Manual rifle/ADS/pointer lock/camera feel | PARTIAL on earlier preview; updated build NOT RUN | Owner confirms fire, reload, aim controls; original preview shows body/weapon mismatch |
+| Hosted HTML5 browser export and playtest | Earlier preview recorded; updated build NOT RUN | Owner-supplied pre-fix PR #8 browser video; updated preview must be manually deployed |
 | SHIFT / guard / echo and mission loop | OUT OF SCOPE | MS-03 through MS-06 |
 
 ## MS-02 acceptance matrix
@@ -56,4 +56,4 @@ The owner supplied a 42-second browser recording of PR #8 and confirmed firing, 
 
 ## Risks and next action
 
-No confirmed P0/P1 regression from executed checks. Browser feedback and pointer-lock handling remain unverified, so keep PR in draft and the milestone partially checked. Owner should manually deploy PR #8 and verify controls and close-cover behavior; then update acceptance evidence and only then mark the milestone complete.
+The original owner preview confirmed a P1 visual aim-facing mismatch. Source change and latest headless regression address the cause, but do not prove the corrected visual pose or native pointer capture; keep PR in draft and the milestone partially checked. Owner should manually deploy PR #8 and verify controls and close-cover behavior; then update acceptance evidence and only then mark the milestone complete.
