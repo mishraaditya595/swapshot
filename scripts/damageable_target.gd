@@ -3,8 +3,8 @@ extends StaticBody3D
 signal damaged(remaining_health: float)
 signal destroyed()
 
-@export_range(1.0, 500.0, 1.0) var max_health: float = 60.0
-var health: float = 60.0
+@export_range(1.0, 500.0, 1.0) var max_health: float = 100.0
+var health: float = 100.0
 
 
 func _ready() -> void:

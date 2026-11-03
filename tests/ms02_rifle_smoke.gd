@@ -44,6 +44,7 @@ func _run() -> void:
     rifle.set("ads_spread_degrees", 0.0)
     _check(int(rifle.get("ammo")) == 24, "Must begin with 24 shots")
     var initial_health: float = float(target.get("health"))
+    _check(initial_health >= 80.0, "Training dummy needs enough HP for cover regression")
     _check(bool(rifle.call("fire_once")), "First shot must fire")
     _check(int(rifle.get("ammo")) == 23, "One fired round consumes one cartridge")
     var flash: MeshInstance3D = rifle.get_node("MuzzleFlash") as MeshInstance3D
@@ -94,9 +95,6 @@ func _run() -> void:
     var crosshair_hit: Dictionary = rifle.call(
         "_ray", camera.global_position, camera.global_position - camera.global_basis.z * 100.0
     )
-    print("MS-02 GEOMETRY cam=", camera.global_position, " muzzle=", muzzle.global_position,
-        " barrier=", barrier.global_position, " target=", target.global_position,
-        " collider=", crosshair_hit.get("collider"), " hit=", crosshair_hit.get("position"))
     _check(crosshair_hit.get("collider") == target, "Camera must still see target over the narrow cover")
     initial_health = float(target.get("health"))
     _check(bool(rifle.call("fire_once")), "Cover shot still uses a round")
