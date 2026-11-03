@@ -50,11 +50,13 @@
 **Target:** Nov 4, 2026 · **Priority:** P0 · **Depends on:** MS-01 (unless explicitly reordered)
 
 - [ ] **MS-02 complete** — **Implementing PR:** —
-  - [ ] Add VX-7 rifle scene and reusable hitscan weapon logic with a single source of fire-rate state.
+  - [x] Add VX-7 rifle scene and reusable hitscan weapon logic with a single source of fire-rate state.
   - [ ] Implement aim / ADS, 24-round magazine, reload, recoil and ammo handling.
   - [ ] Add damageable target(s), hit effects, crosshair feedback and minimal muzzle feedback.
-  - [ ] Block camera-origin shots obstructed at the muzzle by nearby cover.
-  - [ ] Add source-level or in-engine tests for fire-rate, reload, empty-magazine and obstruction edge cases.
+  - [x] Block camera-origin shots obstructed at the muzzle by nearby cover.
+  - [x] Add source-level or in-engine tests for fire-rate, reload, empty-magazine and obstruction edge cases.
+
+**MS-02 automated verification (Nov 3):** Godot 4.7.2 headless import, MS-01 regression, MS-02 rifle smoke (ammo, cadence, reload, target damage, close-cover obstruction, HUD), startup, and Python/static audit passed in [CI run 41586482031](https://github.com/mishraaditya595/swapshot/actions/runs/41586482031). This is **not** hosted Web/manual QA; ADS feel, VFX readability, pointer capture, and the full acceptance gate remain unchecked pending an owner playtest. See [MS-02 review](reviews/MS-02-review.md).
 
 **Acceptance gate:** The player can aim, shoot, reload and damage a target; close-wall shots cannot penetrate cover.
 

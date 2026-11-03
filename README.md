@@ -19,7 +19,7 @@ SWAPSHOT is a single-player, third-person tactical shooter built for **GitHub Ga
 
 1. Install [Godot 4.7.2 stable](https://godotengine.org/download/archive/4.7.2-stable/) (standard/non-.NET).
 2. Clone this repository and import `project.godot` through the Godot Project Manager.
-3. Run `scenes/main.tscn` to enter the training arena. **WASD** moves, **mouse** looks after clicking the viewport, and **Esc** releases the cursor. Traverse the ramp to reach the elevated platform; jump/combat/SHIFT are reserved for later milestones.
+3. Run `scenes/main.tscn` to enter the training arena. **WASD** moves, **mouse** looks after clicking the viewport, **left mouse** fires the VX-7, **right mouse** aims (ADS), **R** reloads, and **Esc** releases the cursor. The initial click to capture the mouse cannot shoot. Traverse the ramp and shoot the training targets; SHIFT and enemy AI are later milestones.
 4. Run the static review audit and tests:
 
 ```bash
@@ -34,7 +34,7 @@ godot --headless --path . --import
 godot --headless --path . --quit-after 2
 ```
 
-For the MS-01 branch, also run `godot --headless --path . --script res://tests/ms01_scene_smoke.gd`. The project owner opted for manual **browser-first** gameplay QA instead of a local editor session; the completed macOS browser acceptance record and the corrected camera regression are in [the review report](docs/reviews/MS-01-review.md). Headless tests alone do not prove camera comfort. The final public Web release still requires separate browser testing.
+For gameplay regressions, run `godot --headless --path . --script res://tests/ms01_scene_smoke.gd` and `godot --headless --path . --script res://tests/ms02_rifle_smoke.gd`. The project owner opted for manual **browser-first** gameplay QA instead of a local editor session; the completed macOS browser acceptance record and the corrected camera regression are in [the review report](docs/reviews/MS-01-review.md). Headless tests alone do not prove camera comfort. The final public Web release still requires separate browser testing.
 
 ## Manual browser deployment
 
