@@ -70,7 +70,7 @@ class PreviewHubTests(unittest.TestCase):
         links = LinkParser()
         links.feed(document)
         self.assertIn("Awaiting first build", document)
-        self.assertIn("No builds published yet", document)
+        self.assertIn("No preview builds published yet", document)
         self.assertNotIn("play/", links.links)
         self.assertNotIn("pr-1/", links.links)
 
@@ -79,7 +79,7 @@ class PreviewHubTests(unittest.TestCase):
         links = LinkParser()
         links.feed(document)
         self.assertIn("play/", links.links)
-        self.assertNotIn("No builds published yet", document)
+        self.assertNotIn("No preview builds published yet", document)
 
 
 if __name__ == "__main__":

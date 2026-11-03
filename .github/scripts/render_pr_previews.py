@@ -56,7 +56,7 @@ def _build_cards(previews: list[int], has_main: bool) -> str:
         return "\n".join(cards)
     return (
         '<div class="empty-state" role="status"><span class="empty-glyph" '
-        'aria-hidden="true">◇</span><h3>No builds published yet</h3>'
+        'aria-hidden="true">◇</span><h3>No preview builds published yet</h3>'
         '<p>Snapshots appear here after the repository owner runs the '
         'manual GitHub Pages deployment workflow.</p>'
         '<a href="https://github.com/mishraaditya595/swapshot/actions/'
