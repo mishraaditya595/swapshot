@@ -48,6 +48,23 @@ class PreviewTests(unittest.TestCase):
             self.assertLess(output.index("pr-15/"), output.index("pr-4/"))
             self.assertNotIn("pr-8/", output)
 
+
+    def test_main_entry_appears_only_after_manual_main_deployment(self):
+        self.assertNotIn('href="play/"', index.render([4], has_main=False))
+        html = index.render([4], has_main=True)
+        self.assertIn('href="play/"', html)
+        self.assertIn('href="pr-4/"', html)
+
+    def test_deployment_workflow_has_only_manual_trigger(self):
+        manual = ROOT / ".github/workflows/deploy-web-manual.yml"
+        content = manual.read_text(encoding="utf-8")
+        self.assertIn("on:\n  workflow_dispatch:", content)
+        self.assertIn("if: github.ref == 'refs/heads/main'", content)
+        for forbidden in ("\\n  pull_request:", "\\n  push:", "\\n  workflow_run:", "\\n  schedule:"):
+            self.assertNotIn(forbidden.replace("\\n", "\n"), content)
+        self.assertFalse((ROOT / ".github/workflows/pr-web-preview.yml").exists())
+        self.assertFalse((ROOT / ".github/workflows/publish-pr-preview.yml").exists())
+
     def test_render_empty_index(self):
         self.assertIn("No preview builds", index.render([]))
 
