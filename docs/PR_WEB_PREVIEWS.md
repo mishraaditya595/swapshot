@@ -1,15 +1,10 @@
 # Manually deploy SWAPSHOT to GitHub Pages
 
-GitHub Pages serves optional, **owner-triggered** playable Godot Web builds.
-Nothing is published automatically when a PR is opened, updated, reopened,
-closed, or merged, or when changes reach `main`. The usual CI/pre-merge tests
-continue to run normally; those tests do **not** deploy to the web.
+The repository owner can publish playable Godot Web builds to GitHub Pages by running the deployment workflow manually. Opening, updating, closing, or merging a PR does not publish a build. Regular CI and pre-merge checks continue to run without deploying.
 
 ## How to run a deployment
 
-First merge the separate governance [PR #5](https://github.com/mishraaditya595/swapshot/pull/5)
-into `main`; the manual workflow button will not be active on `main` until then.
-Configure **Settings → Pages → Build and deployment → GitHub Actions**.
+The deployment workflow was introduced in [PR #5](https://github.com/mishraaditya595/swapshot/pull/5). Configure **Settings → Pages → Build and deployment → GitHub Actions**.
 Allow `main` to deploy to the `github-pages` environment. Ensure Actions can
 create/update the `gh-pages` branch (branch rulesets may need an exception).
 
@@ -32,17 +27,11 @@ create/update the `gh-pages` branch (branch rulesets may need an exception).
 - **Any PR #N:** `https://mishraaditya595.github.io/swapshot/pr-N/`
 - **Latest manually deployed main:** https://mishraaditya595.github.io/swapshot/play/
 
-The URLs above are intended routes, not evidence they are already live.
-A successful manual run replaces *only* the selected snapshot. Other manual
-PR snapshots remain available. `play/` is updated **only when you explicitly
-run the workflow with source = main**; a merge does not update it.
+These are the deployment routes; a route may not exist until the owner has published that snapshot. Each manual run updates only the selected snapshot and leaves other PR snapshots intact. The `play/` route updates only when the owner runs the workflow with `source = main`.
 
 ## Security and release boundaries
 
-The manual workflow `.github/workflows/deploy-web-manual.yml` has
-**only** the `workflow_dispatch` event; it has no `push`,
-`pull_request`, `workflow_run`, or scheduled deployment trigger.
-The workflow has these separate jobs:
+The workflow `.github/workflows/deploy-web-manual.yml` is triggered only by `workflow_dispatch`. It has no `push`, `pull_request`, `workflow_run`, or scheduled deployment trigger. Its jobs are:
 
 1. **Resolve:** on trusted `main`, validate the chosen PR or latest main
    SHA and reject any other workflow branch, fork PR, closed PR, or PR not
@@ -75,8 +64,7 @@ Alt-Tab focus behavior. Record browser version, OS, commit SHA, pass/fail
 results, and console errors in the gameplay PR. Do not mark a milestone
 accepted from automated checks alone.
 
-This preview process does not replace the final tested itch.io release or
-submission requirements in MS-14 through MS-16.
+The final itch.io release and the submission requirements in MS-14 through MS-16 still need separate verification.
 
 ## Failure cases
 

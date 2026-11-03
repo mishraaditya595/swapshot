@@ -1,14 +1,14 @@
-# SWAPSHOT — authoritative working design
+# SWAPSHOT game design
 
-**Event:** GitHub Game Off 2026 — theme **SHIFT**. **North star:** "Don't take cover. Change the battlefield." The interactive original design is checked into `../.agents/skills/swapshot-review/references/source-design-brief.html`. This document is the concise implementation contract, not evidence of implemented mechanics.
+SWAPSHOT is being built for GitHub Game Off 2026, themed **SHIFT**. Its design tagline is "Don't take cover. Change the battlefield." The [original interactive brief](../.agents/skills/swapshot-review/references/source-design-brief.html) contains the wider concept. This document defines the planned gameplay; consult [MILESTONES.md](MILESTONES.md) to see what has actually been built.
 
-## Premise / core loop
+## Premise and core loop
 
-Vex enters a Helix industrial research facility to extract an experimental core. Move and aim in third person, fire a responsive VX-7 rifle, deploy a holographic anchor on safe reachable ground, SHIFT to flank enemy guards, and leave a short-lived echo to misdirect pursuit.
+Vex infiltrates the Helix research facility to retrieve an experimental core. The player moves and aims in third person, shoots with the VX-7 rifle, and plants a holographic anchor on reachable ground. SHIFT teleports Vex to the anchor for a flank, leaving a brief echo that distracts nearby guards.
 
-**Design rule:** gunplay must feel good without SHIFT; SHIFT must make good firefights spectacular.
+Gunplay should stand on its own. SHIFT adds opportunities to flank and redirect enemies during a firefight.
 
-## Prototype tuning targets (subject to playtests)
+## Prototype tuning targets
 
 | System | Intended target |
 | --- | --- |
@@ -21,33 +21,33 @@ Vex enters a Helix industrial research facility to extract an experimental core.
 | Rifle | Automatic hitscan, 24 rounds, about 1.5 s reload |
 | Player | 100 HP; healing later as tuned |
 
-Critical correctness: place only on valid surfaces in line of sight, verify capsule clearance at placement **and activation**, never teleport through cover/walls or into occupied space, and never burn cooldown on rejected teleport. Remove expired anchors and echoes safely.
+Anchors must be placed on valid surfaces within line of sight. Check player capsule clearance both when placing an anchor **and when activating SHIFT**. Reject teleports through walls, cover, or occupied space without consuming the cooldown. Expired anchors and echoes must be removed safely. These values are targets to tune through playtests.
 
 ## Planned controls
 
 WASD move · Mouse look/aim · Left click fire · Right click ADS · Q deploy anchor · Left Shift SHIFT · R reload · E interact · Tab objective · Esc pause. Implement via Godot InputMap actions.
 
-## Shippable scope
+## Release scope
 
-**P0 (prototype):** single greybox arena; third-person controller/camera; rifle firing and damage; one guard with readable shooting; one safe SHIFT ability/echo; basic HUD; death/restart; one win condition.
+**P0 prototype:** one greybox arena with third-person movement and camera, rifle damage, one guard with readable attacks, safe SHIFT and echo behavior, a basic HUD, death/restart, and a win condition.
 
-**P1 (only after P0 works):** 8–12-minute mission in three zones:
+**P1, after P0 works:** an 8–12-minute mission across three zones:
 1. Loading Dock (2–3 min): fundamentals and first flank behind cargo.
 2. Security Core (3–4 min): elevated catwalk combat and terminal shutdown.
 3. Extraction (3–5 min): retrieve core, final resistance and escape.
 
-**P2:** optional turret, scoring, extra animation/polish, controller support.
+**P2:** optional turret, scoring, animation polish, and controller support.
 
 **Excluded:** open world, multiplayer, crafting, gear economy, elaborate squad AI or bespoke AAA asset production.
 
 ## Visual and distribution direction
 
-Low-poly industrial sci-fi, graphite/steel architecture, cyan SHIFT highlights and amber threat indicators. Reusable geometry, minimal effects; prioritize frame pacing and readability. HTML5 export through itch.io using Godot Compatibility; desktop optional. The hosted browser build must be separately tested before submission. Target submission before Game Off's December 1, 2026 deadline.
+Use low-poly industrial sci-fi environments with graphite and steel surfaces, cyan SHIFT effects, and amber enemy indicators. Reuse geometry and limit expensive effects to keep the game readable and browser performance steady. The intended release is an HTML5 build on itch.io using Godot's Compatibility renderer; a desktop build is optional. Test the hosted browser build before submitting, ahead of the December 1, 2026 Game Off deadline.
 
 ## Delivery sequencing
 
-Follow [the milestone and PR tracker](MILESTONES.md) for the chronological implementation checklist, quality gates, planned dates and real implementing PR references. The design is the scope authority; the milestone tracker is the **delivery status authority**. Never treat a planned milestone as implemented.
+Use [MILESTONES.md](MILESTONES.md) for the implementation order, quality checks, target dates, and PR links. This design defines the scope. The tracker records delivery status; planned work must not be described as implemented.
 
 ## Change control
 
-Tuning numbers are goals, not immutable truths. Any major change to core loop or milestone scope needs an approved design note. Distinguish design plan, implemented behavior, automated verification and manual playtest observations.
+Playtesting may change the tuning targets. Changes to the core loop or milestone scope require an approved design note. Keep proposed behavior, implemented behavior, automated test results, and manual playtest findings separate.

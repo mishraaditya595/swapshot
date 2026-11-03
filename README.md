@@ -4,9 +4,9 @@
 
 **[Play SWAPSHOT online — GitHub Pages](https://mishraaditya595.github.io/swapshot/)**
 
-Open the preview hub to play a manually published browser build. New PRs, pushes and merges do **not** automatically redeploy the game; the owner chooses when to publish a new build.
+The preview hub links to browser builds published manually by the repository owner. Opening or merging a PR does not deploy a new build.
 
-SWAPSHOT is a single-player, third-person tactical shooter built for **GitHub Game Off 2026** (theme: **SHIFT**). Play as Vex, a covert operative infiltrating the Helix facility. Plant a holographic anchor, SHIFT into a better position, leave an echo behind, and turn firefights into flanking opportunities.
+SWAPSHOT is a single-player third-person shooter for **GitHub Game Off 2026**, whose theme is **SHIFT**. You play Vex, an operative infiltrating the Helix research facility. Place a holographic anchor, teleport to a better firing position, and leave an echo behind to distract enemies.
 
 ## Scope
 
@@ -34,37 +34,21 @@ godot --headless --path . --import
 godot --headless --path . --quit-after 2
 ```
 
-For gameplay regressions, run `godot --headless --path . --script res://tests/ms01_scene_smoke.gd` and `godot --headless --path . --script res://tests/ms02_rifle_smoke.gd`. The project owner opted for manual **browser-first** gameplay QA instead of a local editor session; the completed macOS browser acceptance record and the corrected camera regression are in [the review report](docs/reviews/MS-01-review.md). Headless tests alone do not prove camera comfort. The final public Web release still requires separate browser testing.
+To check gameplay regressions, run `godot --headless --path . --script res://tests/ms01_scene_smoke.gd` and `godot --headless --path . --script res://tests/ms02_rifle_smoke.gd`. The [MS-01 review report](docs/reviews/MS-01-review.md) records the owner's macOS browser playtest and a corrected camera regression. The project uses manual **browser-first** gameplay QA instead of a local editor session. Headless tests cannot establish whether the camera feels comfortable, and the final public Web release still needs its own browser test.
 
 ## Manual browser deployment
 
-The [GitHub Pages deployment workflow](https://github.com/mishraaditya595/swapshot/actions/workflows/deploy-web-manual.yml)
-runs **only** when the owner chooses **Run workflow**. PR opens, updates and
-merges do not publish or refresh the game. For a PR #N, choose source `pr`
-and enter its number; the preview lives at `/swapshot/pr-N/`. For the latest
-merged `main`, choose source `main` with no PR number; it publishes to
-`/swapshot/play/`. A playable PR #4 snapshot was manually deployed and
-tested on November 3, 2026. See [the acceptance record](docs/reviews/MS-01-review.md)
-for actual results and limitations.
+The [GitHub Pages deployment workflow](https://github.com/mishraaditya595/swapshot/actions/workflows/deploy-web-manual.yml) runs only when the owner selects **Run workflow**. To publish an open PR, choose source `pr` and enter its number. The build appears at `/swapshot/pr-N/`. To publish the latest merged `main`, choose source `main` and leave the PR number blank; that build appears at `/swapshot/play/`.
 
-## Browser PR previews
-
-Web deployment is **manual only**. Opening, updating, or merging a PR does
-not deploy anything. After the [manual Pages deployment infrastructure](docs/PR_WEB_PREVIEWS.md)
-is merged and GitHub Pages is enabled, choose **Actions → SWAPSHOT Deploy Web
-to GitHub Pages (Manual) → Run workflow** to publish a specific open PR
-(`/swapshot/pr-N/`) or the latest merged `main` (`/swapshot/play/`).
-The [preview hub](https://mishraaditya595.github.io/swapshot/) lists
-previously deployed snapshots. Browser QA is still required before a gameplay
-milestone can be accepted.
+A PR #4 snapshot was manually deployed and tested on November 3, 2026. The [MS-01 acceptance record](docs/reviews/MS-01-review.md) has the results and limitations. The [preview hub](https://mishraaditya595.github.io/swapshot/) lists published snapshots. Follow the [deployment guide](docs/PR_WEB_PREVIEWS.md) for setup, security boundaries, and troubleshooting. A deployed build still needs hands-on browser QA before a gameplay milestone is accepted.
 
 ## Development milestones
 
-**[View the full milestone/PR checklist](docs/MILESTONES.md)** — the single source of truth from the first gameplay GDScript to release. Each milestone is its own PR. Coding agents must tick its verified tasks, check off the completed milestone and record the **actual PR number/link in the same file** before asking to merge. Milestone MS-00 (repository bootstrap) is already completed by [PR #1](https://github.com/mishraaditya595/swapshot/pull/1); gameplay milestones remain pending.
+The [milestone and PR checklist](docs/MILESTONES.md) tracks work from the first gameplay GDScript to release. Each milestone has its own PR. Agents must mark tasks complete only after verification, then add the real PR number and link to the same file before requesting a merge. Bootstrap milestone MS-00 was completed in [PR #1](https://github.com/mishraaditya595/swapshot/pull/1). Check the tracker for current gameplay status.
 
 ## Pull request quality checks
 
-[Pre-merge quality gate](docs/PRE_MERGE.md) documents the PR acceptance checks, conservative static code review, Godot/CI tests, and how to make job names mandatory under the GitHub `main` ruleset. Automated checks do **not** substitute for in-editor playtesting or human review.
+The [pre-merge guide](docs/PRE_MERGE.md) explains PR acceptance checks, static review, Godot CI, and required checks for the GitHub `main` ruleset. Gameplay still needs human review and playtesting.
 
 ## Architecture and collaboration
 
@@ -75,12 +59,12 @@ milestone can be accepted.
 - [Third-party skill sources and licenses](docs/SKILLS.md)
 - [Original interactive design brief](.agents/skills/swapshot-review/references/source-design-brief.html)
 
-Agent skills are vendored in `.agents/skills/`: `brainstorming`, `find-skills`, `verification-before-completion`, `humanizer`, and the project-specific `swapshot-review`. Claude Code uses wrapper entry points in `.claude/skills/`. Any AI-written or AI-edited reader-facing prose must receive the [Humanizer](.agents/skills/humanizer/SKILL.md) editorial pass before it is committed or shared. Preserve technical facts, commands, links and game controls; this is a documented agent requirement, not an automated check. See [SKILLS.md](docs/SKILLS.md).
+The repository includes local agent skills in `.agents/skills/`, with Claude Code entry points in `.claude/skills/`. Agents must apply [Humanizer](.agents/skills/humanizer/SKILL.md) to reader-facing prose before committing or sharing it, without changing technical facts, commands, links, or controls. This is an agent instruction; CI does not enforce it. The full list and licenses are in [SKILLS.md](docs/SKILLS.md).
 
 ## Contributing
 
-Work in small branches and reviewable PRs; do not push unreviewed game features directly to `main`. Include the behavior, test evidence, risks, and manual playtest steps in each PR. Follow `AGENTS.md` and the PR template. Respect licenses and attribute external assets. Do not add large binary art or export artifacts to Git without a deliberate asset-management decision.
+Use a separate branch for each focused change and open a PR before merging into `main`. Describe what changed, the tests you ran, remaining risks, and manual playtest steps. Follow `AGENTS.md` and the PR template. Credit external assets and check their licenses. Large binary art and exported builds need an explicit asset-management decision before being committed.
 
 ## License / credits
 
-A game license for SWAPSHOT itself is **not selected yet**; do not assume source/assets are freely reusable. Bundled third-party agent skills retain their upstream MIT notices in `.agents/skills/_licenses/`. Game content/asset licenses and the final AI-assisted-development disclosure will be documented before release.
+SWAPSHOT does not yet have a game license, so do not assume its code or assets can be reused. Third-party agent skill licenses are kept in `.agents/skills/_licenses/`. The game content licenses, asset credits, and final AI-assistance disclosure are due before release.
