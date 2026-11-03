@@ -133,8 +133,15 @@ func _run() -> void:
     _check(ended[0] == 2, "Death notifies echo end")
     _check(states.has(1) and states.has(2) and states.has(3), "State signals must cover active, cooldown and disabled")
 
+    # Reload while a hologram is still alive, without going through death.
+    ability.call("set_owner_alive", true)
+    _check(ability.call("_try_place_at", point, Vector3.UP), "Fresh anchor before scene reload")
+    _check(ability.call("try_shift"), "New echo before scene reload")
+    var reload_echo: Node3D = ability.get("echo_instance") as Node3D
     arena.queue_free()
     await _frames(3)
+    if reload_echo != null:
+        _check(not is_instance_valid(reload_echo), "Scene unload frees an active echo")
     var reloaded: Node3D = scene.instantiate()
     root.add_child(reloaded)
     await _frames(8)
