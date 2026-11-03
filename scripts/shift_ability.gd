@@ -119,6 +119,14 @@ func _validate_landing(point: Vector3, normal: Vector3) -> String:
     if not _ray(eye, sight_target).is_empty():
         return "Landing blocked from player"
 
+    var shape_query := PhysicsShapeQueryParameters3D.new()
+    shape_query.shape = _clearance_shape
+    shape_query.transform = Transform3D(Basis.IDENTITY, _arrival_origin(point))
+    shape_query.collision_mask = 0xFFFFFFFF
+    shape_query.exclude = [player.get_rid()]
+    if not get_world_3d().direct_space_state.intersect_shape(shape_query, 16).is_empty():
+        return "Player capsule would overlap an obstacle"
+
     # Require level, solid floor under the capsule center AND its perimeter.
     # A point at a ledge may fit the capsule but still have no footing.
     var inset: float = _clearance_shape.radius * 0.85
@@ -140,13 +148,6 @@ func _validate_landing(point: Vector3, normal: Vector3) -> String:
         if absf(floor_point.y - point.y) > 0.14 or floor_normal.dot(Vector3.UP) < min_up:
             return "Floor edge, step or steep surface"
 
-    var shape_query := PhysicsShapeQueryParameters3D.new()
-    shape_query.shape = _clearance_shape
-    shape_query.transform = Transform3D(Basis.IDENTITY, _arrival_origin(point))
-    shape_query.collision_mask = 0xFFFFFFFF
-    shape_query.exclude = [player.get_rid()]
-    if not get_world_3d().direct_space_state.intersect_shape(shape_query, 16).is_empty():
-        return "Player capsule would overlap an obstacle"
     return ""
 
 

@@ -59,12 +59,24 @@ func _run() -> void:
         not ability.call("_try_place_at", Vector3(1.0, 3.5, 7.0), Vector3.UP),
         "Must reject destination without supporting floor"
     )
+    _check(
+        not ability.call("_try_place_at", Vector3(0.0, 9.0, 7.0), Vector3.UP),
+        "Must reject excessive landing height"
+    )
+    _check(
+        not ability.call("_try_place_at", Vector3(3.0, 0.0, -5.0), Vector3.UP),
+        "Must reject a landing behind existing cover"
+    )
     _check(not ability.get("anchor_active"), "Rejected placements cannot arm anchor")
 
     # Deployment clearance must check the *whole* capsule, not the point.
-    var blocked := _make_blocker(Vector3(0.28, 0.95, 7.0))
+    var blocked := _make_blocker(Vector3(0.66, 0.95, 7.0))
     arena.add_child(blocked)
     await _frames(3)
+    _check(
+        ability.call("_validate_landing", point, Vector3.UP) == "Player capsule would overlap an obstacle",
+        "Capsule edge must be rejected by shape overlap, not by line of sight"
+    )
     _check(
         not ability.call("_try_place_at", point, Vector3.UP),
         "Must reject a capsule edge overlapping nearby cover"

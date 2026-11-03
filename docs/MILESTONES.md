@@ -64,7 +64,7 @@
 
 **Target:** Nov 5, 2026 · **Priority:** P0 · **Depends on:** MS-02 (unless explicitly reordered)
 
-- [ ] **MS-03 complete** — **Implementing PR:** —
+- [ ] **MS-03 complete** — **Implementing PR:** [#11](https://github.com/mishraaditya595/swapshot/pull/11)
   - [ ] Implement an 18 m target-range holographic anchor preview and placement raycast.
   - [ ] Reject invalid surface slope, obstruction, height, unsafe floor and out-of-range destinations.
   - [ ] Validate full player-capsule clearance when placing and again immediately before activation.
