@@ -1,84 +1,93 @@
-# Play each SWAPSHOT PR in your browser
+# Manually deploy SWAPSHOT to GitHub Pages
 
-**Purpose:** Preview the gameplay associated with a PR before merging it. These
-are development builds; browser acceptance and manual QA still need real
-observations. This is **not** the final MS-14 Web export/itch.io release gate.
+GitHub Pages serves optional, **owner-triggered** playable Godot Web builds.
+Nothing is published automatically when a PR is opened, updated, reopened,
+closed, or merged, or when changes reach `main`. The usual CI/pre-merge tests
+continue to run normally; those tests do **not** deploy to the web.
 
-## Architecture and trust boundaries
+## How to run a deployment
 
-1. `SWAPSHOT PR Web Preview Build` runs when a **same-repository PR**
-   targeting `main` is opened or updated. It uses **read-only** checkout,
-   pinned Godot **4.7.2 stable**, official Godot Web export templates,
-   Compatibility rendering, **single-threaded** Web export, and an isolated
-   temporary `export_presets.cfg` copied from
-   `.github/web-preview-export-presets.cfg`. It checks for
-   `index.html`, `index.js`, `index.wasm`, and `index.pck`, then uploads
-   a short-lived artifact. The first official export-template download is
-   roughly 1.2 GiB; Actions caches only the extracted Web template afterward.
-2. `SWAPSHOT Publish PR Previews to Pages` runs in the **default branch**
-   only after a successful export workflow. Its trusted code downloads the
-   artifact but **never executes PR-supplied files**. It verifies the PR
-   number, same-repo origin, open status, target `main`, and head SHA
-   before proceeding. Stale runs are ignored.
-3. The publisher stores each snapshot in `gh-pages/pr-N/`, writes a static
-   index, and publishes the **whole collection** using GitHub Pages Actions.
-   Previous PR URLs remain available unless intentionally cleaned up.
-   All preview content is **public**; do not expose secrets or sensitive data.
-   Artifacts/builds from forks are intentionally not published.
+First merge the separate governance [PR #5](https://github.com/mishraaditya595/swapshot/pull/5)
+into `main`; the manual workflow button will not be active on `main` until then.
+Configure **Settings → Pages → Build and deployment → GitHub Actions**.
+Allow `main` to deploy to the `github-pages` environment. Ensure Actions can
+create/update the `gh-pages` branch (branch rulesets may need an exception).
 
-## One-time repository setup (required)
+1. Open [Actions → SWAPSHOT Deploy Web to GitHub Pages (Manual)](https://github.com/mishraaditya595/swapshot/actions/workflows/deploy-web-manual.yml).
+2. Select **Run workflow** and choose **Branch: main**. Runs from any other
+   branch are explicitly blocked.
+3. For an unmerged PR, set **source = pr**, enter the **PR number** (e.g. `4`),
+   then click **Run workflow**. Only *open*, same-repository PRs targeting
+   `main` are supported. The workflow resolves the current PR head SHA itself.
+4. To deploy the latest merged game, set **source = main** and leave PR number
+   **blank**. This checks out the latest `main` commit.
+5. Open the completed workflow run. Only after the **Deploy selected revision
+   to GitHub Pages** job succeeds should you use its deployment URL. Pages
+   publishing success does not replace hands-on browser gameplay QA.
 
-The owner must merge the **governance** PR containing these workflows first.
-It must be merged independently of gameplay MS-01 and only after the
-pre-merge review/CI checks pass. Then:
+## Manually published URLs
 
-1. Go to **Settings → Pages → Build and deployment**.
-2. Choose **GitHub Actions** as the publishing source.
-3. Under **Settings → Environments → github-pages**, allow deployments from
-   `main` (the trusted publishing workflow runs on `main`). Ensure the
-   repository Actions permissions/ruleset allows this workflow to write to a
-   new `gh-pages` branch; code on incoming PRs never has write permissions.
-4. Refresh or synchronize an existing gameplay PR (for example, by pushing
-   a commit or re-running its PR Web Preview Build workflow) to generate a
-   preview artifact after the governance workflow has been merged.
-5. Check the successful **Publish PR Previews to Pages** deployment job.
-   Only then open the URL. A build artifact alone does not establish that
-   GitHub Pages deployed or that the browser game runs correctly.
+- **Index:** https://mishraaditya595.github.io/swapshot/
+- **Selected PR #4:** https://mishraaditya595.github.io/swapshot/pr-4/
+- **Any PR #N:** `https://mishraaditya595.github.io/swapshot/pr-N/`
+- **Latest manually deployed main:** https://mishraaditya595.github.io/swapshot/play/
 
-**Preview index (once deployed):**
-https://mishraaditya595.github.io/swapshot/
+The URLs above are intended routes, not evidence they are already live.
+A successful manual run replaces *only* the selected snapshot. Other manual
+PR snapshots remain available. `play/` is updated **only when you explicitly
+run the workflow with source = main**; a merge does not update it.
 
-**PR #4 example (once deployed):**
-https://mishraaditya595.github.io/swapshot/pr-4/
+## Security and release boundaries
 
-For any later PR #N, use `https://mishraaditya595.github.io/swapshot/pr-N/`.
-Each commit to a PR updates its snapshot, while other PR URLs remain stable.
+The manual workflow `.github/workflows/deploy-web-manual.yml` has
+**only** the `workflow_dispatch` event; it has no `push`,
+`pull_request`, `workflow_run`, or scheduled deployment trigger.
+The workflow has these separate jobs:
 
-## Browser QA
+1. **Resolve:** on trusted `main`, validate the chosen PR or latest main
+   SHA and reject any other workflow branch, fork PR, closed PR, or PR not
+   targeting `main`.
+2. **Build:** check out the selected game code with **read-only** permissions
+   and credential-free checkout. Use a separate trusted checkout from `main`
+   for the Web preset and structural verifier. Godot **4.7.2 stable** exports
+   with the official **single-threaded Web templates** and Compatibility
+   renderer. A full official export-template archive is downloaded on a cache
+   miss (about 1.2 GiB).
+3. **Stage:** check the PR/main SHA is still current, verify artifact files
+   again with trusted code, preserve previous snapshots in `gh-pages`, and
+   upload the complete Pages site. This job has repository write permission,
+   but it never executes files from the selected game revision or artifact.
+4. **Deploy:** use Pages permissions to publish the staged site and expose the
+   URL in the job summary.
 
-Use a desktop Chromium/Firefox browser supporting WebAssembly and WebGL 2.
-Open the hosted URL, click the canvas to capture the pointer, move using WASD,
-aim/look around walls, test the ramp and boundary collisions, press Escape to
-release pointer lock, click again to recapture and alt-tab away/back. Record
-browser/version, OS, commit SHA, pass/fail notes, and console errors in the
-gameplay PR. A successful Pages deployment by itself is **not** evidence that
-MS-01 (or another milestone) has passed manual acceptance.
+All previews are publicly accessible. Do not include secrets in the game or
+export package. GitHub Pages storage is finite; old snapshot directories can
+be pruned through a reviewed infrastructure change when needed. The
+`gh-pages` branch is an archive, **not** a separate GitHub Pages build source:
+the Pages source must be **GitHub Actions**.
 
-## Failure handling / scope guard
+The Web build step checks that `index.html`, `index.js`, `index.wasm`,
+and `index.pck` are present and non-empty. A successful export does **not**
+prove WebGL rendering, player controls, pointer lock, or gameplay correctness.
+For MS-01 manual acceptance, use the hosted URL to test WASD, camera pitch,
+walls/cover, ramp ascent/descent, click-to-capture, Escape-to-release, and
+Alt-Tab focus behavior. Record browser version, OS, commit SHA, pass/fail
+results, and console errors in the gameplay PR. Do not mark a milestone
+accepted from automated checks alone.
 
-- **Export job fails:** inspect the export log and `verify_web_preview.py`
-  output. Do not publish a partially generated build.
-- **Publisher skips:** its PR revision was superseded or PR was closed.
-- **Publisher fails:** verify Pages source, deployment environment, branch
-  permissions and `gh-pages` branch ruleset. The build artifact is still
-  available for inspection within its retention period.
-- **Browser fails:** check browser developer console, WebGL 2 availability,
-  single-threaded export options, and asset load errors. Do not mark browser
-  verification complete.
-- **Large repository:** snapshots persist on `gh-pages`; prune old paths by
-  a reviewed maintenance change if storage approaches GitHub Pages limits.
-- **Final jam release:** MS-14/MS-15/MS-16 still require a tested hosted itch.io
-  export and independent release evidence. Preview hosting does not replace it.
+This preview process does not replace the final tested itch.io release or
+submission requirements in MS-14 through MS-16.
 
-The infrastructure is intentionally a separate `ci:` governance PR. It does
-not change any gameplay milestone checkbox or silently close MS-01.
+## Failure cases
+
+- **No Run workflow button:** this PR is not yet on `main`; merge the
+  infrastructure first, enable GitHub Actions and inspect workflow visibility.
+- **Invalid PR number:** select source `pr`, enter an open same-repo PR number.
+- **PR/main moved during export:** the job refuses to publish a stale build;
+  trigger a fresh run manually.
+- **Export fails:** inspect Godot import/export logs and structural asset check.
+  No Pages deployment follows a failed build.
+- **Stage/publish fails:** confirm Pages source, `github-pages` environment,
+  Actions permissions and `gh-pages` branch protection.
+- **Web loads incorrectly:** inspect the browser console/network and WebGL 2
+  support; deployment itself does not certify a working game.
