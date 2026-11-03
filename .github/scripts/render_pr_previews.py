@@ -7,7 +7,6 @@ it never executes downloaded PR artifacts.
 from __future__ import annotations
 
 import argparse
-import html
 import re
 from pathlib import Path
 
@@ -23,7 +22,11 @@ def collect_previews(site: Path) -> list[int]:
     return sorted(set(found), reverse=True)
 
 
-def render(previews: list[int]) -> str:
+def render(previews: list[int], has_main: bool = False) -> str:
+    latest = (
+        '<li><a href="play/">Play latest manually deployed main build</a></li>\n'
+        if has_main else ""
+    )
     tiles = "".join(
         f'<li><a href="pr-{num}/">Play PR #{num}</a>'
         f' <span>·</span> <a class="source" '
@@ -33,6 +36,7 @@ def render(previews: list[int]) -> str:
     )
     if not tiles:
         tiles = "<li>No preview builds have been published yet.</li>"
+    tiles = latest + tiles
     return """<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -49,8 +53,9 @@ li { padding: .85rem 0; border-bottom: 1px solid #33404c; }
 </style></head><body>
 <p class="note">GITHUB GAME OFF 2026 · DEVELOPMENT PREVIEWS</p>
 <h1>SWAPSHOT</h1>
-<p>Browser builds of individual pull requests. These are works in progress,
-not a release or proof of completed manual gameplay QA.</p>
+<p>Manually published browser builds of individual pull requests and main.
+Nothing is deployed when PRs open, update, merge, or when main changes.
+These builds are not proof of completed manual gameplay QA.</p>
 <ul>""" + tiles + """</ul>
 <p class="note">Desktop keyboard and mouse recommended.
 Requires a browser with WebAssembly and WebGL 2.0.</p>
@@ -65,8 +70,9 @@ def main() -> int:
     if not args.site.is_dir():
         parser.error("Site root must be an existing directory")
     previews = collect_previews(args.site)
-    (args.site / "index.html").write_text(render(previews), encoding="utf-8")
-    print(f"Rendered preview index with {len(previews)} PR(s).")
+    has_main = (args.site / "play" / "index.html").is_file()
+    (args.site / "index.html").write_text(render(previews, has_main), encoding="utf-8")
+    print(f"Rendered preview index with {len(previews)} PR(s), main={'yes' if has_main else 'no'}.")
     return 0
 
 
