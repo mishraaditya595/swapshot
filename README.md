@@ -75,7 +75,7 @@ milestone can be accepted.
 - [Third-party skill sources and licenses](docs/SKILLS.md)
 - [Original interactive design brief](.agents/skills/swapshot-review/references/source-design-brief.html)
 
-Agent skills are vendored in `.agents/skills/`: `brainstorming`, `find-skills`, `verification-before-completion`, and the project-specific `swapshot-review`. Claude Code uses wrapper entry points in `.claude/skills/`. See [SKILLS.md](docs/SKILLS.md).
+Agent skills are vendored in `.agents/skills/`: `brainstorming`, `find-skills`, `verification-before-completion`, `humanizer`, and the project-specific `swapshot-review`. Claude Code uses wrapper entry points in `.claude/skills/`. Any AI-written or AI-edited reader-facing prose must receive the [Humanizer](.agents/skills/humanizer/SKILL.md) editorial pass before it is committed or shared. Preserve technical facts, commands, links and game controls; this is a documented agent requirement, not an automated check. See [SKILLS.md](docs/SKILLS.md).
 
 ## Contributing
 

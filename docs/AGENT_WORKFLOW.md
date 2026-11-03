@@ -6,7 +6,8 @@
 4. **Implement** on a topic branch, keeping work reviewable. Avoid unplanned expansion.
 5. **Verify** fresh checks: static audit, unit tests, Godot headless import, gameplay exercise and browser export if applicable. Show actual exit statuses and identify NOT RUN checks.
 6. **Review** with `swapshot-review`; prioritize P0/P1 issues before polish.
-7. **PR** with summary, changed behaviors, verification evidence, and manual playtest steps. Request review. Do not merge automatically.
+7. **Document:** before presenting or committing AI-written or AI-edited reader-facing prose, read `.agents/skills/humanizer/SKILL.md` and apply its editorial pass. Keep facts, links, commands, code, game controls, acceptance criteria and required headings intact. Record this review in documentation PR verification notes; it is not a CI-enforced guarantee.
+8. **PR** with summary, changed behaviors, verification evidence, and manual playtest steps. Request review. Do not merge automatically.
 
 Skills are local under `.agents/skills/`. The Claude wrappers in `.claude/skills/` point to those same full instructions. The skill finder may **recommend** additions, but no unreviewed skill is automatically authorized to install dependencies.
 

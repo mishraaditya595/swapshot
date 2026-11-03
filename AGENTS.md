@@ -16,8 +16,11 @@ These skills are **vendored locally**, not just external links. Open the actual 
 | --- | --- | --- |
 | Before creative design/new features/behavior changes, unless requirements are already fully and explicitly settled | **brainstorming** | [`.agents/skills/brainstorming/SKILL.md`](.agents/skills/brainstorming/SKILL.md) |
 | When a task may benefit from an additional specialist workflow, or when asked to find skills | **find-skills** | [`.agents/skills/find-skills/SKILL.md`](.agents/skills/find-skills/SKILL.md) |
+| Whenever an AI agent drafts, rewrites, or edits reader-facing documentation, before delivery or commit | **humanizer** | [`.agents/skills/humanizer/SKILL.md`](.agents/skills/humanizer/SKILL.md) |
 | Before saying a task is done, fixed, tested, buildable, or ready to merge | **verification-before-completion** | [`.agents/skills/verification-before-completion/SKILL.md`](.agents/skills/verification-before-completion/SKILL.md) |
 | Before finalizing game-feature PRs, major milestone reviews, or release sign-off | **swapshot-review** | [`.agents/skills/swapshot-review/SKILL.md`](.agents/skills/swapshot-review/SKILL.md) |
+
+**Required documentation gate:** For every AI-authored or AI-edited user-facing document (README, guides, design briefs, tutorials, release notes, issue/PR prose, public-facing site or game copy, and other published explanations), read the entire `humanizer` skill and run an editorial pass on prose **before publishing, committing, or presenting it**. Apply it also when only part of a file changes, to the changed reader-facing passages. Preserve meaning, factual claims, exact milestone IDs, commands, file paths, API names, controls, links, citations, required templates, and technical terminology. Do not humanize code, machine-readable data, configuration values, logs, or generated artifacts. Where a technical or compliance instruction conflicts with a stylistic suggestion, keep the technically accurate wording. This is an agent workflow requirement, not proof of automated enforcement; mention the pass in documentation PR verification evidence.
 
 Upstream source catalog: [brainstorming](https://www.skills.sh/obra/superpowers/brainstorming), [find-skills](https://www.skills.sh/vercel-labs/skills/find-skills), [verification-before-completion](https://www.skills.sh/obra/superpowers/verification-before-completion). The GitHub-reviewed copies in this repository are authoritative during work on SWAPSHOT.
 
@@ -29,7 +32,8 @@ Upstream source catalog: [brainstorming](https://www.skills.sh/obra/superpowers/
 4. **Find skills only when justified:** read `find-skills` when discovery is useful. Never run arbitrary skill installers, remote shell snippets, new packages, or scripts without reviewing the source and checking approval; source provenance matters.
 5. **Verify:** read `verification-before-completion`, execute relevant checks, inspect actual exit codes/output, and distinguish PASS, FAIL, and NOT RUN. Never claim Godot, gameplay, browser performance or CI passed solely from static inspection.
 6. **Review:** apply `swapshot-review` read-only against changed behavior, particularly SHIFT collisions, weapon line-of-sight, enemy state, and Web constraints; resolve P0/P1 defects before requesting merge.
-7. **Report:** summarize changed files, tests actually run, missing manual verification, known risks, and exact next step. Use `.github/PULL_REQUEST_TEMPLATE.md`.
+7. **Humanize reader-facing documentation:** apply the required `humanizer` pass to any new or edited public prose, including the PR description; preserve technical accuracy.
+8. **Report:** summarize changed files, tests actually run, missing manual verification, known risks, and exact next step. Use `.github/PULL_REQUEST_TEMPLATE.md`.
 
 ## Milestone tracker — required for every gameplay PR
 
