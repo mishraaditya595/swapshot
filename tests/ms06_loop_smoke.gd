@@ -50,8 +50,29 @@ func _run() -> void:
         "Player begins fully active")
     _check(is_equal_approx(float(player.get("health")), 100.0), "Player starts at 100 HP")
     _check(int(weapon.get("ammo")) == 24, "Rifle starts with full 24-round magazine")
-    _check(int(encounter.call("_remaining_guards")) == 3, "Three guards must be present")
-    _check(objective.text.contains("0 / 3"), "Objective starts with explicit progress")
+    _check(int(encounter.call("_remaining_guards")) == 6, "Two waves contain six guards")
+    _check(int(encounter.get("current_wave")) == 1, "Mission starts with wave one")
+    for path: NodePath in [
+        NodePath("ReinforcementWest"),
+        NodePath("ReinforcementNorth"),
+        NodePath("ReinforcementHigh")
+    ]:
+        var reserve: StaticBody3D = encounter.get_node(path) as StaticBody3D
+        _check(not reserve.visible and reserve.collision_layer == 0,
+            "Reserve guard has no visible model or collision before activation")
+        _check(not bool(reserve.get("combat_enabled")),
+            "Reserve AI remains disabled until its wave")
+        var reserve_hp: float = reserve.get("health")
+        reserve.call("apply_damage", 500.0)
+        _check(is_equal_approx(float(reserve.get("health")), reserve_hp),
+            "Dormant reserve cannot be killed before its wave")
+    _check((hud.get_node("Health") as Label).get_theme_font_size("font_size") >= 28,
+        "Player health has readable type")
+    _check((encounter.get_node("Firefight/EncounterHUD/HelixHint") as Label).get_theme_font_size("font_size") >= 26,
+        "Objective text size is increased")
+    _check((ability.get_node("ShiftHUD/Status") as Label).get_theme_font_size("font_size") >= 24,
+        "SHIFT text size is increased")
+    _check(objective.text.contains("0 / 6"), "Objective starts with explicit progress")
     _check(not result_layer.visible, "Outcome must be hidden during active combat")
     _check(bool(hud.get("mission_managed")), "Encounter must own threat status")
     _check(is_equal_approx(health_fill.scale.x, 1.0), "Health bar starts full")
@@ -78,16 +99,65 @@ func _run() -> void:
 
     first.call("apply_damage", 500.0)
     _check(int(encounter.get("phase")) == 0, "One kill must not cause premature victory")
-    _check(objective.text.contains("1 / 3"), "First kill advances objective")
+    _check(objective.text.contains("1 / 6"), "First kill advances objective")
     _check(not hud.get_node("Threat").text.contains("NEUTRALIZED"),
         "One dead guard must not label entire encounter neutralized")
     first.call("apply_damage", 500.0)
-    _check(objective.text.contains("1 / 3"), "Repeated death event cannot double-count")
+    _check(objective.text.contains("1 / 6"), "Repeated death event cannot double-count")
     second.call("apply_damage", 500.0)
-    _check(int(encounter.get("phase")) == 0 and objective.text.contains("2 / 3"),
+    _check(int(encounter.get("phase")) == 0 and objective.text.contains("2 / 6"),
         "Two kills leave one live hostile")
     third.call("apply_damage", 500.0)
-    _check(int(encounter.get("phase")) == 1, "Last guard must trigger victory exactly once")
+    _check(int(encounter.get("phase")) == 0, "First wave cannot cause premature victory")
+    _check(int(encounter.call("_remaining_guards")) == 3,
+        "Three dormant reserves still count toward completion")
+    _check(objective.text.contains("3 / 6") and objective.text.contains("WAVE 1 / 2"),
+        "The HUD shows progress and current wave")
+    _check(bool(encounter.get("reinforcements_inbound")),
+        "Last patrol kill queues second wave only once")
+    _check((encounter.get_node("MissionHUD/WaveBanner") as Label).text.contains("REINFORCEMENTS"),
+        "Incoming reinforcements receive an on-screen warning")
+    var before_countdown: float = float(encounter.get("reinforcement_remaining"))
+    encounter.call("_advance_waves", 2.0)
+    _check(float(encounter.get("reinforcement_remaining")) < before_countdown
+        and int(encounter.get("current_wave")) == 1, "Wave has a readable warning delay")
+    paused = true
+    before_countdown = float(encounter.get("reinforcement_remaining"))
+    encounter.call("_advance_waves", 30.0)
+    _check(is_equal_approx(float(encounter.get("reinforcement_remaining")), before_countdown),
+        "Pausing freezes the reinforcement countdown")
+    paused = false
+
+    # A player occupying the western entry must trigger a safe alternative.
+    player.global_position = Vector3(-11.2, 1.03, -10.8)
+    await _frames(2)
+    encounter.call("_advance_waves", 3.0)
+    _check(int(encounter.get("current_wave")) == 2
+        and not bool(encounter.get("reinforcements_inbound")),
+        "Three response guards activate after the warning")
+    _check(objective.text.contains("WAVE 2 / 2"), "Objective displays response wave")
+    var reserves: Array[StaticBody3D] = [
+        encounter.get_node("ReinforcementWest") as StaticBody3D,
+        encounter.get_node("ReinforcementNorth") as StaticBody3D,
+        encounter.get_node("ReinforcementHigh") as StaticBody3D
+    ]
+    for guard: StaticBody3D in reserves:
+        _check(guard.visible and guard.collision_layer == 1
+            and bool(guard.get("combat_enabled")), "Responding guard is present and hittable")
+        _check(guard.global_position.distance_to(player.global_position) >= 3.95,
+            "A guard cannot spawn on top of the player")
+        _check(float(guard.get("health")) == 120.0,
+            "Second-wave health is moderately increased")
+        guard.set_physics_process(false)
+    _check(reserves[0].global_position.distance_to(Vector3(-11.2, 1.03, -10.8)) > 1.0,
+        "Occupied preferred entry uses alternate spawn")
+    _check(not result_layer.visible, "Second wave must finish before victory")
+    reserves[0].call("apply_damage", 500.0)
+    reserves[1].call("apply_damage", 500.0)
+    _check(int(encounter.get("phase")) == 0 and objective.text.contains("5 / 6"),
+        "Final live response guard keeps the mission active")
+    reserves[2].call("apply_damage", 500.0)
+    _check(int(encounter.get("phase")) == 1, "Sixth kill triggers victory")
     _check(result_layer.visible and objective.text.contains("MISSION COMPLETE"),
         "Victory overlay and objective must appear")
     _check(not bool(player.get("controls_enabled")), "Victory locks player movement")
@@ -96,7 +166,7 @@ func _run() -> void:
     _check(not bool(ability.call("try_deploy")), "Victory disables SHIFT")
     _check(not bool(ability.get("anchor_active")), "Outcome clears anchor")
     _check(ability.get("echo_instance") == null, "Outcome clears echo")
-    _check((encounter.get_node("Outcome/Card/Details") as Label).text.contains("3 / 3"),
+    _check((encounter.get_node("Outcome/Card/Details") as Label).text.contains("6 / 6"),
         "Victory summary reports correct count")
     _check((encounter.get_node("Outcome/Card/Details") as Label).text.contains("SHIFTS  1"),
         "Victory summary reports SHIFT flanks")
@@ -105,7 +175,7 @@ func _run() -> void:
     _check(int(encounter.get("phase")) == 1, "No stale callback changes victory state")
 
     var old_encounter: Node3D = encounter
-    encounter.call("request_replay")
+    (encounter.get_node("Outcome/Card/ReplayButton") as Button).pressed.emit()
     encounter.call("request_replay")
     _check(int(encounter.get("phase")) == 3, "Repeated replay input must be idempotent")
     await _frames(8)
@@ -126,7 +196,12 @@ func _run() -> void:
         "Retry resets anchor and echo")
     _check(is_equal_approx(float(ability.get("cooldown_remaining_seconds")), 0.0),
         "Retry resets SHIFT cooldown")
-    _check(int(encounter.call("_remaining_guards")) == 3, "All guards respawn on replay")
+    _check(int(encounter.call("_remaining_guards")) == 6, "All guards reset on replay")
+    _check(int(encounter.get("current_wave")) == 1
+        and not bool(encounter.get("reinforcements_inbound")),
+        "Replay clears the wave schedule")
+    _check(not bool((encounter.get_node("ReinforcementWest") as Node).get("combat_enabled")),
+        "Replayed reserve starts inactive")
     _check(not (encounter.get_node("Outcome") as CanvasLayer).visible,
         "Fresh run hides terminal overlay")
 
@@ -134,8 +209,23 @@ func _run() -> void:
     _check(bool(weapon.call("request_reload")), "Mid-run reload begins")
     _check(bool(ability.call("_try_place_at", Vector3(0.0, 0.0, 7.0), Vector3.UP)),
         "Anchor can be armed before death")
+    # If the player dies during the transition, no response trooper may
+    # spawn afterward or replace the result screen.
+    for path: NodePath in [
+        NodePath("Firefight/HelixTrooper"),
+        NodePath("FlankGuard"),
+        NodePath("UpperGuard")
+    ]:
+        (encounter.get_node(path) as StaticBody3D).call("apply_damage", 500.0)
+    _check(bool(encounter.get("reinforcements_inbound")),
+        "First wave clearance queues reinforcements before death")
     player.call("apply_damage", 500.0)
     _check(int(encounter.get("phase")) == 2, "Lethal hit triggers DEFEAT")
+    encounter.call("_advance_waves", 30.0)
+    _check(not bool(encounter.get("reinforcements_inbound"))
+        and int(encounter.get("current_wave")) == 1
+        and not bool((encounter.get_node("ReinforcementWest") as Node).get("combat_enabled")),
+        "Death cancels outstanding wave timer and combat activation")
     _check((encounter.get_node("Outcome") as CanvasLayer).visible,
         "Death reveals retry overlay")
     _check(not bool(player.get("is_alive")), "Dead player is no longer alive")
@@ -168,7 +258,7 @@ func _run() -> void:
         return
     player = encounter.get_node("Firefight/Arena/Player")
     ability = player.get_node("ShiftAbility")
-    _check(int(encounter.get("phase")) == 0 and int(encounter.call("_remaining_guards")) == 3,
+    _check(int(encounter.get("phase")) == 0 and int(encounter.call("_remaining_guards")) == 6,
         "Death retry restores objective and enemy roster")
     _check(float(player.get("health")) == 100.0,
         "Death retry restores full health")
@@ -205,13 +295,13 @@ func _run() -> void:
         quit(1)
         return
     _check(int(encounter.get("phase")) == 0
-        and int(encounter.call("_remaining_guards")) == 3,
+        and int(encounter.call("_remaining_guards")) == 6,
         "Enter retry starts with fresh mission state")
 
     encounter.queue_free()
     await _frames(3)
     if failures.is_empty():
-        print("MS-06 SMOKE PASS: HP, HUD, SHIFT, multi-guard objective, win, death, retry and scene cleanup")
+        print("MS-06 SMOKE PASS: HP, larger HUD, safe two-wave spawns, SHIFT, pause, win/death/replay")
         quit(0)
     else:
         printerr("MS-06 SMOKE FAIL: %d checks" % failures.size())
