@@ -94,6 +94,9 @@ func _run() -> void:
     var crosshair_hit: Dictionary = rifle.call(
         "_ray", camera.global_position, camera.global_position - camera.global_basis.z * 100.0
     )
+    print("MS-02 GEOMETRY cam=", camera.global_position, " muzzle=", muzzle.global_position,
+        " barrier=", barrier.global_position, " target=", target.global_position,
+        " collider=", crosshair_hit.get("collider"), " hit=", crosshair_hit.get("position"))
     _check(crosshair_hit.get("collider") == target, "Camera must still see target over the narrow cover")
     initial_health = float(target.get("health"))
     _check(bool(rifle.call("fire_once")), "Cover shot still uses a round")
