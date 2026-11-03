@@ -64,14 +64,14 @@
 
 **Target:** Nov 5, 2026 · **Priority:** P0 · **Depends on:** MS-02 (unless explicitly reordered)
 
-- [ ] **MS-03 complete** — **Implementing PR:** —
-  - [ ] Implement an 18 m target-range holographic anchor preview and placement raycast.
-  - [ ] Reject invalid surface slope, obstruction, height, unsafe floor and out-of-range destinations.
-  - [ ] Validate full player-capsule clearance when placing and again immediately before activation.
-  - [ ] Teleport without camera snapping, movement softlock, or collision penetration; handle velocity safely.
-  - [ ] Ensure failed teleports do not consume an anchor, cooldown or player health; add edge-case tests.
+- [x] **MS-03 complete** — **Implementing PR:** [#11](https://github.com/mishraaditya595/swapshot/pull/11)
+  - [x] Implement an 18 m target-range holographic anchor preview and placement raycast.
+  - [x] Reject invalid surface slope, obstruction, height, unsafe floor and out-of-range destinations.
+  - [x] Validate full player-capsule clearance when placing and again immediately before activation.
+  - [x] Teleport without camera snapping, movement softlock, or collision penetration; handle velocity safely.
+  - [x] Ensure failed teleports do not consume an anchor, cooldown or player health; add edge-case tests.
 
-**Acceptance gate:** A reachable landing can be used repeatedly; occupied/blocked/unsafe landings are rejected at placement AND activation with no resource cost.
+**Acceptance gate:** A reachable landing can be used repeatedly; occupied/blocked/unsafe landings are rejected at placement AND activation with no resource cost. **Met** through the owner's November 3, 2026 deployed-game playtest confirmation that SHIFT mechanics look fine, together with [Godot 4.7.2 regression and CI evidence](https://github.com/mishraaditya595/swapshot/actions/runs/41617064284). The engine smoke tests exercise range, slope, unsupported floor, capsule clearance, changed obstacles, retries, preserved camera orientation, reset velocity and the fixed-world anchor marker. The owner gave an overall positive playtest result without enumerating each edge case, so edge-case coverage is attributed to the automated tests. Post-SHIFT cooldown, anchor expiry, echo, and related state handling remain MS-04. The revised preview hub has not been visually accepted separately.
 
 ### MS-04 — SHIFT lifecycle: cooldown, decoy echo and feedback
 
