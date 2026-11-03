@@ -20,6 +20,10 @@ This design follows the already established MS-02 specification; other tuning is
 5. Bind an uncomplicated crosshair, ammo count, reload text and hit marker via weapon signals.
 6. Add headless regressions for cadence, magazine depletion, partial/empty reload and close-wall shots in CI.
 
+## Browser feedback and follow-up
+
+On Nov 3, the PR #8 owner-provided browser recording confirmed firing, reload and aiming work but showed the visor/weapon not turning with mouse-look. See [MS-02 aim-alignment brainstorming and chosen correction](MS-02-aim-alignment.md). The revised shoulder mount and camera-driven visual facing passed Godot regression tests, but still needs a new Web playtest.
+
 ## Manual Web acceptance (owner required)
 Click to capture and release without surprise fire; hold LMB for sustained fire; ADS with RMB while moving; empty 24-shot magazine, reload with R; verify reticle, recoil, muzzle flash/tracer/impact/hit marker and destruction. Shoot around cover and up the ramp, then repeat after Escape/focus change. Record video and verify hosted PR preview independently of engine CI.
 
