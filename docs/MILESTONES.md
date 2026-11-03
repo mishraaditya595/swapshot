@@ -103,15 +103,19 @@
 
 **Target:** Nov 8–9, 2026 · **Priority:** P0 · **Depends on:** MS-05 (unless explicitly reordered)
 
-- [ ] **MS-06 complete** — **Implementing PR:** —
-  - [ ] Implement 100-HP player damage, death and safe respawn/restart behavior.
-  - [ ] Add health, magazine, anchor timer, SHIFT cooldown and objective HUD.
-  - [ ] Implement an explicit encounter objective, win state and restart / retry affordance.
-  - [ ] Wire enemy death and player death into mission state without stale signals or softlocks.
-  - [ ] Play an end-to-end greybox encounter: move → shoot → anchor → SHIFT → eliminate → win/retry.
-  - [ ] Fix any P0 blockers and record measured playtest results in the PR.
+- [x] **MS-06 complete** — **Implementing PR:** [#14](https://github.com/mishraaditya595/swapshot/pull/14)
+  - [x] Implement 100-HP player damage, death and safe respawn/restart behavior.
+  - [x] Add health, magazine, anchor timer, SHIFT cooldown and objective HUD.
+  - [x] Implement an explicit encounter objective, win state and restart / retry affordance.
+  - [x] Wire enemy death and player death into mission state without stale signals or softlocks.
+  - [x] Play an end-to-end greybox encounter: move → shoot → anchor → SHIFT → eliminate → win/retry.
+  - [x] Fix any P0 blockers and record measured playtest results in the PR.
 
-**Acceptance gate:** One reproducible 2-minute firefight works from launch to victory/retry; the SHIFT ability clearly changes positioning.
+**MS-06 verification (Nov 3, 2026):** Initial [GitHub Actions run 41645861386](https://github.com/mishraaditya595/swapshot/actions/runs/41645861386) passed Godot 4.7.2 import/startup and MS-01–MS-06 headless smoke, including full scene replay after victory and defeat. Static audit, Python unit tests and tracker validation passed. See [MS-06 review](reviews/MS-06-review.md) for the evidence boundary. On Nov 3 the owner supplied a 97.6-second Brave/macOS recording of the hosted PR #14 preview. The clip begins during an attempt that ends in defeat at mission time 01:09 (1/3 guards, 1 SHIFT), followed by a fresh retry. The second attempt ends in victory at 00:50 (3/3 guards, 3 SHIFTS, 84/100 HP). The clip demonstrates an actual browser launch, combat, SHIFT use, objective progress, death/retry and victory. It does not show replay after victory, invalid SHIFT landing, measured FPS, or audio. The winning run is shorter than the two-minute pacing target, and owner acceptance was not explicitly given. MS-06 remains unchecked; the PR milestone gate should remain red until outstanding checks and acceptance are documented.
+
+**Follow-up tuning (Nov 3, 2026):** The owner approved extending the short recorded win. PR #14 now has two waves of three guards, a four-second reinforcement warning, checked entry clearance, and enlarged health, ammo, objective, SHIFT and result text. [Godot 4.7.2 CI run 41656292272](https://github.com/mishraaditya595/swapshot/actions/runs/41656292272) passed import/startup, MS-01–MS-06 smoke (including safe spawn, pause, death during wave countdown and replay), static audit, Python tests and milestone tracker validation. A subsequent 136.75-second Brave/macOS screen recording demonstrates the revised two-wave browser build: first patrol 3/6, reinforcement warning, Wave 2, and victory at mission time 02:25 with 6/6 guards defeated, six SHIFTS and 4/100 armor remaining. The earlier recording shows death/retry in the browser, and Godot smoke covers both replay paths and SHIFT/spawn safety. On November 3 the owner explicitly accepted merging MS-06. Victory-to-replay and browser FPS/audio were not shown, but no observed P0 progression blocker remains. Armor recovery and Wave 2 difficulty are deferred to [issue #15](https://github.com/mishraaditya595/swapshot/issues/15).
+
+**Acceptance gate (owner accepted Nov 3, 2026):** A hosted six-guard firefight reached victory at 02:25 with six SHIFTS. The owner accepted the P0 milestone after reviewing gameplay recordings. The earlier browser death/retry and CI-backed victory/death replay tests supplement the new win. Unrecorded edge cases remain documented in the review; armor changes are explicitly deferred.
 
 ### MS-07 — P0 vertical slice: responsiveness and go/no-go gate
 

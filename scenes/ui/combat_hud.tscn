@@ -16,32 +16,49 @@ color = Color(0.94, 0.08, 0.02, 0.18)
 [node name="HealthBackdrop" type="ColorRect" parent="."]
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -298.0
+offset_left = -340.0
 offset_top = 13.0
 offset_right = -12.0
-offset_bottom = 61.0
+offset_bottom = 90.0
 mouse_filter = 2
 color = Color(0.02, 0.06, 0.10, 0.7)
 
 [node name="Health" type="Label" parent="."]
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -290.0
+offset_left = -330.0
 offset_top = 18.0
 offset_right = -20.0
-offset_bottom = 56.0
+offset_bottom = 62.0
 mouse_filter = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "ARMOR  100 / 100"
 horizontal_alignment = 2
+
+[node name="HealthBarTrack" type="ColorRect" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -320.0
+offset_top = 72.0
+offset_right = -20.0
+offset_bottom = 81.0
+mouse_filter = 2
+color = Color(0.08, 0.16, 0.19, 0.95)
+
+[node name="HealthBarFill" type="ColorRect" parent="HealthBarTrack"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.35, 0.91, 0.83, 1)
 
 [node name="ThreatBackdrop" type="ColorRect" parent="."]
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -330.0
+offset_left = -305.0
 offset_top = 14.0
-offset_right = 330.0
-offset_bottom = 67.0
+offset_right = 305.0
+offset_bottom = 72.0
 mouse_filter = 2
 color = Color(0.02, 0.06, 0.10, 0.73)
 
@@ -49,13 +66,13 @@ color = Color(0.02, 0.06, 0.10, 0.73)
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -315.0
+offset_left = -295.0
 offset_top = 22.0
-offset_right = 315.0
-offset_bottom = 64.0
+offset_right = 295.0
+offset_bottom = 68.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(1.0, 0.73, 0.37, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 27
 text = "HELIX  |  UNAWARE"
 horizontal_alignment = 1
 
@@ -65,13 +82,13 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -25.0
-offset_top = -22.0
-offset_right = 25.0
-offset_bottom = 22.0
+offset_left = -28.0
+offset_top = -25.0
+offset_right = 28.0
+offset_bottom = 25.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.68, 0.98, 0.96, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 31
 text = "+"
 horizontal_alignment = 1
 
@@ -97,13 +114,13 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -248.0
-offset_top = -92.0
+offset_left = -290.0
+offset_top = -112.0
 offset_right = -16.0
-offset_bottom = -55.0
+offset_bottom = -65.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.84, 0.98, 0.98, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 28
 text = "VX-7  24 / 24"
 horizontal_alignment = 2
 
@@ -112,13 +129,13 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -248.0
-offset_top = -54.0
+offset_left = -290.0
+offset_top = -61.0
 offset_right = -16.0
-offset_bottom = -19.0
+offset_bottom = -18.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.98, 0.73, 0.44, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 21
 text = "R  RELOAD"
 horizontal_alignment = 2
 
@@ -135,6 +152,6 @@ offset_right = 150.0
 offset_bottom = 117.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.56, 0.29, 1)
-theme_override_font_sizes/font_size = 23
+theme_override_font_sizes/font_size = 27
 text = "ARMOR HIT"
 horizontal_alignment = 1

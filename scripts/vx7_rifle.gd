@@ -50,6 +50,13 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+    if not bool(player.get("is_alive")) or not bool(player.get("controls_enabled")):
+        _trigger_armed = false
+        is_aiming = false
+        _flash_remaining = 0.0
+        flash_mesh.visible = false
+        camera.fov = lerpf(camera.fov, _base_fov, minf(1.0, delta * 12.0))
+        return
     _fire_cooldown = maxf(0.0, _fire_cooldown - delta)
     if is_reloading:
         _reload_remaining -= delta
@@ -78,7 +85,20 @@ func _physics_process(delta: float) -> void:
     camera.fov = lerpf(camera.fov, ads_fov if is_aiming else _base_fov, minf(1.0, delta * 12.0))
 
 
+func stop_combat() -> void:
+    is_reloading = false
+    _reload_remaining = 0.0
+    _trigger_armed = false
+    is_aiming = false
+    _flash_remaining = 0.0
+    flash_mesh.visible = false
+    camera.fov = _base_fov
+    reload_state_changed.emit(false)
+
+
 func request_reload() -> bool:
+    if not bool(player.get("is_alive")) or not bool(player.get("controls_enabled")):
+        return false
     if is_reloading or ammo == magazine_capacity:
         return false
     is_reloading = true
@@ -89,7 +109,7 @@ func request_reload() -> bool:
 
 func fire_once() -> bool:
     # The same cooldown is used by input-driven and test-driven firing.
-    if not bool(player.get("is_alive")):
+    if not bool(player.get("is_alive")) or not bool(player.get("controls_enabled")):
         return false
     if is_reloading or _fire_cooldown > 0.0:
         return false
