@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Render a static index of existing hosted per-PR Godot snapshots.
+"""Render the static SWAPSHOT launch hub from manually published snapshots.
 
-The trusted deployment workflow runs this script from the default branch;
-it never executes downloaded PR artifacts.
+The trusted GitHub Pages workflow invokes this script from main. It reads
+directory names only, and never executes or imports code from PR builds.
 """
 from __future__ import annotations
 
@@ -22,44 +22,260 @@ def collect_previews(site: Path) -> list[int]:
     return sorted(set(found), reverse=True)
 
 
+def _build_cards(previews: list[int], has_main: bool) -> str:
+    cards: list[str] = []
+    if has_main:
+        cards.append(
+            '<article class="build-card build-card--main">'
+            '<div class="card-top"><span class="card-type"><span class="card-dot"></span>'
+            'MAIN BRANCH</span><span class="card-availability">PUBLISHED</span></div>'
+            '<div class="card-core"><span class="build-glyph" aria-hidden="true">↗</span>'
+            '<h3>Latest main snapshot</h3>'
+            '<p>The most recently deployed main-branch build, preserved until '
+            'the next manual publication.</p></div>'
+            '<div class="card-footer"><a class="card-launch" href="play/">'
+            'Launch build <span aria-hidden="true">↗</span></a>'
+            '<span class="card-meta">/play/</span></div></article>'
+        )
+    for num in previews:
+        cards.append(
+            f'<article class="build-card">'
+            f'<div class="card-top"><span class="card-type"><span class="card-dot"></span>'
+            f'PULL REQUEST</span><span class="card-availability">PUBLISHED</span></div>'
+            f'<div class="card-core"><span class="build-number" aria-hidden="true">'
+            f'{num:02d}</span><h3>PR #{num} preview</h3>'
+            f'<p>A manually published snapshot of this pull request. '
+            f'The build may differ from the current PR head.</p></div>'
+            f'<div class="card-footer"><a class="card-launch" href="pr-{num}/">'
+            f'Launch build <span aria-hidden="true">↗</span></a>'
+            f'<a class="card-source" href="https://github.com/mishraaditya595/'
+            f'swapshot/pull/{num}" aria-label="View PR #{num} code and tests">'
+            f'Code &amp; tests <span aria-hidden="true">↗</span></a></div></article>'
+        )
+    if cards:
+        return "\n".join(cards)
+    return (
+        '<div class="empty-state" role="status"><span class="empty-glyph" '
+        'aria-hidden="true">◇</span><h3>No builds published yet</h3>'
+        '<p>Snapshots appear here after the repository owner runs the '
+        'manual GitHub Pages deployment workflow.</p>'
+        '<a href="https://github.com/mishraaditya595/swapshot/actions/'
+        'workflows/deploy-web-manual.yml">View deployment workflow ↗</a></div>'
+    )
+
+
 def render(previews: list[int], has_main: bool = False) -> str:
-    latest = (
-        '<li><a href="play/">Play latest manually deployed main build</a></li>\n'
-        if has_main else ""
-    )
-    tiles = "".join(
-        f'<li><a href="pr-{num}/">Play PR #{num}</a>'
-        f' <span>·</span> <a class="source" '
-        f'href="https://github.com/mishraaditya595/swapshot/pull/{num}">'
-        f'View code and tests</a></li>\n'
-        for num in previews
-    )
-    if not tiles:
-        tiles = "<li>No preview builds have been published yet.</li>"
-    tiles = latest + tiles
-    return """<!doctype html>
-<html lang="en"><head><meta charset="utf-8">
+    """Return an accessible, dependency-free HTML hub with relative build URLs."""
+    count = len(previews) + int(has_main)
+    count_label = f"{count:02d}"
+    if has_main:
+        hero_action = (
+            '<a class="button button--primary" href="play/">'
+            '<span class="button-symbol" aria-hidden="true">▶</span>'
+            'Play deployed main <span aria-hidden="true">↗</span></a>'
+        )
+    elif previews:
+        num = previews[0]
+        hero_action = (
+            f'<a class="button button--primary" href="pr-{num}/">'
+            f'<span class="button-symbol" aria-hidden="true">▶</span>'
+            f'Play PR #{num} <span aria-hidden="true">↗</span></a>'
+        )
+    else:
+        hero_action = (
+            '<span class="button button--disabled" aria-disabled="true">'
+            'Awaiting first build</span>'
+        )
+
+    return PAGE.replace("__PRIMARY_ACTION__", hero_action).replace(
+        "__BUILD_CARDS__", _build_cards(previews, has_main)
+    ).replace("__BUILD_COUNT__", count_label)
+
+
+PAGE = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SWAPSHOT · Playtest builds</title>
+<meta name="theme-color" content="#08121a">
+<meta name="description" content="SWAPSHOT development builds for GitHub Game Off 2026. Play manually published Web snapshots and follow their source pull requests.">
+<title>SWAPSHOT // Development builds</title>
 <style>
-:root { color-scheme: dark; }
-body { max-width: 48rem; margin: 4rem auto; padding: 0 1.5rem;
-background: #121923; color: #e2edf2; font: 1.05rem/1.6 system-ui, sans-serif; }
-h1 { font-size: clamp(2rem, 5vw, 3rem); }
-a { color: #67ddd5; }
-li { padding: .85rem 0; border-bottom: 1px solid #33404c; }
-.source { font-size: .88rem; color: #b0c6d5; }
-.note { color: #b0c6d5; font-size: .92rem; }
-</style></head><body>
-<p class="note">GITHUB GAME OFF 2026 · DEVELOPMENT PREVIEWS</p>
-<h1>SWAPSHOT</h1>
-<p>Manually published browser builds of individual pull requests and main.
-Nothing is deployed when PRs open, update, merge, or when main changes.
-These builds are not proof of completed manual gameplay QA.</p>
-<ul>""" + tiles + """</ul>
-<p class="note">Desktop keyboard and mouse recommended.
-Requires a browser with WebAssembly and WebGL 2.0.</p>
-</body></html>
+:root{color-scheme:dark;--bg:#08121a;--panel:#101f2a;--panel2:#142935;--line:#2b4653;--ink:#e7f4f6;--muted:#9bb3bd;--cyan:#70e9dc;--amber:#f1ad74;--max:1180px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse at 80% 0%,#183543 0%,transparent 36%),var(--bg);color:var(--ink);font:15px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:focus-visible{outline:3px solid var(--cyan);outline-offset:5px;border-radius:3px}
+.skip{position:absolute;top:-70px;left:20px;z-index:15;background:var(--cyan);color:#07191e;padding:10px 16px;border-radius:6px}
+.skip:focus{top:15px}
+.shell{max-width:var(--max);margin:0 auto;padding:0 28px}
+.site-header{height:92px;display:flex;align-items:center;gap:24px;justify-content:space-between;border-bottom:1px solid rgba(130,192,206,.18)}
+.brand{display:flex;align-items:center;gap:12px;white-space:nowrap}
+.brand-icon{display:grid;place-items:center;width:39px;height:39px;border:1px solid #62dace;border-radius:9px;color:var(--cyan);font-size:27px;font-weight:800;line-height:1;background:#10353b;box-shadow:0 0 22px #36cbcf16}
+.brand-word{font-size:17px;letter-spacing:.13em;font-weight:900}
+.brand-suffix{margin-left:8px;padding-left:15px;border-left:1px solid var(--line);color:#7f9daa;font-size:10px;letter-spacing:.18em;font-weight:800}
+.site-nav{display:flex;align-items:center;gap:32px;font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#a8c1ca}
+.site-nav a:hover,.foot-links a:hover{color:var(--cyan)}
+.header-status{display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid #31515a;background:#112a31;border-radius:100px;white-space:nowrap;font-size:10px;letter-spacing:.12em;font-weight:800;color:#b0e4dc;text-transform:uppercase}
+.status-dot,.card-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 4px #70e9dc18}
+.hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.98fr);min-height:530px;overflow:hidden;margin-top:30px;border:1px solid #345460;border-radius:18px;background:linear-gradient(120deg,#10232f,#0b1924 55%,#132c39);box-shadow:0 28px 85px #0004}
+.hero:before{content:"";position:absolute;inset:0;opacity:.17;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0,transparent 59px,#4c7480 60px),repeating-linear-gradient(90deg,transparent 0,transparent 59px,#4c7480 60px);mask-image:linear-gradient(90deg,transparent,#000)}
+.hero-content{z-index:1;position:relative;padding:58px 20px 48px 58px;display:flex;flex-direction:column;align-items:flex-start}
+.eyebrow{display:flex;align-items:center;gap:11px;color:var(--cyan);font-size:11px;font-weight:850;letter-spacing:.19em;text-transform:uppercase}
+.eyebrow:before{content:"";width:24px;height:1px;background:var(--cyan)}
+.hero h1{margin:24px 0 15px;font-size:clamp(48px,5.2vw,78px);line-height:.97;letter-spacing:-.075em;font-weight:950}
+.hero h1 em{font-style:normal;color:var(--cyan)}
+.hero-copy{margin:7px 0 0;max-width:420px;color:#afc5cc;font-size:15px;line-height:1.8}
+.hero-actions{display:flex;gap:11px;flex-wrap:wrap;margin:29px 0 0}
+.button{display:inline-flex;gap:12px;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:9px;border:1px solid #47717a;font-weight:800;font-size:12px;letter-spacing:.01em;transition:transform .2s,background .2s}
+.button:hover:not(.button--disabled){transform:translateY(-2px)}
+.button--primary{background:var(--cyan);border-color:var(--cyan);color:#09262d;box-shadow:0 12px 35px #2cdbd01b}
+.button--primary:hover{background:#a0fff2}
+.button--secondary{background:#1a303b;color:#dceef0}
+.button--secondary:hover{background:#264652}
+.button--disabled{opacity:.6;cursor:not-allowed}
+.button-symbol{font-size:12px}
+.hero-bottom{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:auto;padding-top:42px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;font-weight:800;color:#9db8c1}
+.hero-bottom strong{font-size:15px;color:var(--cyan);margin-right:7px}
+.hero-divider{height:20px;width:1px;background:#3b5763}
+.hero-visual{position:relative;min-height:380px;display:flex;align-items:stretch;justify-content:center;overflow:hidden}
+.hero-visual svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.visual-crosshair{position:absolute;z-index:2;left:47%;top:49%;width:66px;height:66px;transform:translate(-50%,-50%);border:1px solid #83e9dd75;border-radius:50%;box-shadow:0 0 0 24px #62e4d606,0 0 70px #7cf5ea2b}
+.visual-crosshair:before,.visual-crosshair:after{content:"";position:absolute;background:var(--cyan)}
+.visual-crosshair:before{width:1px;height:88px;top:-12px;left:32px;opacity:.55}
+.visual-crosshair:after{height:1px;width:88px;left:-12px;top:32px;opacity:.55}
+.visual-label{position:absolute;right:25px;top:25px;color:#9ac8cb;font:700 10px/1.4 ui-monospace,monospace;letter-spacing:.13em}
+.visual-footer{position:absolute;bottom:20px;right:25px;left:12px;display:flex;justify-content:flex-end;gap:13px;font:700 10px/1.4 ui-monospace,monospace;letter-spacing:.1em;color:#9cc6c6}
+.visual-footer strong{color:var(--cyan)}
+.section{margin-top:75px}
+.section-topline{display:flex;justify-content:space-between;align-items:end;gap:25px;margin-bottom:22px}
+.section-kicker{color:var(--cyan);font-size:11px;font-weight:850;letter-spacing:.18em;text-transform:uppercase}
+.section h2{margin:9px 0 0;font-size:clamp(30px,3.8vw,44px);line-height:1.15;letter-spacing:-.055em}
+.section-sub{max-width:430px;color:var(--muted);font-size:13px;margin:0}
+.build-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.build-card{min-height:291px;display:flex;flex-direction:column;overflow:hidden;border:1px solid #314b56;border-radius:14px;background:linear-gradient(140deg,#172b37,#0e1e29);transition:transform .2s,border-color .2s,box-shadow .2s}
+.build-card:hover{transform:translateY(-4px);border-color:#66b7b4;box-shadow:0 19px 50px #02080e77}
+.build-card--main{background:linear-gradient(140deg,#1c4549,#102a33 67%,#112330);border-color:#408880}
+.card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:18px 19px 0}
+.card-type{display:inline-flex;align-items:center;gap:11px;font-size:10px;letter-spacing:.14em;color:#c7e6e7;font-weight:850}
+.card-dot{width:6px;height:6px;box-shadow:none}
+.card-availability{font:700 9px/1.4 ui-monospace,monospace;letter-spacing:.08em;color:#8bb7b8}
+.card-core{position:relative;flex:1;padding:26px 20px 22px}
+.build-number,.build-glyph{position:absolute;right:16px;top:1px;color:#89eae12b;font-size:90px;line-height:1;font-weight:950;letter-spacing:-.09em;pointer-events:none}
+.build-glyph{font-size:77px;color:#94f4e63b}
+.card-core h3{position:relative;margin:33px 0 8px;font-size:21px;font-weight:850;letter-spacing:-.035em}
+.card-core p{position:relative;margin:0;max-width:270px;color:#a8bdc5;font-size:12px;line-height:1.7}
+.card-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid #39525d;padding:14px 19px}
+.card-launch{color:var(--cyan);font-size:12px;font-weight:850;white-space:nowrap}
+.card-launch:hover,.card-source:hover{color:white}
+.card-source,.card-meta{color:#9baeb9;font-size:11px}
+.card-meta{font-family:ui-monospace,monospace}
+.empty-state{grid-column:1/-1;padding:48px;text-align:center;border:1px dashed #43616b;border-radius:14px;background:#10222d}
+.empty-glyph{font-size:48px;color:var(--cyan)}
+.empty-state h3{font-size:22px;margin:5px 0}
+.empty-state p{color:var(--muted);margin:8px auto 17px;max-width:440px}
+.empty-state a{font-size:13px;color:var(--cyan);text-decoration:underline}
+.protocol{display:grid;grid-template-columns:1fr .8fr;gap:22px;margin:70px 0 85px}
+.protocol-panel{border:1px solid #2c4754;border-radius:14px;background:#101f2b;padding:30px}
+.protocol-panel h2{font-size:26px;letter-spacing:-.045em;margin:8px 0 20px}
+.protocol-step{display:flex;gap:17px;padding:16px 0;border-top:1px solid #2c4450}
+.protocol-step b{color:var(--cyan);font:700 12px/1.8 ui-monospace,monospace}
+.protocol-step h3{font-size:13px;margin:0 0 2px}
+.protocol-step p{font-size:12px;color:var(--muted);margin:0}
+.notice{display:flex;flex-direction:column;justify-content:space-between;padding:30px;border:1px solid #554c3f;border-radius:14px;background:radial-gradient(circle at 90% 0%,#5e453133,transparent 48%),#211d1c}
+.notice .notice-label{color:var(--amber);font-size:11px;font-weight:850;letter-spacing:.14em}
+.notice h3{font-size:29px;letter-spacing:-.045em;line-height:1.2;margin:23px 0 14px}
+.notice p{font-size:13px;line-height:1.8;color:#c9bdb5;margin:0}
+.notice-footer{margin-top:35px;display:flex;gap:10px;align-items:center;color:var(--amber);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
+.site-footer{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 0 35px;border-top:1px solid #2b4450;color:#829da9;font-size:11px}
+.foot-links{display:flex;gap:22px}
+@media(max-width:1000px){.header-status{display:none}.hero{grid-template-columns:1fr .8fr}.hero-content{padding:44px 12px 42px 36px}.hero h1{font-size:clamp(43px,6.2vw,65px)}.build-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.shell{padding:0 17px}.site-header{height:76px}.brand-suffix{display:none}.site-nav{gap:15px;font-size:10px}.site-nav a:last-child{display:none}.hero{margin-top:18px;grid-template-columns:1fr;min-height:0}.hero-content{padding:35px 27px 28px}.hero h1{font-size:clamp(50px,12vw,76px)}.hero-copy{max-width:520px}.hero-bottom{padding-top:29px}.hero-visual{min-height:250px;max-height:270px}.section{margin-top:54px}.section-topline{align-items:start;flex-direction:column;gap:10px}.build-grid{grid-template-columns:1fr}.build-card{min-height:275px}.protocol{grid-template-columns:1fr;gap:13px;margin:51px 0 60px}.protocol-panel,.notice{padding:24px}.site-footer{align-items:flex-start;flex-direction:column}.foot-links{gap:18px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition-duration:0s!important;animation-duration:0s!important}}
+</style>
+</head>
+<body id="top">
+<a class="skip" href="#content">Skip to content</a>
+<div class="shell">
+<header class="site-header">
+  <a class="brand" href="#top" aria-label="SWAPSHOT build hub home"><span class="brand-icon" aria-hidden="true">↔</span><span class="brand-word">SWAPSHOT</span><span class="brand-suffix">BUILD HUB / 2026</span></a>
+  <nav class="site-nav" aria-label="Main navigation"><a href="#builds">Playable builds</a><a href="#protocol">Playtest notes</a><a href="https://github.com/mishraaditya595/swapshot">GitHub ↗</a></nav>
+  <div class="header-status"><span class="status-dot" aria-hidden="true"></span>MANUAL DEPLOYMENTS</div>
+</header>
+<main id="content">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-content">
+      <div class="eyebrow">GitHub Game Off 2026 / Theme: SHIFT</div>
+      <h1 id="hero-title">DON'T TAKE<br>COVER.<br><em>SHIFT.</em></h1>
+      <p class="hero-copy">A third-person tactical shooter built around one advantage: changing position in the middle of the fight. Explore the latest manually published development snapshots.</p>
+      <div class="hero-actions">__PRIMARY_ACTION__<a class="button button--secondary" href="#builds">Browse all builds <span aria-hidden="true">↓</span></a></div>
+      <div class="hero-bottom"><span><strong>__BUILD_COUNT__</strong> available snapshots</span><span class="hero-divider" aria-hidden="true"></span><span>Godot 4.7.2 / Web</span></div>
+    </div>
+    <div class="hero-visual" aria-label="Decorative illustration of an industrial environment and a cyan SHIFT target">
+      <svg viewBox="0 0 580 550" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="scene-bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1d4350"/><stop offset="1" stop-color="#091923"/></linearGradient>
+          <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#45616c"/><stop offset="1" stop-color="#142936"/></linearGradient>
+          <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#59e0dd" stop-opacity="0"/><stop offset=".6" stop-color="#64f8e7" stop-opacity=".8"/><stop offset="1" stop-color="#64f8e7" stop-opacity="0"/></linearGradient>
+        </defs>
+        <rect width="580" height="550" fill="url(#scene-bg)"/>
+        <g opacity=".27" stroke="#83a6af" stroke-width="7"><path d="M55 0V430M194 0V320M347 0V370M521 0V420"/><path d="M0 108H580M0 243H580" stroke-width="2"/></g>
+        <path d="M0 378 580 300V550H0Z" fill="url(#floor)"/>
+        <g stroke="#7195a0" opacity=".27" fill="none"><path d="M0 480 580 361M0 550 580 430M120 367 240 550M370 330 460 550"/></g>
+        <rect x="40" y="284" width="190" height="99" fill="#253f4d" stroke="#75939a" stroke-width="2"/>
+        <path d="M40 311H230M55 294 100 378M145 294 191 378" stroke="#648590" opacity=".6"/>
+        <path d="M316 210H560V230H316Z" fill="#72909d"/><path d="M337 229V359M526 229V327" stroke="#435c68" stroke-width="14"/>
+        <path d="M316 210V177H560V210M343 178V210M392 178V210M441 178V210M490 178V210M539 178V210" fill="none" stroke="#87a5aa" stroke-width="3"/>
+        <path d="M106 365C195 169 331 132 434 264" fill="none" stroke="url(#beam)" stroke-width="25" opacity=".43"/>
+        <path d="M106 365C195 169 331 132 434 264" fill="none" stroke="#70fae9" stroke-dasharray="11 10" stroke-width="3" opacity=".8"/>
+        <ellipse cx="433" cy="309" rx="62" ry="19" fill="#68f7e6" opacity=".15"/>
+        <ellipse cx="433" cy="266" rx="40" ry="70" fill="none" stroke="#7cf7e8" stroke-width="3" stroke-dasharray="7 7" opacity=".86"/>
+        <path d="M413 272 433 232 454 272 446 311 419 311Z" fill="#5bdfd9" fill-opacity=".5" stroke="#8affed" stroke-width="2"/>
+        <circle cx="433" cy="231" r="9" fill="#9afff0"/>
+        <ellipse cx="103" cy="432" rx="30" ry="12" fill="#0a1b26" opacity=".8"/>
+        <circle cx="107" cy="350" r="13" fill="#abc8cc"/>
+        <path d="M92 369H121L134 406 85 406Z" fill="#4d7580" stroke="#b8cfd0" stroke-width="2"/>
+        <path d="M94 407 88 440M121 407 129 438" stroke="#6f9aa3" stroke-width="12"/>
+        <path d="M95 381 139 393 168 383" fill="none" stroke="#b9d1d3" stroke-width="8"/>
+        <g opacity=".8" stroke="#71ebdf" fill="none" stroke-width="2"><path d="M278 238v-19h19M312 219h19v19M278 269v19h19M312 288h19v-19"/></g>
+        <path d="M16 75H140M16 83H76M436 490H564M502 482V498" fill="none" stroke="#6cabae" stroke-width="2" opacity=".55"/>
+      </svg>
+      <div class="visual-crosshair" aria-hidden="true"></div>
+      <div class="visual-label">HELIX / TRAINING SECTOR 01</div>
+      <div class="visual-footer"><span>ILLUSTRATIVE ART</span><strong>SHIFT TARGET LOCK</strong></div>
+    </div>
+  </section>
+  <section id="builds" class="section" aria-labelledby="build-title">
+    <div class="section-topline">
+      <div><span class="section-kicker">01 / Select a snapshot</span><h2 id="build-title">Choose your build.</h2></div>
+      <p class="section-sub">Each card links to a browser build that was explicitly published by the repository owner. PR snapshots do not update automatically.</p>
+    </div>
+    <div class="build-grid">__BUILD_CARDS__</div>
+  </section>
+  <section class="protocol" id="protocol" aria-label="Playtest guidance">
+    <div class="protocol-panel">
+      <span class="section-kicker">02 / Before you deploy</span>
+      <h2>Playtest protocol</h2>
+      <div class="protocol-step"><b>01</b><div><h3>Use a desktop browser</h3><p>Keyboard and mouse are recommended. WebAssembly and WebGL 2.0 support are required.</p></div></div>
+      <div class="protocol-step"><b>02</b><div><h3>Capture the cursor</h3><p>Click inside the game to look around. Press Esc to release the mouse.</p></div></div>
+      <div class="protocol-step"><b>03</b><div><h3>Test the mechanics</h3><p>Move with WASD, fire with left click, aim with right click, and reload with R. MS-03 builds add Q to place an anchor and Left Shift to teleport.</p></div></div>
+    </div>
+    <aside class="notice">
+      <div><span class="notice-label">△  DEVELOPMENT STATUS / READ FIRST</span>
+        <h3>These builds are work in progress.</h3>
+        <p>Publishing a preview does not mean the pull request was merged or that gameplay QA passed. Builds are deployed manually. Source code may change after a snapshot is published.</p></div>
+      <div class="notice-footer"><span aria-hidden="true">↗</span><span>Test, report, iterate</span></div>
+    </aside>
+  </section>
+</main>
+<footer class="site-footer">
+  <span>© SWAPSHOT / GAME OFF 2026 &nbsp; · &nbsp; BUILT WITH GODOT</span>
+  <div class="foot-links"><a href="https://github.com/mishraaditya595/swapshot">Source repository</a><a href="https://github.com/mishraaditya595/swapshot/actions/workflows/deploy-web-manual.yml">Deployment workflow</a></div>
+</footer>
+</div>
+</body>
+</html>
 """
 
 
