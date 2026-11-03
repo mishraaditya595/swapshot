@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/damageable_target.gd" id="1_dummy"]
+
+[sub_resource type="StandardMaterial3D" id="TargetMat"]
+albedo_color = Color(0.96, 0.54, 0.18, 1)
+roughness = 0.88
+
+[sub_resource type="BoxMesh" id="TargetMesh"]
+material = SubResource("TargetMat")
+size = Vector3(0.85, 1.8, 0.35)
+
+[sub_resource type="BoxShape3D" id="TargetShape"]
+size = Vector3(0.85, 1.8, 0.35)
+
+[node name="TargetDummy" type="StaticBody3D"]
+script = ExtResource("1_dummy")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("TargetMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("TargetShape")
