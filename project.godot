@@ -41,6 +41,15 @@ reload={
 "events": [Object(InputEventKey,"physical_keycode":82)]
 }
 
+deploy_anchor={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":81)]
+}
+shift_teleport={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"physical_keycode":4194325)]
+}
+
 [rendering]
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"

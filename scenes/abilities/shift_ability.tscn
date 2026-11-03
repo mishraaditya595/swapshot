@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/shift_ability.gd" id="1_shift"]
+
+[sub_resource type="CylinderMesh" id="Disc"]
+top_radius = 0.45
+bottom_radius = 0.45
+height = 0.045
+radial_segments = 24
+
+[node name="ShiftAbility" type="Node3D"]
+script = ExtResource("1_shift")
+
+[node name="Preview" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("Disc")
+
+[node name="Anchor" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("Disc")
+
+[node name="ShiftHUD" type="CanvasLayer" parent="."]
+
+[node name="Status" type="Label" parent="ShiftHUD"]
+offset_left = 18.0
+offset_top = 90.0
+offset_right = 560.0
+offset_bottom = 122.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.68, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 17
+text = "SHIFT  |  Aim at floor, Q deploy"
