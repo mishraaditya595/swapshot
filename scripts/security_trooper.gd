@@ -7,6 +7,7 @@ signal destroyed()
 signal shot_fired(hit_player: bool)
 signal windup_started()
 signal echo_distracted(world_position: Vector3)
+signal echo_released()
 
 enum State { IDLE, ALERT, ATTACK, DEAD }
 
@@ -306,10 +307,13 @@ func _on_echo_ended(_at: Vector3) -> void:
 
 
 func _clear_echo() -> void:
+    if _echo == null:
+        return
     _echo = null
     distraction_beacon.visible = false
     if state != State.DEAD:
         _enter_alert()
+        echo_released.emit()
 
 
 func apply_damage(amount: float) -> void:

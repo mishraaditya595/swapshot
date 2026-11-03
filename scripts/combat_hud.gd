@@ -82,6 +82,7 @@ func _bind_enemy() -> void:
     _enemy = candidate
     _enemy.connect("state_changed", _on_enemy_state_changed)
     _enemy.connect("echo_distracted", _on_echo_distracted)
+    _enemy.connect("echo_released", _on_echo_released)
     _enemy.connect("windup_started", _on_windup_started)
     _enemy.connect("shot_fired", _on_enemy_shot)
     _enemy.connect("destroyed", _on_enemy_destroyed)
@@ -103,6 +104,10 @@ func _on_enemy_state_changed(next_state: int) -> void:
 
 func _on_echo_distracted(_position: Vector3) -> void:
     threat_label.text = "HELIX  |  DISTRACTED BY ECHO"
+
+
+func _on_echo_released() -> void:
+    threat_label.text = "HELIX  |  REACQUIRING PLAYER"
 
 
 func _on_windup_started() -> void:

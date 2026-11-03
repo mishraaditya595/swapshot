@@ -77,20 +77,35 @@ func _run() -> void:
     enemy.call("advance_ai", 0.31)
     var second_hp: float = float(player.get("health"))
     var damage_cue: Label = player.get_node("CombatHUD/Incoming") as Label
+    var hud: Node = player.get_node("CombatHUD")
+    var threat_cue: Label = hud.get_node("Threat") as Label
+    var armor_cue: Label = hud.get_node("Health") as Label
     _check(damage_cue.visible and damage_cue.text.contains("ARMOR HIT"),
         "A real enemy hit triggers a visible player damage cue")
+    _check(armor_cue.text.contains(str(int(roundf(second_hp)))),
+        "Persistent armor HUD must track real incoming damage")
+    _check((hud.get_node("DamageFlash") as ColorRect).visible or damage_cue.visible,
+        "A hit has a visible overlay or notification")
     _check(second_hp < first_hp and second_hp >= first_hp - 12.01,
         "Unobstructed enemy shot must apply bounded player damage")
     enemy.call("advance_ai", 0.1)
     _check(is_equal_approx(float(player.get("health")), second_hp),
         "One cooldown must prevent immediate double shots")
 
-    # Cover is introduced after the guard spots the player. It must cancel
-    # any attack and block subsequent fire, including late windup frames.
+    # Begin another telegraph, then move behind cover before its fire frame.
+    # This verifies late-windup shots never penetrate a newly placed blocker.
+    enemy.call("advance_ai", 1.35)
+    _check((enemy.get_node("VisualRoot/WarningFlash") as MeshInstance3D).visible,
+        "A later firing cycle must telegraph again")
     var wall: StaticBody3D = _barrier(Vector3(8.0, 1.1, 3.5))
     encounter.add_child(wall)
     await _frames(3)
     _check(not bool(enemy.call("_can_see_player")), "Crate blocks player detection")
+    enemy.call("advance_ai", 0.6)
+    _check(not (enemy.get_node("VisualRoot/WarningFlash") as MeshInstance3D).visible,
+        "Cover must cancel an already-started shot warning")
+    _check(is_equal_approx(float(player.get("health")), second_hp),
+        "Cover placed during windup must prevent the shot")
     enemy.call("advance_ai", 1.5)
     enemy.call("advance_ai", 1.5)
     _check(is_equal_approx(float(player.get("health")), second_hp),
@@ -118,12 +133,22 @@ func _run() -> void:
     _check(ghost != null, "SHIFT spawns a holographic echo")
     _check(enemy.get("_echo") == ghost, "Nearby unobstructed guard must track echo")
     _check(int(enemy.get("state")) == 1, "Echo interrupts attacking guard")
+    _check((enemy.get_node("VisualRoot/DistractionBeacon") as MeshInstance3D).visible,
+        "Echo distraction shows a cyan enemy beacon")
+    _check(threat_cue.text.contains("DISTRACTED"),
+        "Combat HUD explains why the enemy is not firing")
     var echo_hp: float = float(player.get("health"))
     enemy.call("advance_ai", 0.8)
     _check(is_equal_approx(float(player.get("health")), echo_hp),
         "Echo distraction suppresses enemy fire")
     ability.call("_advance_lifecycle", 1.55)
     _check(enemy.get("_echo") == null, "Echo end signal clears target immediately")
+    _check(not (enemy.get_node("VisualRoot/DistractionBeacon") as MeshInstance3D).visible,
+        "Cyan enemy beacon must clear on echo expiry")
+    _check(threat_cue.text.contains("REACQUIRING"),
+        "Enemy status updates immediately when the echo ends")
+    _check((ability.get_node("ShiftHUD/Status") as Label).text.contains("ECHO ENDED"),
+        "SHIFT status cannot say echo active after it expires")
     await _frames(3)
     _check(not is_instance_valid(ghost), "Expired echo is freed")
 
@@ -151,6 +176,9 @@ func _run() -> void:
         "apply_damage must reduce enemy health")
     enemy.call("apply_damage", 500.0)
     _check(int(enemy.get("state")) == 3, "Lethal damage enters DEAD state")
+    await _frames(35)
+    _check((enemy.get_node("VisualRoot") as Node3D).position.y < -0.55,
+        "Dead trooper must settle toward the floor")
     _check(enemy.collision_layer == 0, "Dead guard no longer blocks rifle rays")
     _check(not enemy.is_physics_processing(), "Dead guard AI must stop")
     var player_hp_after_death: float = float(player.get("health"))
@@ -189,6 +217,8 @@ func _run() -> void:
     # MS-06 later supplies the full death and restart presentation.
     player.call("apply_damage", 500.0)
     _check(not bool(player.get("is_alive")), "Lethal hits mark player dead")
+    _check(threat_cue.text.contains("Enter to restart"),
+        "Death HUD must display the restart control")
     _check(int(ability.get("state")) == 3, "Player death disables SHIFT")
     _check(not bool(rifle.call("fire_once")), "Dead player cannot fire rifle")
 
