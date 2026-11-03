@@ -28,6 +28,7 @@ const SPAWN_SITES: Array[Vector3] = [
 @onready var combat_hud: Node = $Firefight/Arena/Player/CombatHUD
 @onready var objective: Label = $Firefight/EncounterHUD/HelixHint
 @onready var wave_banner: Label = $MissionHUD/WaveBanner
+@onready var wave_backdrop: ColorRect = $MissionHUD/WaveBannerBackdrop
 @onready var elapsed_label: Label = $MissionHUD/Elapsed
 @onready var outcome: CanvasLayer = $Outcome
 @onready var outcome_title: Label = $Outcome/Card/Title
@@ -50,6 +51,7 @@ func _ready() -> void:
     # The MS-05 scene is still independent for existing regression tests.
     player.managed_restart = true
     combat_hud.call("set_mission_managed", true)
+    ($Firefight/Arena/Instructions/ControlHints as Label).add_theme_font_size_override("font_size", 22)
     $Firefight/Arena/Instructions/ControlHints.text = (
         "SWAPSHOT  /  OPERATION ZERO HOUR\n"
         + "WASD MOVE  |  LMB FIRE  |  RMB AIM  |  R RELOAD  |  Q ANCHOR  |  SHIFT TELEPORT  |  ESC RELEASE"
@@ -99,6 +101,7 @@ func _process(delta: float) -> void:
         _banner_remaining = maxf(0.0, _banner_remaining - delta)
         if _banner_remaining <= 0.0:
             wave_banner.visible = false
+            wave_backdrop.visible = false
 
 
 func _physics_process(delta: float) -> void:
@@ -129,6 +132,7 @@ func _advance_waves(delta: float) -> void:
 func _show_banner(message: String, seconds: float) -> void:
     wave_banner.text = message
     wave_banner.visible = true
+    wave_backdrop.visible = true
     _banner_remaining = seconds
 
 
@@ -296,6 +300,7 @@ func _finish(result: Phase) -> void:
     reinforcements_inbound = false
     reinforcement_remaining = 0.0
     wave_banner.visible = false
+    wave_backdrop.visible = false
     phase_changed.emit(int(phase))
     player.set_combat_enabled(false)
     Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
