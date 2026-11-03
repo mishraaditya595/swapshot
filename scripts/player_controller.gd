@@ -11,6 +11,7 @@ extends CharacterBody3D
 @onready var camera_pivot: Node3D = $CameraPivot
 @onready var camera_boom: SpringArm3D = $CameraPivot/CameraBoom
 @onready var visual_root: Node3D = $VisualRoot
+@onready var weapon_pitch: Node3D = $VisualRoot/WeaponPivot
 
 
 func _ready() -> void:
@@ -74,15 +75,18 @@ func _physics_process(delta: float) -> void:
 
     move_and_slide()
 
-    # Turn the visual mesh instead of the physics body, so look yaw and the
-    # over-the-shoulder camera do not snap when movement direction changes.
-    if not world_direction.is_zero_approx():
+    # Look mode owns combat facing, even while stationary or strafing.
+    # Keep the physics body yaw independent for camera-relative movement.
+    if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+        visual_root.rotation.y = camera_pivot.rotation.y
+    elif not world_direction.is_zero_approx():
         var desired_angle: float = atan2(-world_direction.x, -world_direction.z)
         visual_root.rotation.y = lerp_angle(
-            visual_root.rotation.y,
-            desired_angle,
-            minf(1.0, turn_speed * delta)
+            visual_root.rotation.y, desired_angle, minf(1.0, turn_speed * delta)
         )
+
+    # Tilt only the shoulder weapon, not the character collision/body.
+    weapon_pitch.rotation.x = camera_boom.rotation.x
 
 
 func _release_mouse() -> void:
