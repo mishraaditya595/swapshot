@@ -103,7 +103,7 @@
 
 **Target:** Nov 8–9, 2026 · **Priority:** P0 · **Depends on:** MS-05 (unless explicitly reordered)
 
-- [ ] **MS-06 complete** — **Implementing PR:** [#14](https://github.com/mishraaditya595/swapshot/pull/14) (draft; awaiting browser acceptance)
+- [ ] **MS-06 complete** — **Implementing PR:** [#14](https://github.com/mishraaditya595/swapshot/pull/14)
   - [x] Implement 100-HP player damage, death and safe respawn/restart behavior.
   - [x] Add health, magazine, anchor timer, SHIFT cooldown and objective HUD.
   - [x] Implement an explicit encounter objective, win state and restart / retry affordance.
