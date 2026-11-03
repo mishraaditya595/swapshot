@@ -5,6 +5,7 @@ signal state_changed(next_state: int)
 signal damaged(remaining_health: float)
 signal destroyed()
 signal shot_fired(hit_player: bool)
+signal windup_started()
 signal echo_distracted(world_position: Vector3)
 
 enum State { IDLE, ALERT, ATTACK, DEAD }
@@ -30,6 +31,9 @@ const WORLD_MASK: int = 1
 @onready var alert_lamp: MeshInstance3D = $VisualRoot/AlertLamp
 @onready var warning_flash: MeshInstance3D = $VisualRoot/WarningFlash
 @onready var muzzle_flash: MeshInstance3D = $VisualRoot/MuzzleFlash
+@onready var distraction_beacon: MeshInstance3D = $VisualRoot/DistractionBeacon
+@onready var lock_cue: AudioStreamPlayer3D = $LockCue
+@onready var shot_cue: AudioStreamPlayer3D = $ShotCue
 
 var state: State = State.IDLE
 var health: float = 100.0
@@ -54,9 +58,15 @@ func _ready() -> void:
     alert_lamp.material_override = _glow_material(Color(1.0, 0.65, 0.22))
     warning_flash.material_override = _glow_material(Color(1.0, 0.31, 0.09))
     muzzle_flash.material_override = _glow_material(Color(1.0, 0.95, 0.56))
+    distraction_beacon.material_override = _glow_material(Color(0.21, 0.98, 0.95))
+    lock_cue.stream = _make_cue(570.0, 0.14)
+    shot_cue.stream = _make_cue(125.0, 0.18)
+    lock_cue.volume_db = -8.0
+    shot_cue.volume_db = -6.0
     alert_lamp.visible = false
     warning_flash.visible = false
     muzzle_flash.visible = false
+    distraction_beacon.visible = false
     var candidate: Node = get_tree().get_first_node_in_group("player")
     if candidate is CharacterBody3D:
         bind_player(candidate as CharacterBody3D)
@@ -70,6 +80,25 @@ func _glow_material(tint: Color) -> StandardMaterial3D:
     result.emission = tint
     result.emission_energy_multiplier = 1.2
     return result
+
+
+# Generate two short warning and firing cues once per guard.
+func _make_cue(frequency_hz: float, duration: float) -> AudioStreamWAV:
+    var stream := AudioStreamWAV.new()
+    stream.format = AudioStreamWAV.FORMAT_16_BITS
+    stream.mix_rate = 22050
+    var samples: int = int(float(stream.mix_rate) * duration)
+    var bytes := PackedByteArray()
+    bytes.resize(samples * 2)
+    for index in range(samples):
+        var fraction: float = float(index) / float(samples)
+        var time: float = float(index) / float(stream.mix_rate)
+        var envelope: float = (1.0 - fraction) * (1.0 - fraction)
+        var value: int = int(sin(TAU * frequency_hz * time) * envelope * 6200.0) & 0xFFFF
+        bytes[index * 2] = value & 0xFF
+        bytes[index * 2 + 1] = (value >> 8) & 0xFF
+    stream.data = bytes
+    return stream
 
 
 # The scene can be reused in other arenas; binding is idempotent.
@@ -111,6 +140,9 @@ func advance_ai(delta: float) -> void:
     _cooldown_remaining = maxf(0.0, _cooldown_remaining - delta)
     _flash_remaining = maxf(0.0, _flash_remaining - delta)
     muzzle_flash.visible = _flash_remaining > 0.0
+    if _windup_remaining > 0.0:
+        var pulse: float = 3.1 + 0.75 * sin(_windup_remaining * 25.0)
+        warning_flash.scale = Vector3.ONE * pulse
     _hit_remaining = maxf(0.0, _hit_remaining - delta)
     if _hit_remaining <= 0.0:
         visor.material_override = null
@@ -121,6 +153,8 @@ func advance_ai(delta: float) -> void:
         else:
             _set_state(State.ALERT)
             _turn_toward(_echo_position, delta)
+            distraction_beacon.visible = true
+            alert_lamp.visible = false
             return
 
     if not _player_is_alive():
@@ -155,6 +189,8 @@ func advance_ai(delta: float) -> void:
         elif _cooldown_remaining <= 0.0:
             _windup_remaining = windup_seconds
             warning_flash.visible = true
+            windup_started.emit()
+            lock_cue.play()
 
 
 func _player_is_alive() -> bool:
@@ -210,7 +246,7 @@ func _set_state(next: State) -> void:
     if state == next:
         return
     state = next
-    alert_lamp.visible = state == State.ALERT or state == State.ATTACK
+    alert_lamp.visible = (state == State.ALERT or state == State.ATTACK) and _echo == null
     if state != State.ATTACK:
         _cancel_windup()
     state_changed.emit(int(state))
@@ -240,8 +276,9 @@ func _fire() -> void:
         _enter_alert()
         return
     _cooldown_remaining = fire_interval_seconds
-    _flash_remaining = 0.08
+    _flash_remaining = 0.12
     muzzle_flash.visible = true
+    shot_cue.play()
     player.call("apply_damage", shot_damage)
     shot_fired.emit(true)
     if not _player_is_alive():
@@ -259,6 +296,8 @@ func _on_echo_spawned(ghost: Node3D, at: Vector3) -> void:
     _echo = ghost
     _echo_position = at
     _enter_alert()
+    distraction_beacon.visible = true
+    alert_lamp.visible = false
     echo_distracted.emit(at)
 
 
@@ -268,6 +307,7 @@ func _on_echo_ended(_at: Vector3) -> void:
 
 func _clear_echo() -> void:
     _echo = null
+    distraction_beacon.visible = false
     if state != State.DEAD:
         _enter_alert()
 
@@ -285,7 +325,12 @@ func apply_damage(amount: float) -> void:
         _flash_remaining = 0.0
         muzzle_flash.visible = false
         alert_lamp.visible = false
-        visual_root.rotation.z = deg_to_rad(73.0)
+        distraction_beacon.visible = false
+        lock_cue.stop()
+        # Sink the toppled mesh so it rests on the floor instead of hovering.
+        var collapse: Tween = create_tween().set_parallel(true)
+        collapse.tween_property(visual_root, "rotation:z", deg_to_rad(88.0), 0.42).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+        collapse.tween_property(visual_root, "position:y", -0.61, 0.42).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
         set_physics_process(false)
         _disconnect_shift()
         destroyed.emit()
