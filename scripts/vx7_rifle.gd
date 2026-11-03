@@ -16,8 +16,8 @@ signal dry_fired()
 @export_range(30.0, 90.0, 1.0) var ads_fov: float = 55.0
 @export var hit_mask: int = 1
 
-@onready var camera: Camera3D = get_parent() as Camera3D
-@onready var player: CollisionObject3D = get_node("../../../..") as CollisionObject3D
+@onready var player: CollisionObject3D = get_node("../../..") as CollisionObject3D
+@onready var camera: Camera3D = player.get_node("CameraPivot/CameraBoom/Camera3D") as Camera3D
 @onready var muzzle: Marker3D = $Muzzle
 @onready var rifle_mesh: MeshInstance3D = $RifleMesh
 @onready var flash_mesh: MeshInstance3D = $MuzzleFlash
