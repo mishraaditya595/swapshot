@@ -78,9 +78,10 @@ func _run() -> void:
     player.set_physics_process(false)
     for guard: Node in [first, second]:
         guard.set_physics_process(false)
-    dock.call("_on_route_entered", player)
+    player.global_position = Vector3(0.0, 1.1, 12.0)
+    await _frames(4)
     _check(int(dock.get("step")) == 1 and hint.text.contains("RMB AIM"),
-        "Cover arrival reveals look, aim, fire and reload instructions")
+        "Physical route trigger reveals look, aim, fire and reload instructions")
     target.call("apply_damage", 20.0)
     _check(int(dock.get("step")) == 2 and hint.text.contains("Q PLACE"),
         "A registered target hit reveals the anchor instruction")
