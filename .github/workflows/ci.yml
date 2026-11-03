@@ -104,6 +104,15 @@ jobs:
             echo "Godot MS-06 encounter smoke test reported errors" >&2
             exit 1
           fi
+      - name: MS-07 P0 safety and progression regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/ms07_p0_review_smoke.gd 2>&1 | tee /tmp/ms07-smoke.log
+          if grep -E 'SCRIPT ERROR:|Parse Error:|ERROR:|MS-07 FAIL:' /tmp/ms07-smoke.log; then
+            echo "Godot MS-07 review smoke test reported errors" >&2
+            exit 1
+          fi
       - name: Startup smoke test (no gameplay assertion)
         shell: bash
         run: |
