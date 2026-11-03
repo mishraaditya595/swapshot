@@ -8,8 +8,6 @@ Open the preview hub to play a manually published browser build. New PRs, pushes
 
 SWAPSHOT is a single-player, third-person tactical shooter built for **GitHub Game Off 2026** (theme: **SHIFT**). Play as Vex, a covert operative infiltrating the Helix facility. Plant a holographic anchor, SHIFT into a better position, leave an echo behind, and turn firefights into flanking opportunities.
 
-**Status: MS-01 Web-first gameplay foundation accepted in PR #4 (merge pending).** The feature branch includes a third-person movement/camera training arena, with manual macOS browser QA recorded in [the MS-01 review](docs/reviews/MS-01-review.md). Rifle combat, enemy AI and SHIFT are planned for later milestones. The playable Web snapshot is published only when the owner manually triggers deployment; a successful preview is not the final game release.
-
 ## Scope
 
 - **Engine:** Godot **4.7.2 stable**, GDScript, Compatibility renderer for planned Web export.
