@@ -185,6 +185,13 @@ func _run() -> void:
         rifle.call("_resolve_shot")
     _check(int(fresh.get("state")) == 3, "Rifle can defeat a full-health guard")
 
+    # MS-05's minimal player death receiver must stop MOVE/SHIFT/FIRE safely;
+    # MS-06 later supplies the full death and restart presentation.
+    player.call("apply_damage", 500.0)
+    _check(not bool(player.get("is_alive")), "Lethal hits mark player dead")
+    _check(int(ability.get("state")) == 3, "Player death disables SHIFT")
+    _check(not bool(rifle.call("fire_once")), "Dead player cannot fire rifle")
+
     encounter.queue_free()
     await _frames(3)
     _check(not is_instance_valid(enemy), "Scene teardown frees guard")

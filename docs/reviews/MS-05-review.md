@@ -12,7 +12,7 @@
 
 Inspected `security_trooper.gd`, its scene, the player damage receiver, combat HUD, the dedicated encounter, SHIFT signals, rifle collision masks and the regression test. The guard uses one cooldown, cancels its warning on obstruction, raycasts at discharge, and disconnects echo handlers on death/teardown. Its collision layer is 1 so the VX-7 hits it unchanged. Perception and shots include player layer 2; echoes use an occlusion-only world ray and never gain physics collision.
 
-No P0/P1 defect was confirmed in the inspected code. The first CI run exposed an encounter problem: the guard acquired the player immediately at spawn. The detection radius is now 12.5 meters, requiring the player to approach. The test also checks range, field of view and the incoming-damage cue. The latest CI run passed with this tuning and the additional smoke assertions.
+Source review identified one P1 input edge case: the initial health guard returned before handling Escape, leaving a risk of captured mouse input after player death. The controller now releases mouse capture on death and preserves Escape handling, and the rifle rejects further shots from dead players. Native pointer lock remains a manual browser check. The first CI run exposed an encounter problem: the guard acquired the player immediately at spawn. The detection radius is now 12.5 meters, requiring the player to approach. The test also checks range, field of view and the incoming-damage cue. The gameplay CI run 41631489943 passed with the tuned detection and additional smoke assertions. The death input guard is a follow-up change and requires its own CI evidence.
 
 ## Verification matrix
 
@@ -64,3 +64,7 @@ Executed by SWAPSHOT CI on the gameplay commit (run 41631489943), with successfu
 - `godot --headless --path . --quit-after 2`
 
 These ran in CI using the pinned Godot executable path. The manual PR Web preview workflow and hands-on browser playtest remain NOT RUN.
+
+## Resolved source-review finding
+
+**P1, code-inferred: Escape blocked after player death.** In the first MS-05 health change, `scripts/player_controller.gd::_unhandled_input` returned immediately for a dead player, before handling `release_mouse`. The fix releases captured mouse input on death and checks Escape before the dead-player input guard. `scripts/vx7_rifle.gd::fire_once` also rejects firing by a dead player. The MS-05 smoke test now asserts lethal damage disables SHIFT and rifle fire. Browser pointer-lock handling is still NOT RUN and requires the owner's preview test.

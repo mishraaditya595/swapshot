@@ -39,6 +39,7 @@ func apply_damage(amount: float) -> void:
         is_alive = false
         velocity = Vector3.ZERO
         $ShiftAbility.set_owner_alive(false)
+        _release_mouse()
         died.emit()
 
 
@@ -50,11 +51,11 @@ func reset_health() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-    if not is_alive:
-        return
     if event.is_action_pressed("release_mouse"):
         _release_mouse()
         get_viewport().set_input_as_handled()
+        return
+    if not is_alive:
         return
 
     if event is InputEventMouseButton:
