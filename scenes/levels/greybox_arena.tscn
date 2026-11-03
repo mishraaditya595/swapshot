@@ -158,7 +158,7 @@ shape = SubResource("RampShape")
 position = Vector3(0, 1.1, 10.5)
 
 [node name="TargetNear" parent="." instance=ExtResource("2_target")]
-position = Vector3(0, 1.0, 1.0)
+position = Vector3(0.55, 1.0, 1.0)
 
 [node name="TargetFar" parent="." instance=ExtResource("2_target")]
 position = Vector3(5.0, 1.0, -8.0)

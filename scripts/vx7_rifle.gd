@@ -118,6 +118,13 @@ func _resolve_shot() -> Dictionary:
     var origin: Vector3 = camera.global_position
     var muzzle_point: Vector3 = muzzle.global_position
     var forward: Vector3 = -camera.global_basis.z
+    # First-person/ADS cone is narrower, with one sample per fired round.
+    # Hit detection remains based on camera projection before muzzle checks.
+    var spread: float = deg_to_rad(ads_spread_degrees if is_aiming else hip_spread_degrees)
+    if spread > 0.0:
+        var yaw: float = tan(randf_range(-spread, spread))
+        var pitch: float = tan(randf_range(-spread, spread))
+        forward = (forward + camera.global_basis.x * yaw + camera.global_basis.y * pitch).normalized()
     # Center-camera ray defines the point under the crosshair.
     var crosshair_hit: Dictionary = _ray(origin, origin + forward * range_meters)
     var aim_point: Vector3 = (

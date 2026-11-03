@@ -78,7 +78,8 @@ func _run() -> void:
     barrier.name = "TestCloseCover"
     var shape := CollisionShape3D.new()
     var blocker := BoxShape3D.new()
-    blocker.size = Vector3(1.2, 1.2, 0.2)
+    # The narrow block covers the muzzle line without covering the camera ray.
+    blocker.size = Vector3(0.35, 1.2, 0.2)
     shape.shape = blocker
     barrier.add_child(shape)
     arena.add_child(barrier)

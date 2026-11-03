@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/vx7_rifle.gd" id="1_rifle"]
 [ext_resource type="Script" path="res://scripts/rifle_fx.gd" id="2_fx"]
@@ -21,6 +21,7 @@ radius = 0.11
 height = 0.22
 
 [node name="VX7" type="Node3D"]
+process_physics_priority = 20
 script = ExtResource("1_rifle")
 
 [node name="RifleMesh" type="MeshInstance3D" parent="."]
