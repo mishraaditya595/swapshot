@@ -1,79 +1,70 @@
-# MS-06 review: P0 encounter loop
+# MS-06 review: two-wave P0 encounter
 
-**Repository / base..head:** `mishraaditya595/swapshot`, `main` to [draft PR #14](https://github.com/mishraaditya595/swapshot/pull/14). Initial CI-tested code revision: `34dd541bb84138963c66666143d97831cdffca77`.
+**Repository:** `mishraaditya595/swapshot`, `main` to [draft PR #14](https://github.com/mishraaditya595/swapshot/pull/14).
+**Scope:** P0 gameplay loop in Godot 4.7.2 / Compatibility renderer.
+**Decision:** PASS WITH ISSUES for automated mechanics; INSUFFICIENT EVIDENCE for revised browser acceptance.
 
-**Scope:** MS-06, P0. **Engine:** Godot 4.7.2 stable in GitHub Actions, GL Compatibility renderer. **Decision:** INSUFFICIENT EVIDENCE for final milestone acceptance. Automated smoke passed, and the owner's browser recording demonstrates both death/retry and victory, but does not settle pacing or post-victory replay.
+## Browser evidence and why the encounter changed
 
-## Recorded browser evidence
+The owner's 97.6-second Brave/macOS recording from November 3 shows the original three-guard PR #14 preview. A partly recorded attempt ended in defeat at mission time 01:09 (1/3 eliminations, one SHIFT). The next attempt restarted at 100 HP and won at 00:50 (3/3 eliminations, three SHIFTS, 84/100 HP). The objective, health, shooting, SHIFT feedback and both result screens are visible. The clip does not show replay from victory, unsafe SHIFT tests, FPS or audio. Its source SHA is not visible.
 
-On Nov 3, 2026 the owner uploaded `Screen Recording 2026-11-03 at 7.53.02 PM.mov`, a 97.6-second, 2940 × 1912 screen recording of the hosted `/swapshot/pr-14/` build in Brave on macOS. The first attempt is already at `00:36` on the mission clock at the start of the clip, and ends in defeat at `01:09` with 1/3 guards neutralized and one SHIFT. A retry returns to 100 HP and resets the objective to 0/3; the second attempt completes at `00:50` with 3/3 kills, three SHIFTS and 84/100 HP. The objective changes in response to enemy death, health and ammunition are displayed, and the victory/defeat result overlays appear.
-
-This is visual evidence of a hosted human playthrough. It does not prove the preview's precise commit SHA, FPS, audio quality, browser version, or that victory replay and invalid SHIFT targets were exercised. The recording's video-only stream has no audio track.
+After reviewing this, the owner approved a longer firefight and readability improvements. The follow-up uses two three-guard waves in the existing arena. The first three deaths start a four-second reinforcement warning; three tougher troopers then enter from safe, separated positions. The HUD tracks 0/6 kills and the active wave. Health, ammo, SHIFT, objective and result typography are larger. This revision requires a new hosted build and playtest; the recorded 50-second win is only a baseline.
 
 ## Findings
 
-### P1 — Winning firefight lasts 50 seconds against a two-minute target
+### P1 — Revised duration and pacing still need observation
 
-- **Evidence:** In the owner's Nov 3 recording, the centered `SECTOR SECURED` screen reports `TIME 00:50 | SHIFTS 3`, `GUARDS NEUTRALIZED 3 / 3`, and HUD `ARMOR 84 / 100`. The prior defeat screen reports `TIME 01:09 | SHIFTS 1` and `1 / 3`. The clip starts when that first run is already 36 seconds in.
-- **Reproduction:** Open the current hosted PR #14 preview and play normally through the three-guard objective.
-- **Expected:** The MS-06 gate calls for a reproducible, roughly two-minute firefight where SHIFT changes positioning.
-- **Observed:** One completed run took 50 seconds of in-game time. Three SHIFTS are reported, and the video shows position changes and an echo/cooldown HUD. The recording alone does not establish how rewarding the flanks felt.
-- **Impact:** The full outcome loop works on the recorded path, but the playable fight is shorter than the requested target. More enemies or a larger arena are not needed to evaluate this: tune existing AI/cover and test again.
-- **Next check:** Ask the owner whether a short sub-minute win is acceptable or whether MS-06 needs a longer, better-paced encounter. Re-record after any tuning.
-- **Confidence:** Observed in hosted browser footage.
+- **Evidence:** `scripts/ms06_mission.gd` activates three reserve guards after the patrol is defeated. `scenes/levels/ms06_firefight.tscn` gives the response team 120 HP and 9 damage per shot. No new enemy archetype or movement pathfinding was added.
+- **Expected:** A focused, enjoyable firefight averaging around 90–135 seconds, with room for more than one useful SHIFT.
+- **Observed:** The previous three-guard win was 50 seconds. The revised six-guard session has not been recorded.
+- **Impact:** The feature may still be too short, or the extra guards may make a first attempt unfair. Static AI still limits pressure on a player who stays behind solid cover.
+- **Next check:** Record a complete six-guard winning run, its health/time/SHIFT stats, and any unfair spawn or sightline. Tune within this milestone before approval.
+- **Confidence:** Code-inferred risk; actual pacing needs verification.
 
-### P1 — Browser replay after victory and edge cases remain unverified
+### P1 — Browser-only edge cases remain open
 
-- **Evidence:** The video shows `OPERATIVE DOWN` at approximately recording time 00:37, a fresh restarted attempt from around 00:40, and `SECTOR SECURED` around 01:33. The recording ends on the victory screen without activating its replay control. [CI run 41646473838](https://github.com/mishraaditya595/swapshot/actions/runs/41646473838) passed MS-01–MS-06 smoke, including both replay paths in headless tests.
-- **Expected:** Victory/replay and defeat/retry work on the hosted build, and unsafe SHIFT destinations cannot strand the player.
-- **Observed:** Defeat/retry, full 100-HP restoration and fresh objectives are visible; victory is visible. The victory replay action, invalid landings, window-focus transitions and measured browser performance are absent from this clip.
-- **Impact:** The PR still needs targeted manual acceptance.
-- **Next check:** Start another run from the victory screen; try blocked/expired SHIFT anchors and record OS/browser version, FPS and any errors.
-- **Confidence:** Recorded for defeat/retry and victory; remaining checks need verification.
+- **Evidence:** The expanded `tests/ms06_loop_smoke.gd` passes countdown, paused state, blocked primary spawn, full mission victory, death during the response warning, active echo cleanup, Enter/button retry and scene teardown. The established MS-03/04/05 tests also pass.
+- **Expected:** No trooper spawns inside the player, cover or an armed anchor. Victory waits for all six guards; death cannot spawn late enemies; fresh runs reset the entire state.
+- **Observed:** Godot headless simulation covers these states. A browser session has not exercised the new response team or replay after victory.
+- **Next check:** Try a SHIFT anchor near the response entry, die during the countdown, and click replay from the victory screen in the hosted build.
+- **Confidence:** Headless checks observed, browser behavior needs verification.
 
-### P2 — Small HUD typography at the recorded resolution
+### P2 — HUD scale requires a display check
 
-- **Evidence:** At 2940 × 1912 capture resolution the objective, SHIFT status, mission clock and ammo counters are small relative to the game view; the centered result panel is clear in isolation, but also uses small text.
-- **Reproduction:** Open the preview at the recording's display scale and try reading the objective, SHIFT cooldown and ammunition while moving.
-- **Expected:** Combat status can be read at a glance without diverting attention from aiming.
-- **Observed:** The text is present and contrast varies by field, but the capture alone cannot measure the player's subjective readability.
-- **Impact:** Readability may suffer on high-resolution laptop displays.
-- **Next check:** Ask the owner whether HUD scale felt legible. If not, increase sizes and spacing without adding more UI systems.
-- **Confidence:** Appearance observed, usability impact needs verification.
+- **Evidence:** In the old 2940 × 1912 capture, objective, SHIFT, ammo and status labels look small. Scene font sizes and offsets were increased in the follow-up.
+- **Expected:** Status remains readable while aiming, at the native laptop display resolution and a smaller browser window.
+- **Observed:** Larger text is present in resource scenes and asserted in the MS-06 smoke test. No screenshot of the revised layout exists yet.
+- **Next check:** Inspect top-of-screen label overlap, SHIFT countdown, incoming warning, and replay button on the next hosted build.
+- **Confidence:** Source changes verified; real readability needs feedback.
 
 ## Verification matrix
 
-| Check | Status | Evidence |
+| Check | Result | Evidence |
 | --- | --- | --- |
-| Static project audit | PASS | CI static job, initial run 41645861386 |
-| Audit unit tests and Python tests | PASS | Same CI static job |
-| Milestone tracker structural validator | PASS | Same CI static job; acceptance is a separate gate |
-| Godot 4.7.2 import and startup | PASS | CI Godot job, initial run 41645861386 |
-| MS-01 through MS-05 regression smoke | PASS | Same CI Godot job, each reported `SMOKE PASS` |
-| MS-06 health, HUD, SHIFT, win, death, replay | PASS | Initial CI reported `MS-06 SMOKE PASS`; additional teardown/Enter assertions are on this PR for a follow-up CI run |
-| Automated code review | PASS | Rule-based scan from pre-merge run 41645861398; not a gameplay review |
-| PR milestone acceptance | FAIL, expected | Manual playtest and full checklist still incomplete |
-| Browser movement, rifle hits, damage and SHIFT use | PASS (recorded) | Owner-supplied Brave/macOS gameplay; one defeat and one victory | 
-| HUD readability and camera comfort | NOT RUN | Visuals recorded; subjective usability feedback not yet given |
-| Hosted HTML5 preview and observed outcomes | PASS (recorded) | `mishraaditya595.github.io/swapshot/pr-14/`; 01:09 defeated and 00:50 victorious |
-| Victory replay, invalid SHIFT and FPS | NOT RUN | Not shown in uploaded recording |
+| Source audit, Python tests, tracker validator | PASS | [CI run 41656292272](https://github.com/mishraaditya595/swapshot/actions/runs/41656292272), static job |
+| Godot 4.7.2 import and startup | PASS | Same CI run, Godot job |
+| MS-01–MS-05 regression suites | PASS | Same CI run; all five `SMOKE PASS` |
+| MS-06 two-wave, spawn safety, pause, death and replay | PASS | Same CI run; `MS-06 SMOKE PASS` |
+| Rule-based automated code review | PASS | [Pre-merge run 41656292716](https://github.com/mishraaditya595/swapshot/actions/runs/41656292716); static risk scan only |
+| Milestone acceptance policy | FAIL (expected) | Owner approval and manual tasks remain unchecked |
+| Original three-guard hosted browser gameplay | PASS (recorded) | Owner's 01:09 defeat and 00:50 victory |
+| Revised six-guard hosted Web gameplay and duration | NOT RUN | Requires a fresh owner-triggered Web deployment |
+| Post-victory replay, focus changes, FPS and audio | NOT RUN | Not demonstrated for this revision |
 
 ## Scope acceptance
 
-| Requirement | Implemented | Evidence |
+| MS-06 requirement | Implementation | Verification limit |
 | --- | --- | --- |
-| Third-person movement, camera and rifle | Yes; preserved | Earlier smoke suites pass on PR revision |
-| Safe SHIFT, 8-second anchor, 4-second cooldown, echo | Yes; preserved | MS-03/04/05/06 state and physics smoke |
-| 100 HP, death and combat lock | Yes | MS-06 smoke |
-| Objective, enemy death integration, win and defeat | Yes | MS-06 smoke |
-| Clean replay of scene, gun, ability and enemies | Yes | MS-06 smoke |
-| Browser defeat/retry and victory | Yes, recorded | Death at 01:09 (1/3, SHIFT 1), retry, win at 00:50 (3/3, SHIFT 3) |
-| Two-minute pacing and victory/replay acceptance | Pending | Winner completed in 50 seconds; final replay not shown |
+| 100 HP, rifle and readable HUD | Implemented | Automated tests pass; revised font scale not yet viewed in browser |
+| SHIFT range/anchor/echo/cooldown | Preserved | Earlier regressions pass; browser invalid-target tests outstanding |
+| Six-guard objective with second-wave warning | Implemented | Automated transition tests pass; gameplay feel unmeasured |
+| Defeat, victory and replay without stale state | Implemented | Automated tests pass; post-victory Web replay outstanding |
+| Reproducible two-minute firefight | Pending | Original victory was 50 seconds; revised duration unknown |
 
-## Reviewer notes
+## Risks and next action
 
-`scripts/ms06_mission.gd` is the only objective authority. It counts living enemy states instead of relying on an increment-only death total. On terminal transition it disables player controls and SHIFT; the player and rifle reject new combat commands. Replay requests switch immediately to `RESTARTING`, so repeated Enter or button presses cannot schedule multiple reloads. The MS-05 scene remains separate and its smoke suite passes.
+The response wave keeps the existing trooper AI and caps active opponents at three. It uses capsule clearance and floor support queries to select from eight fixed entry sites. If the available entries are obstructed, it retries rather than spawning into an obstacle. The headless test confirms a safe alternative when the player occupies the primary western entry. A human session is still needed for practical spawn visibility, balance and feel.
 
-The recording supports a working death/retry and win path and shows no obvious progression softlock. The 50-second winning run misses the two-minute pacing target, while victory/replay and SHIFT safety edge cases still need a browser check. No audio track is present in the uploaded file, so audio is not assessed. Final acceptance remains with the owner.
+Run the manual workflow for PR #14 and follow `tests/MS-06-BROWSER-QA.md`. Record the exact deployed SHA and confirm the two-wave completion and victory replay before checking the milestone. Keep PR #14 open and unmerged until the owner accepts it.
 
-**Documentation editorial pass:** Reader-facing tracker, plan, review and PR text were checked against the repository's humanizer instructions. Technical paths, milestone identifiers and evidence links were preserved.
+**Editorial pass:** This review and the companion QA instructions were edited for concise technical prose following the repository humanizer skill. Claims about automated checks and manual gameplay remain separate.
