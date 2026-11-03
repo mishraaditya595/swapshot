@@ -1,0 +1,69 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat_hud.gd" id="1_hud"]
+
+[node name="CombatHUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="Crosshair" type="Label" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -25.0
+offset_top = -22.0
+offset_right = 25.0
+offset_bottom = 22.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.68, 0.98, 0.96, 1)
+theme_override_font_sizes/font_size = 28
+text = "+"
+horizontal_alignment = 1
+
+[node name="HitMarker" type="Label" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -29.0
+offset_right = 32.0
+offset_bottom = 29.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.65, 0.26, 1)
+theme_override_font_sizes/font_size = 32
+text = "×"
+horizontal_alignment = 1
+
+[node name="Ammo" type="Label" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -248.0
+offset_top = -92.0
+offset_right = -16.0
+offset_bottom = -55.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.84, 0.98, 0.98, 1)
+theme_override_font_sizes/font_size = 22
+text = "VX-7  24 / 24"
+horizontal_alignment = 2
+
+[node name="Reload" type="Label" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -248.0
+offset_top = -54.0
+offset_right = -16.0
+offset_bottom = -19.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.98, 0.73, 0.44, 1)
+theme_override_font_sizes/font_size = 15
+text = "R  RELOAD"
+horizontal_alignment = 2

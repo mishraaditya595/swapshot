@@ -47,14 +47,18 @@
 
 **Target:** Nov 4, 2026 · **Priority:** P0 · **Depends on:** MS-01 (unless explicitly reordered)
 
-- [ ] **MS-02 complete** — **Implementing PR:** —
-  - [ ] Add VX-7 rifle scene and reusable hitscan weapon logic with a single source of fire-rate state.
-  - [ ] Implement aim / ADS, 24-round magazine, reload, recoil and ammo handling.
-  - [ ] Add damageable target(s), hit effects, crosshair feedback and minimal muzzle feedback.
-  - [ ] Block camera-origin shots obstructed at the muzzle by nearby cover.
-  - [ ] Add source-level or in-engine tests for fire-rate, reload, empty-magazine and obstruction edge cases.
+- [x] **MS-02 complete** — **Implementing PR:** [#8](https://github.com/mishraaditya595/swapshot/pull/8)
+  - [x] Add VX-7 rifle scene and reusable hitscan weapon logic with a single source of fire-rate state.
+  - [x] Implement aim / ADS, 24-round magazine, reload, recoil and ammo handling.
+  - [x] Add damageable target(s), hit effects, crosshair feedback and minimal muzzle feedback.
+  - [x] Block camera-origin shots obstructed at the muzzle by nearby cover.
+  - [x] Add source-level or in-engine tests for fire-rate, reload, empty-magazine and obstruction edge cases.
 
-**Acceptance gate:** The player can aim, shoot, reload and damage a target; close-wall shots cannot penetrate cover.
+**Manual Web acceptance (Nov 3, owner-recorded, PR #8):** The first browser recording confirmed shooting, reloading and ADS inputs, but identified a mismatch between camera turns and character/weapon facing. After the follow-up [aim-alignment correction](plans/MS-02-aim-alignment.md), the owner supplied a new ~46-second recording (`Screen Recording 2026-11-03 at 13.58.00.mov`) of the PR #8 browser preview and confirmed the rotation/firing mechanics feel correct and the shoulder-mounted placement is an improvement. Review of the footage shows the character and rifle staying together across camera turning, movement and ramp/cover traversal, plus visible firing feedback and ammo consumption. This is a browser playtest, **not** a native Godot editor GUI test. Some dark surfaces near the ramp and the small placeholder gun remain nonblocking visual polish.
+
+**Godot/CI verification (Nov 3):** [SWAPSHOT CI run 41597083512](https://github.com/mishraaditya595/swapshot/actions/runs/41597083512) passed Godot 4.7.2 headless import/startup, MS-01 movement/camera regression, MS-02 smoke (`aim alignment, ammo, cadence, damage, reload, cover, HUD`), static audit, Python tests and milestone tracker validation. Close-wall no-penetration, target damage, reload edge cases and fire cadence are verified programmatically; the owner footage does not independently prove every edge case. See [MS-02 review](reviews/MS-02-review.md) for evidence boundaries.
+
+**Acceptance gate:** The player can aim, shoot, reload and damage a target; close-wall shots cannot penetrate cover. **Met** through the owner's two-stage Web playtest plus Godot physics regression. The implementing PR must still pass fresh pre-merge checks and be merged to deliver MS-02 to `main`.
 
 ### MS-03 — SHIFT core: placement and safe teleport
 

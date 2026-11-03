@@ -1,6 +1,7 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/target_dummy.tscn" id="2_target"]
 
 [sub_resource type="StandardMaterial3D" id="FloorMat"]
 albedo_color = Color(0.16, 0.21, 0.28, 1)
@@ -156,6 +157,12 @@ shape = SubResource("RampShape")
 [node name="Player" parent="." instance=ExtResource("1_player")]
 position = Vector3(0, 1.1, 10.5)
 
+[node name="TargetNear" parent="." instance=ExtResource("2_target")]
+position = Vector3(0.55, 1.0, 1.0)
+
+[node name="TargetFar" parent="." instance=ExtResource("2_target")]
+position = Vector3(5.0, 1.0, -8.0)
+
 [node name="Instructions" type="CanvasLayer" parent="."]
 
 [node name="ControlHints" type="Label" parent="Instructions"]
@@ -167,4 +174,4 @@ mouse_filter = 2
 theme_override_colors/font_color = Color(0.8, 0.97, 0.97, 1)
 theme_override_font_sizes/font_size = 19
 text = "SWAPSHOT // TRAINING ARENA
-WASD move  |  Mouse look: click to capture  |  Esc release"
+WASD move | Click capture | LMB fire | RMB aim | R reload | Esc release"
