@@ -174,8 +174,39 @@ func _run() -> void:
         "Death retry restores full health")
     _check(not bool(ability.get("anchor_active")) and ability.get("echo_instance") == null,
         "Death retry carries no stale SHIFT state")
-    _check(not bool(encounter.get("player").get("managed_restart")) == false,
-        "New player retains mission-managed replay")
+    _check(bool(player.get("managed_restart")), "New player retains mission-managed replay")
+
+    # A lethal hit during a live echo must clean up both SHIFT and the enemy
+    # target before Enter starts yet another full-scene replay.
+    player.set_physics_process(false)
+    _check(bool(ability.call("_try_place_at", Vector3(0.0, 0.0, 7.0), Vector3.UP)),
+        "Third run can deploy a fresh anchor")
+    _check(bool(ability.call("try_shift")), "Third run can SHIFT before death")
+    _check(ability.get("echo_instance") != null, "Third run has live echo")
+    player.call("apply_damage", 500.0)
+    _check(ability.get("echo_instance") == null,
+        "Lethal hit removes an active echo immediately")
+    _check(is_equal_approx(float(ability.get("cooldown_remaining_seconds")), 0.0),
+        "Lethal hit clears SHIFT cooldown")
+    var dead_echo_guard: Node = encounter.get_node("Firefight/HelixTrooper")
+    _check(dead_echo_guard.get("_echo") == null,
+        "Enemy must have no stale echo after player death")
+
+    var before_enter: Node3D = encounter
+    var enter_key := InputEventKey.new()
+    enter_key.keycode = KEY_ENTER
+    enter_key.pressed = true
+    encounter.call("_unhandled_input", enter_key)
+    await _frames(8)
+    encounter = current_scene as Node3D
+    _check(encounter != null and encounter != before_enter,
+        "Enter key retries after death")
+    if encounter == null or encounter == before_enter:
+        quit(1)
+        return
+    _check(int(encounter.get("phase")) == 0
+        and int(encounter.call("_remaining_guards")) == 3,
+        "Enter retry starts with fresh mission state")
 
     encounter.queue_free()
     await _frames(3)

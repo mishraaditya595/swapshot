@@ -103,13 +103,15 @@
 
 **Target:** Nov 8–9, 2026 · **Priority:** P0 · **Depends on:** MS-05 (unless explicitly reordered)
 
-- [ ] **MS-06 complete** — **Implementing PR:** —
-  - [ ] Implement 100-HP player damage, death and safe respawn/restart behavior.
-  - [ ] Add health, magazine, anchor timer, SHIFT cooldown and objective HUD.
-  - [ ] Implement an explicit encounter objective, win state and restart / retry affordance.
-  - [ ] Wire enemy death and player death into mission state without stale signals or softlocks.
+- [ ] **MS-06 complete** — **Implementing PR:** [#14](https://github.com/mishraaditya595/swapshot/pull/14) (draft; awaiting browser acceptance)
+  - [x] Implement 100-HP player damage, death and safe respawn/restart behavior.
+  - [x] Add health, magazine, anchor timer, SHIFT cooldown and objective HUD.
+  - [x] Implement an explicit encounter objective, win state and restart / retry affordance.
+  - [x] Wire enemy death and player death into mission state without stale signals or softlocks.
   - [ ] Play an end-to-end greybox encounter: move → shoot → anchor → SHIFT → eliminate → win/retry.
   - [ ] Fix any P0 blockers and record measured playtest results in the PR.
+
+**MS-06 verification (Nov 3, 2026):** Initial [GitHub Actions run 41645861386](https://github.com/mishraaditya595/swapshot/actions/runs/41645861386) passed Godot 4.7.2 import/startup and MS-01–MS-06 headless smoke, including full scene replay after victory and defeat. Static audit, Python unit tests and tracker validation passed. See [MS-06 review](reviews/MS-06-review.md) for the evidence boundary. The end-to-end hosted Web playtest, measured two-minute pacing and owner acceptance remain outstanding; the milestone must stay unchecked. PR #14's acceptance gate is expected to remain red until those checks are documented and accepted.
 
 **Acceptance gate:** One reproducible 2-minute firefight works from launch to victory/retry; the SHIFT ability clearly changes positioning.
 
