@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/levels/ms05_firefight.tscn" id="1_encounter"]
+[ext_resource type="PackedScene" path="res://scenes/levels/ms06_firefight.tscn" id="1_encounter"]
 
 [node name="Swapshot" type="Node3D"]
 
