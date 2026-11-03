@@ -48,7 +48,8 @@ func _run() -> void:
     # Reproduce owner's browser report: the camera turned while the visor
     # and rifle remained pointed forward. Exercise stationary left/right,
     # back-facing 180-degree yaw and pitched aiming.
-    Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+    # Headless mode cannot capture the OS pointer; simulate the combat
+    # pose with its shared pure update instead of setting mouse_mode.
     var original_forward: Vector3 = -muzzle.global_basis.z
     for motion in [
         Vector2(480.0, -160.0), Vector2(-960.0, 320.0),
@@ -56,6 +57,7 @@ func _run() -> void:
     ]:
         player.call("_apply_mouse_look", motion)
         await _frames(3)
+        player.call("_update_combat_pose", Vector3.ZERO, true, 1.0 / 60.0)
         _check(
             absf(wrapf(visuals.rotation.y - pivot.rotation.y, -PI, PI)) < 0.01,
             "Player visual yaw must follow combat camera yaw"
@@ -75,7 +77,7 @@ func _run() -> void:
     # Restore the original target direction for the firing/cover tests.
     player.call("_apply_mouse_look", Vector2(PI / 0.0025, 0.0))
     await _frames(3)
-    Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+    player.call("_update_combat_pose", Vector3.ZERO, true, 1.0 / 60.0)
 
     rifle.set("hip_spread_degrees", 0.0)
     rifle.set("ads_spread_degrees", 0.0)
