@@ -46,6 +46,12 @@ func _run() -> void:
     var initial_health: float = float(target.get("health"))
     _check(bool(rifle.call("fire_once")), "First shot must fire")
     _check(int(rifle.get("ammo")) == 23, "One fired round consumes one cartridge")
+    var flash: MeshInstance3D = rifle.get_node("MuzzleFlash") as MeshInstance3D
+    _check(flash.visible, "Shot must trigger visible muzzle flash")
+    _check(float(rifle.get("_kick")) > 0.0, "Shot must impart cosmetic recoil")
+    var hud: CanvasLayer = player.get_node("CombatHUD") as CanvasLayer
+    var marker: Label = hud.get_node("HitMarker") as Label
+    _check(marker.visible, "Damageable shot must trigger hit marker")
     _check(not bool(rifle.call("fire_once")), "No double-shot in same frame")
     _check(float(target.get("health")) < initial_health, "Aligned shot must damage dummy")
     await _frames(8)
@@ -85,15 +91,27 @@ func _run() -> void:
     arena.add_child(barrier)
     barrier.global_position = muzzle.global_position - camera.global_basis.z * 0.4
     await _frames(3)
+    var crosshair_hit: Dictionary = rifle.call(
+        "_ray", camera.global_position, camera.global_position - camera.global_basis.z * 100.0
+    )
+    _check(crosshair_hit.get("collider") == target, "Camera must still see target over the narrow cover")
     initial_health = float(target.get("health"))
     _check(bool(rifle.call("fire_once")), "Cover shot still uses a round")
     _check(is_equal_approx(float(target.get("health")), initial_health), "Bullet penetrated close cover")
 
-    var hud: CanvasLayer = player.get_node("CombatHUD") as CanvasLayer
     var ammo_label: Label = hud.get_node("Ammo") as Label
     var reload_label: Label = hud.get_node("Reload") as Label
     _check(ammo_label.text.contains("23 / 24"), "HUD count disagrees with rifle")
     _check(reload_label.text == "R  RELOAD", "HUD shows stale reloading state")
+
+    # A target destroyed by consecutive hits stops receiving physics rays.
+    barrier.queue_free()
+    await _frames(3)
+    for shot in range(2):
+        await _frames(9)
+        _check(bool(rifle.call("fire_once")), "Follow-up target shot blocked unexpectedly")
+    _check(float(target.get("health")) <= 0.0, "Training dummy must be destructible")
+    _check(target.collision_layer == 0, "Destroyed dummy must cease blocking subsequent shots")
     arena.queue_free()
     if failures.is_empty():
         print("MS-02 SMOKE PASS: ammo, cadence, damage, reload, cover, HUD")
