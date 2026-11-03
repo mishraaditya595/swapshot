@@ -115,6 +115,8 @@ func _on_windup_started() -> void:
 
 
 func _on_enemy_shot(_hit: bool) -> void:
+    if not bool(owner_player.get("is_alive")):
+        return
     threat_label.text = "HELIX  |  CYCLING WEAPON"
 
 
