@@ -75,9 +75,15 @@ func _physics_process(delta: float) -> void:
 
     move_and_slide()
 
-    # Look mode owns combat facing, even while stationary or strafing.
-    # Keep the physics body yaw independent for camera-relative movement.
-    if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+    _update_combat_pose(world_direction, Input.mouse_mode == Input.MOUSE_MODE_CAPTURED, delta)
+
+
+# Pure aim-pose update shared by input-driven gameplay and headless tests.
+# Headless Godot cannot acquire native OS pointer capture, so tests provide
+# look_active directly while browser input reads Input.mouse_mode above.
+func _update_combat_pose(world_direction: Vector3, look_active: bool, delta: float) -> void:
+    if look_active:
+        # Keep the visible character facing camera yaw even while stationary.
         visual_root.rotation.y = camera_pivot.rotation.y
     elif not world_direction.is_zero_approx():
         var desired_angle: float = atan2(-world_direction.x, -world_direction.z)
