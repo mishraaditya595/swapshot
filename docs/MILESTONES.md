@@ -45,24 +45,20 @@
 
 ### MS-02 — Rifle: shooting, aiming, damage and reload
 
-**Active implementing PR:** [#8](https://github.com/mishraaditya595/swapshot/pull/8) (draft; owner identified aim-facing mismatch; updated branch needs new browser acceptance). Keep the completion checkbox unmarked until every task and the acceptance gate have verified evidence.
-
 **Target:** Nov 4, 2026 · **Priority:** P0 · **Depends on:** MS-01 (unless explicitly reordered)
 
-- [ ] **MS-02 complete** — **Implementing PR:** —
+- [x] **MS-02 complete** — **Implementing PR:** [#8](https://github.com/mishraaditya595/swapshot/pull/8)
   - [x] Add VX-7 rifle scene and reusable hitscan weapon logic with a single source of fire-rate state.
-  - [ ] Implement aim / ADS, 24-round magazine, reload, recoil and ammo handling.
-  - [ ] Add damageable target(s), hit effects, crosshair feedback and minimal muzzle feedback.
+  - [x] Implement aim / ADS, 24-round magazine, reload, recoil and ammo handling.
+  - [x] Add damageable target(s), hit effects, crosshair feedback and minimal muzzle feedback.
   - [x] Block camera-origin shots obstructed at the muzzle by nearby cover.
   - [x] Add source-level or in-engine tests for fire-rate, reload, empty-magazine and obstruction edge cases.
 
-**Owner PR #8 browser feedback (Nov 3):** firing, reloading and aiming inputs work, but character/weapon facing remained forward during look rotation. See [aim follow-up design](plans/MS-02-aim-alignment.md). New preview gameplay verification remains outstanding.
+**Manual Web acceptance (Nov 3, owner-recorded, PR #8):** The first browser recording confirmed shooting, reloading and ADS inputs, but identified a mismatch between camera turns and character/weapon facing. After the follow-up [aim-alignment correction](plans/MS-02-aim-alignment.md), the owner supplied a new ~46-second recording (`Screen Recording 2026-11-03 at 13.58.00.mov`) of the PR #8 browser preview and confirmed the rotation/firing mechanics feel correct and the shoulder-mounted placement is an improvement. Review of the footage shows the character and rifle staying together across camera turning, movement and ramp/cover traversal, plus visible firing feedback and ammo consumption. This is a browser playtest, **not** a native Godot editor GUI test. Some dark surfaces near the ramp and the small placeholder gun remain nonblocking visual polish.
 
-**Aim-facing regression verification (Nov 3):** [Godot CI run 41596720686](https://github.com/mishraaditya595/swapshot/actions/runs/41596720686) passed the new stationary left/right/180-degree visual-yaw, muzzle-direction and pitch tests, plus the existing MS-01, damage, reload and close-cover tests. The actual Web presentation and pointer capture still require a fresh manual preview.
+**Godot/CI verification (Nov 3):** [SWAPSHOT CI run 41597083512](https://github.com/mishraaditya595/swapshot/actions/runs/41597083512) passed Godot 4.7.2 headless import/startup, MS-01 movement/camera regression, MS-02 smoke (`aim alignment, ammo, cadence, damage, reload, cover, HUD`), static audit, Python tests and milestone tracker validation. Close-wall no-penetration, target damage, reload edge cases and fire cadence are verified programmatically; the owner footage does not independently prove every edge case. See [MS-02 review](reviews/MS-02-review.md) for evidence boundaries.
 
-**MS-02 automated verification (Nov 3):** Godot 4.7.2 headless import, MS-01 regression, MS-02 rifle smoke (ammo, cadence, reload, target damage, close-cover obstruction, HUD), startup, and Python/static audit passed in [CI run 41586986466](https://github.com/mishraaditya595/swapshot/actions/runs/41586986466). This is **not** hosted Web/manual QA; ADS feel, VFX readability, pointer capture, and the full acceptance gate remain unchecked pending an owner playtest. See [MS-02 review](reviews/MS-02-review.md).
-
-**Acceptance gate:** The player can aim, shoot, reload and damage a target; close-wall shots cannot penetrate cover.
+**Acceptance gate:** The player can aim, shoot, reload and damage a target; close-wall shots cannot penetrate cover. **Met** through the owner's two-stage Web playtest plus Godot physics regression. The implementing PR must still pass fresh pre-merge checks and be merged to deliver MS-02 to `main`.
 
 ### MS-03 — SHIFT core: placement and safe teleport
 
