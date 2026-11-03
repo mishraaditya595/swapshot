@@ -1,6 +1,6 @@
 # MS-04 review: SHIFT expiry, cooldown and echo
 
-**Repository / base..head:** mishraaditya595/swapshot, main...feat/ms-04-shift-lifecycle, PR #12. Gameplay checks cover feature-code commit b7e7d5f376b1ceaa4abde6628efd9132afb9f367.
+**Repository / base..head:** mishraaditya595/swapshot, main...feat/ms-04-shift-lifecycle, PR #12. Gameplay checks cover feature-code commit 2f989e28fcc7ff935a6ac7558df5e56cbbbe1f42.
 **Scope/milestone:** P0, MS-04.
 **Reviewed files:** scripts/shift_ability.gd, scenes/abilities/shift_ability.tscn, scenes/abilities/shift_echo.tscn, tests/ms03_shift_smoke.gd, tests/ms04_shift_lifecycle_smoke.gd, .github/workflows/ci.yml, README and the implementation plan.
 **Test environment:** GitHub Actions, Godot 4.7.2 stable headless on Ubuntu; Python/static checks. Local Godot editor and browser QA were unavailable.
@@ -15,7 +15,7 @@
 - **Expected:** Remove the echo without looking up an invalid world transform.
 - **Observed:** Reading global_position after the echo left the scene tree produced a Godot ERROR and failed the CI job.
 - **Fix:** Use the top-level echo's position for the end notification during teardown. The MS-03 test also waits for its queued arena cleanup, and MS-04 explicitly unloads a scene with a live echo.
-- **Verification:** The updated MS-03 and MS-04 smoke tests passed on feature-code commit b7e7d5f in CI run 41621443774. No corresponding Godot ERROR is present in that run.
+- **Verification:** The updated MS-03 and MS-04 smoke tests passed on feature-code commit 2f989e2 in CI run 41622056909. No corresponding Godot ERROR is present in that run. An additional warning about five leaked ObjectDB instances at process exit was traced to rapid cue playback at the end of the MS-03 test. WAV cues are now cached, playback stops on teardown, and the test gives the audio mixer time to release the final cue. CI run 41622056909 has no ObjectDB leak warning.
 
 ### Manual feedback remains unverified
 
@@ -35,7 +35,7 @@ MS-05 will connect the echo_spawned and echo_ended signals to guards. MS-06 will
 
 | Check | Status | Evidence |
 | --- | --- | --- |
-| Static audit, audit tests and repository Python tests | PASS | SWAPSHOT CI run 41621443774, Static audit and audit tests |
+| Static audit, audit tests and repository Python tests | PASS | SWAPSHOT CI run 41622056909, Static audit and audit tests |
 | Godot 4.7.2 import and startup | PASS | Same CI run, Godot headless job |
 | MS-01 and MS-02 regressions | PASS | Same CI run, engine smoke |
 | MS-03 teleport and landing safety | PASS | Same CI run, engine smoke |
