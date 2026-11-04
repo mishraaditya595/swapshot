@@ -2,7 +2,14 @@
 
 Use a fresh hosted build of [PR #17](https://github.com/mishraaditya595/swapshot/pull/17). The [manual Web deployment workflow](https://github.com/mishraaditya595/swapshot/actions/workflows/deploy-web-manual.yml) takes source `pr` and PR number `17`; it publishes under `/swapshot/pr-17/`. The preview is not automatically deployed by opening the PR.
 
-Record the build commit, browser/OS, approximate FPS and the number of attempts. The two Nov 4 recordings are from earlier PR #17 snapshots; the later one ends at 01:17 with two SHIFTS and full armor. Manually redeploy PR #17 after this latest patch, since the preview does not update on push. Keep a first-time run unscripted: do not read the control checklist before playing. Note prompts that were missed or misunderstood.
+Record the deployed commit, browser/OS, approximate FPS and number of attempts. Three Nov 4 hosted recordings are available: the most recent reported build cleared in 01:23 with five SHIFTS and 84/100 armor, with no new blocking issue on the recorded victory route. The current remaining-check list is [issue #18](https://github.com/mishraaditya595/swapshot/issues/18). Manually redeploy if the preview commit differs from the PR head; the preview does not update on push. Keep the first-time-player attempt unscripted. Record any prompt the new player misses or misunderstands.
+
+## Recorded evidence (not a substitute for first-time acceptance)
+
+- Nov 4 earlier build: 00:58, 3 SHIFTS, 76 armor; tutorial remained on rifle step and HUD labels overlapped.
+- Nov 4 intermediate build: 01:17, 2 SHIFTS, 100 armor; clearer HUD/tutorial and victory replay; combat pressure was weak.
+- Nov 4 latest reported build: 01:23, 5 SHIFTS, 84 armor, both guards eliminated. Guard warnings/damage, close-range suit fade, SHIFT/echo and fixed gate signage were visible; gameplay video review PASS.
+- Audio, actual game FPS, first-time comprehension, death/retry and deliberate unsafe SHIFT attempts are still unverified. [Issue #18](https://github.com/mishraaditya595/swapshot/issues/18) tracks acceptance evidence.
 
 ## First-time run
 

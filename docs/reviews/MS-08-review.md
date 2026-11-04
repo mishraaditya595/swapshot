@@ -2,8 +2,8 @@
 
 **Repository / range:** `mishraaditya595/swapshot`, `main` to `feat/ms-08-loading-dock`, [PR #17](https://github.com/mishraaditya595/swapshot/pull/17).  
 **Scope:** P1 Loading Dock only, Godot 4.7.2 Compatibility.  
-**Review mode:** Source, headless CI and two November 4 hosted gameplay recordings. The newest combat/camera polish has not been browser-tested.  
-**Decision:** HEADLESS REGRESSIONS PASS; NEW BROWSER RETEST REQUIRED. MS-08 and MS-07 stay unchecked.
+**Review mode:** Source, headless CI and three owner-submitted November 4 hosted gameplay recordings.  
+**Decision:** GAMEPLAY VIDEO PASS for the observed victory route; milestone acceptance and merge remain on HOLD pending [issue #18](https://github.com/mishraaditya595/swapshot/issues/18) and MS-07.
 
 ## November 4 video findings and corrective changes
 
@@ -27,7 +27,15 @@ For close-range encounters, the dock director fades Vex's existing Compatibility
 
 Instruction 03 now says to aim down at clear floor within 18 m. The director gives actionable feedback for out-of-range and missing-floor placements, while the SHIFT safety implementation remains unchanged. The exit sign now faces down the lane on a fixed dark backdrop, avoiding a billboard turning into the gate. New tests verify the tutorial copy, rejected-anchor state, fixed sign geometry and close-proximity fade.
 
-[Godot CI 41763440936](https://github.com/mishraaditya595/swapshot/actions/runs/41763440936) passed import/startup, MS-01–MS-08 smoke, static audit, six audit tests, 30 repository Python tests and milestone validation with the gameplay changes and regressions. Visual quality, difficulty, gameplay FPS, audio and death retry still require a fresh hosted deploy and hands-on testing.
+[Godot CI 41763686737](https://github.com/mishraaditya595/swapshot/actions/runs/41763686737) passed import/startup, MS-01–MS-08 smoke, static audit, six audit tests, 30 repository Python tests and milestone validation on the latest gameplay changes.
+
+### Third hosted session and merge assessment
+
+The owner reviewed a third Loading Dock run from the latest reported PR #17 build. The result screen shows **01:23, five SHIFTS, both guards defeated and 84/100 armor**. Guard warnings and armor loss are visible, along with close-range player fading, a working anchor/echo tutorial and the fixed Security Core sign. The owner reported that the session felt fine. The gameplay review found no new blocking issue on the recorded success path.
+
+Across three recorded clears, the in-game times were **00:58, 01:17 and 01:23**. The footage supports a working two-guard encounter and confirms that the last combat/readability improvements are usable in a real browser. It does not measure the experience of a new player or establish the intended two-to-three-minute first run. The uploaded footage has no audio track; browser FPS, console output, pointer recapture, death/retry and invalid SHIFT landing behavior have not been independently established from this session.
+
+The remaining checks are assigned to [issue #18](https://github.com/mishraaditya595/swapshot/issues/18), with their evidence requirements listed in [the browser worksheet](../../tests/MS-08-BROWSER-QA.md). [PR #16](https://github.com/mishraaditya595/swapshot/pull/16) has been merged, but **MS-07 remains unchecked** in the tracker and its review still records HOLD. The PR #17 milestone policy therefore still fails on both the unfinished MS-08 acceptance and the earlier milestone. Do not clear either gate based solely on this video.
 
 ## Findings
 
@@ -35,7 +43,7 @@ Instruction 03 now says to aim down at clear floor within 18 m. The director giv
 
 - **Evidence:** `scripts/ms08_loading_dock.gd` advances prompts through real route, target, anchor and SHIFT events; the new Godot smoke passes those transitions and the final gate. A headless scene cannot establish that players notice the prompts, use SHIFT tactically or finish in the intended two to three minutes.
 - **Expected:** An unfamiliar player reaches the Security Core exit without outside guidance and understands SHIFT.
-- **Next check:** Deploy PR #17, record the first run and complete `tests/MS-08-BROWSER-QA.md` before checking the milestone.
+- **Next check:** Complete the first-time-player and failure-path checks in [issue #18](https://github.com/mishraaditya595/swapshot/issues/18) before checking the milestone.
 
 ### P2 follow-up: overhead camera visibility is unconfirmed
 
@@ -53,7 +61,7 @@ Instruction 03 now says to aim down at clear floor within 18 m. The director giv
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Static SWAPSHOT audit | PASS | [CI 41763440936](https://github.com/mishraaditya595/swapshot/actions/runs/41763440936) |
+| Static SWAPSHOT audit | PASS | [CI 41763686737](https://github.com/mishraaditya595/swapshot/actions/runs/41763686737) |
 | Audit Python tests | PASS | Same run, 6 tests |
 | Repository Python tests | PASS | Same run, 30 tests |
 | Milestone tracker validator | PASS | Same run, MS-00 through MS-16 valid |
@@ -63,10 +71,10 @@ Instruction 03 now says to aim down at clear floor within 18 m. The director giv
 | MS-08 Godot smoke | PASS | Same run: guard hits and early SHIFT, HUD at two sizes, new guard sightline and blocked-fire test, proximity fade, 18 m anchor feedback, fixed gate sign, win/death replay |
 | Rule-based automated code review | PASS | [SWAPSHOT Pre-Merge](https://github.com/mishraaditya595/swapshot/actions/workflows/premerge.yml), limited to static risk checks |
 | PR milestone acceptance policy | FAIL, expected | MS-07 prerequisite is unchecked and MS-08 still requires human acceptance; the existing policy has no override for an authorized work-order exception |
-| Hosted browser playtest | TWO RUNS OBSERVED | Nov 4: 00:58/3 SHIFTS/76 armor; later 01:17/2 SHIFTS/100 armor and victory replay. Combat/camera follow-up NOT RUN |
-| Revised build browser camera, point-blank AI, FPS, audio and mouse capture | NOT RUN | Requires a new hosted PR snapshot and human player |
+| Hosted browser playtest | THREE RUNS OBSERVED | Nov 4: 00:58/3 SHIFTS/76 armor; 01:17/2 SHIFTS/100 armor and victory replay; 01:23/5 SHIFTS/84 armor on latest reported build. Happy-path video review PASS |
+| First-time onboarding, death/retry, SHIFT negative paths, FPS, audio and mouse capture | NOT FULLY TESTED | Follow [issue #18](https://github.com/mishraaditya595/swapshot/issues/18) with targeted manual evidence |
 
-The gameplay CI result above is for commit `7ef15b831390fb485b10a17859bf77dbe7f704dd`. The documentation-only review update follows this run. Verify the final PR head and check the fresh workflow before considering any acceptance decision.
+The successful gameplay CI above is for commit `256baf18a54938d7894b78da69cb69500c3cea1a`. Documentation corrections follow this commit; confirm the final PR head checks before any merge decision.
 
 ## Source review and scope acceptance
 
@@ -78,12 +86,10 @@ The integration change to `tests/ms06_loop_smoke.gd` updates its startup asserti
 | --- | --- | --- | --- |
 | Containers, crates, cover and flanking lanes | Yes | Scene load and cover ray pass | Route quality pending |
 | Contextual movement, rifle, anchor and SHIFT prompts | Yes | Signal/physics transitions pass | Instruction clarity pending |
-| Opening two-guard fight, 2–3 minute pacing | Two guards with widened dock-only detection | Visible-lane damage and blocked-cover regressions pass | Two owner clears, 00:58 and 01:17; first-time pacing pending |
+| Opening two-guard fight, 2–3 minute pacing | Two guards with widened dock-only detection | Visible-lane damage and blocked-cover regressions pass | Three owner clears, latest 01:23 with 5 SHIFTS; first-time pacing pending |
 | Exit gate and next-zone message | Yes | Locked state, proximity, win and replay pass | Readability pending |
 | Safe SHIFT and unaffected P0 gameplay | Existing implementation reused | MS-01 to MS-08 pass | Hosted browser safety pending |
 
 ## Decision and next action
 
-Keep [PR #17](https://github.com/mishraaditya595/swapshot/pull/17) open and draft. MS-08 completion remains unchecked, as does MS-07. The owner authorized starting MS-08 out of order; that did not accept the prerequisites or waive the review gates. The pre-merge policy check will continue to block merge until its prerequisite requirement is satisfied or an explicitly reviewed policy change is made.
-
-Redeploy PR #17 at the new combat/camera commit. Confirm that guards engage from an exposed mid-range lane without firing through cover; verify the player suit fade near a guard, the 18 m anchor guidance and the fixed gate label from off-axis viewpoints. Confirm the earlier guard-hit tutorial and HUD improvements remain intact. Then complete `tests/MS-08-BROWSER-QA.md` with a first-time run and record pacing, camera and guard observations. This document and the PR text received a humanizer editorial pass; test results and outstanding requirements were kept explicit.
+Keep [PR #17](https://github.com/mishraaditya595/swapshot/pull/17) open and draft while its required milestone policy check fails. The recorded victory path is ready for human acceptance review; the unverified checks and the separate MS-07 prerequisite are tracked in [issue #18](https://github.com/mishraaditya595/swapshot/issues/18). Record first-time comprehension and death/retry before ticking MS-08. The policy remains active and must not be bypassed. This review and the PR description received a humanizer editorial pass; all unrun checks remain explicit.
