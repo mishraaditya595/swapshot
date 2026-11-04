@@ -113,6 +113,15 @@ jobs:
             echo "Godot MS-07 review smoke test reported errors" >&2
             exit 1
           fi
+      - name: MS-08 Loading Dock onboarding and exit regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/ms08_loading_dock_smoke.gd 2>&1 | tee /tmp/ms08-smoke.log
+          if grep -E 'SCRIPT ERROR:|Parse Error:|ERROR:|MS-08 FAIL:' /tmp/ms08-smoke.log; then
+            echo "Godot MS-08 Loading Dock smoke test reported errors" >&2
+            exit 1
+          fi
       - name: Startup smoke test (no gameplay assertion)
         shell: bash
         run: |

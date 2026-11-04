@@ -29,8 +29,8 @@ func _run() -> void:
     _check(main != null, "Main boot scene must load")
     if main != null:
         var startup: Node = main.instantiate()
-        _check(startup.has_node("Firefight/Firefight/Arena/Player"),
-            "Main must launch MS-06 encounter")
+        _check(startup.has_node("LoadingDock/Player"),
+            "Main must launch the next milestone scene; MS-06 remains directly loadable")
         startup.free()
 
     var encounter: Node3D = scene.instantiate()

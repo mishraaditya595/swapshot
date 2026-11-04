@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3]
+
+[sub_resource type="StandardMaterial3D" id="CargoMaterial"]
+albedo_color = Color(0.22, 0.34, 0.40, 1)
+roughness = 0.87
+
+[sub_resource type="BoxMesh" id="CargoMesh"]
+size = Vector3(2.9, 2.8, 6)
+material = SubResource("CargoMaterial")
+
+[sub_resource type="BoxShape3D" id="CargoShape"]
+size = Vector3(2.9, 2.8, 6)
+
+[node name="DockContainer" type="StaticBody3D"]
+collision_layer = 1
+collision_mask = 1
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("CargoMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CargoShape")
+

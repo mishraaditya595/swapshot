@@ -136,14 +136,18 @@
 
 **Target:** Nov 11–13, 2026 · **Priority:** P1 · **Depends on:** MS-07 (unless explicitly reordered)
 
-- [ ] **MS-08 complete** — **Implementing PR:** —
-  - [ ] Greybox the Loading Dock with reusable containers, cover and tactical flanking lanes.
-  - [ ] Teach movement, aim, anchor deployment and SHIFT through concise contextual prompts.
+- [ ] **MS-08 complete** — **Implementing PR:** [#17](https://github.com/mishraaditya595/swapshot/pull/17)
+  - [x] Greybox the Loading Dock with reusable containers, cover and tactical flanking lanes.
+  - [x] Teach movement, aim, anchor deployment and SHIFT through concise contextual prompts.
   - [ ] Stage a 2–3-minute opening encounter with distinct SHIFT opportunities.
-  - [ ] Add a readable completion gate and transition to the next zone.
+  - [x] Add a readable completion gate and transition to the next zone.
   - [ ] Playtest new-player clarity, encounter pacing, spawn safety and cover integrity.
 
 **Acceptance gate:** A new player can understand SHIFT and clear the opening section without external instruction.
+
+**MS-08 evidence status (Nov 4):** [Godot/Python CI 41763686737](https://github.com/mishraaditya595/swapshot/actions/runs/41763686737) passed Godot 4.7.2 import/startup, MS-01 through MS-08 smoke, static audit, 6 audit tests, 30 repository Python tests and milestone validation. Headless checks include onboarding, collision-safe SHIFT, HUD, guard line of sight and cover, close-range suit fade and gate signage. Three owner-hosted clears were recorded: 00:58 (3 SHIFTS, 76 armor), 01:17 (2 SHIFTS, 100 armor) and a latest-build gameplay review PASS at 01:23 (5 SHIFTS, 84 armor). The observed victory path has no remaining recorded blocker. First-time player comprehension, failure/retry, SHIFT rejection, browser audio/FPS and 2–3-minute pacing acceptance remain in [issue #18](https://github.com/mishraaditya595/swapshot/issues/18). PR #16 was merged, but MS-07 is still unchecked; the PR #17 acceptance policy still blocks merge. Neither milestone is marked complete.
+
+**MS-08 work-order exception (Nov 3):** The owner authorized work on MS-08 while MS-07 was incomplete. That exception did not accept the predecessor milestone or waive MS-08's first-time-player gate. [PR #17](https://github.com/mishraaditya595/swapshot/pull/17) holds the implementation and is still draft. The outstanding acceptance work is documented in [the review](reviews/MS-08-review.md), [browser worksheet](../tests/MS-08-BROWSER-QA.md) and [issue #18](https://github.com/mishraaditya595/swapshot/issues/18).
 
 ### MS-09 — Security Core: vertical combat and terminal objective
 
