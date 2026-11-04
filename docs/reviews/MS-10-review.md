@@ -21,14 +21,19 @@
 
 ## Verification matrix
 
+**Automated evidence:** [SWAPSHOT CI run 41791242167](https://github.com/mishraaditya595/swapshot/actions/runs/41791242167), commit `2076fb9d9acf271aeb406d13b1e222c8e0b84805`, Godot 4.7.2 stable.
+
 | Check | Status | Evidence |
 | --- | --- | --- |
-| Static project audit | NOT RUN | No complete local repository checkout |
-| Python audit and validator tests | NOT RUN | No complete local repository checkout |
-| Godot 4.7.2 import/startup | NOT RUN | No local Godot executable |
-| MS-01 through MS-09 engine regressions | NOT RUN | Require the new GitHub Actions run |
-| MS-10 dedicated scene/physics smoke | NOT RUN | Added to CI; require actual engine logs |
-| Hosted Web build / actual playthrough | NOT RUN | Owner/browser test needed |
-| Source-level review | PERFORMED | The director, scene and integration paths were inspected; above runtime risks remain |
+| Static project audit | PASS | GitHub Actions static job, exit 0 |
+| Python audit tests and PR/validator unit tests | PASS | GitHub Actions static job, exit 0 |
+| Milestone tracker integrity | PASS | GitHub Actions static job, exit 0; acceptance remains unchecked |
+| Godot 4.7.2 import/startup | PASS | Import and startup steps completed without reported engine errors |
+| MS-01 through MS-09 engine regressions | PASS | Nine sequential physics smoke steps, all successful |
+| MS-10 dedicated scene/physics smoke | PASS | `MS-10 SMOKE PASS: core, decks, SHIFT, two waves, LOS, waiver, extraction, replay` |
+| Automated code review (rule-based) | PASS | SWAPSHOT Pre-Merge job on commit `74b14b98594ca8f35dc5819ffd78ea3cdc7a9ef4` |
+| PR milestone acceptance | FAIL (expected blocker) | MS-07/08/09 prerequisites and unverified MS-10 manual acceptance remain incomplete |
+| Hosted Web build / actual playthrough | NOT RUN | Browser, pacing, comfort, audio and performance remain to be tested |
+| Source-level critical review | PERFORMED | Reviewed interaction, wave director, SHIFT boundary, rifle/cover, replay, HUD and scope |
 
-**Decision:** INSUFFICIENT EVIDENCE pending Godot CI and the hosted browser pass. Keep the MS-10 pull request in draft. Do not check the milestone as complete or merge automatically.
+**Decision:** INSUFFICIENT EVIDENCE for final milestone acceptance. Automated physics checks are green, while hosted gameplay and milestone prerequisites remain unresolved. Keep [draft PR #23](https://github.com/mishraaditya595/swapshot/pull/23) unmerged.
