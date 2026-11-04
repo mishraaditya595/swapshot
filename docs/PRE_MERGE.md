@@ -33,6 +33,21 @@ The PR policy check **intentionally fails** for an unfinished milestone. Keep su
 
 Use a title starting with \`ci:\`, \`docs:\`, or \`chore:\`. Include **exactly** the line \`**Change type:** governance\` in the PR body. This path is for instructions, docs, Python CI tooling, agent skills and workflow maintenance, **not** game scenes, scripts, assets or changes to completed milestone status. Future legitimate exceptions need an explicitly reviewed change to these rules, never a misleading milestone completion.
 
+
+## Temporary MS-09 POC deferral
+
+On November 4, 2026, the project owner authorized completing the proof of concept before finishing the remaining MS-07, MS-08 and MS-09 manual acceptance checks. The outstanding work is tracked in [#19](https://github.com/mishraaditya595/swapshot/issues/19) and [#21](https://github.com/mishraaditya595/swapshot/issues/21).
+
+The policy contains one explicit, temporary exception: **PR #20, MS-09 only**. Its body must include:
+
+```markdown
+**POC deferral:** #19, #21
+```
+
+For that exact PR and issue list, the `PR milestone acceptance` job may pass while the MS-07/MS-08 prerequisites and MS-09 checklist remain unchecked. The policy still checks the real PR link, one matching milestone, all evidence sections, tracker validity, and changes to other milestones. It does not exempt other PRs, the Python/Godot jobs, or the automated code review.
+
+**A passing status under this exception means POC work may proceed; it does not mean MS-07, MS-08 or MS-09 has achieved final acceptance.** The CI summary must say that the outstanding work remains deferred. Before POC release sign-off, complete the two issues, update the milestone evidence based on real tests, and remove the exception in a reviewed governance PR. Do not tick unverified tasks to satisfy the checker.
+
 ## Enable merge enforcement in GitHub
 
 A GitHub Actions job running successfully is not automatically mandatory. At **Settings → Rules → Rulesets → Protect Main - CI Required**, select these four required status checks, with expected source GitHub Actions:
