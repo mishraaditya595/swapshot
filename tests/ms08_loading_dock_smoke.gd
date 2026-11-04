@@ -63,6 +63,7 @@ func _run() -> void:
     var status: Label = ability.get_node("ShiftHUD/Status")
     var timer: Label = ability.get_node("ShiftHUD/Timer")
     var gate_sign: Label3D = dock.get_node("GateStatus")
+    var gate_panel: MeshInstance3D = dock.get_node("GateSignPanel")
     var outcome: CanvasLayer = dock.get_node("Outcome")
     _check(bool(player.get("managed_restart")), "Mission owns retry and replay")
     _check(int(dock.get("phase")) == 0 and int(dock.get("step")) == 0,
@@ -80,6 +81,9 @@ func _run() -> void:
     _check(feedback.text.contains("LOCKED"), "Locked gate explains missing objective")
     _check(gate_sign.text.contains("LOCKED"),
         "Gate signage starts amber and explicitly locked")
+    _check(int(gate_sign.billboard) == 0
+        and gate_sign.position.z > gate_panel.position.z,
+        "Gate sign faces the lane from in front of a fixed backdrop instead of rotating into the wall")
     _check(dock.has_node("RangeStatus") and dock.has_node("PracticeFrameTop")
         and dock.has_node("PracticeFrameLeft") and dock.has_node("PracticeFrameRight"),
         "The orange practice target has a distinct visible frame and range label")
@@ -114,8 +118,19 @@ func _run() -> void:
         and hint.text.contains("TARGET OR GUARD"),
         "Physical route trigger accepts a target or guard for rifle training")
     target.call("apply_damage", 20.0)
-    _check(int(dock.get("step")) == 2 and hint.text.contains("Q PLACE"),
-        "A registered target hit reveals the anchor instruction")
+    _check(int(dock.get("step")) == 2 and hint.text.contains("Q PLACE")
+        and hint.text.contains("WITHIN 18 M") and hint.text.contains("AIM DOWN"),
+        "Anchor tutorial gives floor direction and 18 m placement range")
+    _check(not bool(ability.call("_try_place_at", Vector3(0.0, 0.0, -12.0), Vector3.UP)),
+        "Real anchor placement rejects a far-away floor point")
+    _check(feedback.text.contains("ANCHOR TOO FAR") and feedback.text.contains("18 M"),
+        "Rejected far anchor tells the player how to correct their aim")
+    _check(not bool(ability.get("anchor_active"))
+        and is_zero_approx(float(ability.get("cooldown_remaining_seconds"))),
+        "Out-of-range anchor rejection does not consume the ability")
+    ability.emit_signal("placement_rejected", "No surface under crosshair")
+    _check(feedback.text.contains("AIM DOWN AT NEARBY GROUND"),
+        "Missing floor feedback explains how to choose a reachable surface")
 
     var landing := Vector3(0.0, 0.0, 10.0)
     _check(bool(ability.call("_try_place_at", landing, Vector3.UP)),
@@ -277,8 +292,71 @@ func _run() -> void:
     alternate.queue_free()
     await _frames(3)
 
+    # Exposed approaches between 12.5 and 20 m were not detectable with
+    # the previous dock guard defaults. Require a real physics sightline
+    # and a shot, while preserving complete suppression through cover.
+    var pressure: Node3D = scene.instantiate()
+    root.add_child(pressure)
+    current_scene = pressure
+    await _frames(8)
+    var pressure_player: CharacterBody3D = pressure.get_node("Player")
+    var pressure_guard: Node = pressure.get_node("GuardWest")
+    var pressure_second: Node = pressure.get_node("GuardEast")
+    var pressure_camera: Camera3D = pressure_player.get_node("CameraPivot/CameraBoom/Camera3D")
+    pressure_player.set_physics_process(false)
+    pressure_guard.set_physics_process(false)
+    pressure_second.set_physics_process(false)
+    _check(is_equal_approx(float(pressure_guard.get("detection_range")), 20.0)
+        and is_equal_approx(float(pressure_second.get("detection_range")), 20.0),
+        "Only dock guards extend the detection window; damage and cadence are unchanged")
+    _check(is_equal_approx(float(pressure_guard.get("shot_damage")), 8.0)
+        and is_equal_approx(float(pressure_guard.get("fire_interval_seconds")), 1.7),
+        "Dock guard damage and timing remain at their established values")
+    var open_lane_position := Vector3(-4.4, 1.1, 1.0)
+    pressure_player.global_position = open_lane_position
+    await _frames(4)
+    _check(pressure_player.global_position.distance_to(
+        (pressure_guard as Node3D).global_position) > 12.5,
+        "Open-lane test target exceeds the old 12.5 m detection radius")
+    _check(bool(pressure_guard.call("_can_see_player")),
+        "Exposed approach is visible to the west guard at 16 m")
+    _check(bool(pressure_guard.call("_within_fov", open_lane_position + Vector3.UP * 0.3)),
+        "Guard begins facing the open approach")
+    var opening_hp: float = float(pressure_player.get("health"))
+    pressure_guard.call("advance_ai", 0.02)
+    pressure_guard.call("advance_ai", 0.36)
+    pressure_guard.call("advance_ai", 0.02)
+    pressure_guard.call("advance_ai", 0.61)
+    _check(float(pressure_player.get("health")) < opening_hp,
+        "Exposed player takes a warned guard shot during the widened detection window")
+    var safe_hp: float = float(pressure_player.get("health"))
+    var line_blocker: StaticBody3D = _blocker(pressure, Vector3(-5.7, 1.2, -7.0))
+    await _frames(3)
+    _check(not bool(pressure_guard.call("_can_see_player")),
+        "Cargo between guard and player closes the sightline")
+    pressure_guard.call("advance_ai", 3.0)
+    _check(is_equal_approx(float(pressure_player.get("health")), safe_hp),
+        "Guard cannot inflict damage through solid cover")
+    line_blocker.queue_free()
+    await _frames(3)
+
+    pressure_player.global_position = Vector3(-7.0, 1.1, -12.8)
+    await _frames(4)
+    _check(float(pressure_camera.get("external_visual_opacity")) < 0.75,
+        "Near a live guard the mission requests less intrusive player-model opacity")
+    var suit: MeshInstance3D = pressure_player.get_node("VisualRoot/Body")
+    var suit_material: StandardMaterial3D = suit.material_override as StandardMaterial3D
+    _check(suit_material != null and suit_material.albedo_color.a < 0.85,
+        "Existing Compatibility-safe material fade applies the proximity visibility request")
+    pressure_player.global_position = Vector3(0.0, 1.1, 17.0)
+    await _frames(4)
+    _check(is_equal_approx(float(pressure_camera.get("external_visual_opacity")), 1.0),
+        "The dock releases the additional fade after moving clear of the guard")
+    pressure.queue_free()
+    await _frames(3)
+
     if failures.is_empty():
-        print("MS-08 SMOKE PASS: guard/dummy onboarding, HUD, gate signs, SHIFT safety, cover, victory/death replay")
+        print("MS-08 SMOKE PASS: dock guard pressure, safe cover, camera fade, 18 m anchor guidance, gate sign, SHIFT, replay")
         quit(0)
     else:
         printerr("MS-08 SMOKE FAIL: %d checks" % failures.size())
