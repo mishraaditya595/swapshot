@@ -20,6 +20,13 @@ const EXIT_DISTANCE: float = 3.6
 @onready var route_zone: Area3D = $RouteZone
 @onready var exit_point: Marker3D = $ExitPoint
 @onready var exit_beacon: MeshInstance3D = $GateBeacon
+@onready var exit_guide: MeshInstance3D = $ExitGuide
+@onready var gate_door: MeshInstance3D = $GateDoor
+@onready var gate_light: OmniLight3D = $GateFillLight
+@onready var gate_status: Label3D = $GateStatus
+@onready var shift_hud: CanvasLayer = $Player/ShiftAbility/ShiftHUD
+@onready var shift_status: Label = $Player/ShiftAbility/ShiftHUD/Status
+@onready var shift_timer: Label = $Player/ShiftAbility/ShiftHUD/Timer
 @onready var hint: Label = $DockHUD/Hint
 @onready var objective: Label = $DockHUD/Objective
 @onready var clock: Label = $DockHUD/Clock
@@ -49,12 +56,13 @@ func _ready() -> void:
     for path: NodePath in [NodePath("GuardWest"), NodePath("GuardEast")]:
         var guard: Node = get_node(path)
         _guards.append(guard)
+        guard.connect("damaged", _on_damageable_hit)
         guard.connect("destroyed", _on_guard_destroyed.bind(guard))
         guard.connect("state_changed", _on_guard_state_changed)
         guard.connect("windup_started", _on_guard_windup)
         guard.connect("echo_distracted", _on_echo_distracted)
         guard.connect("echo_released", _refresh_threat)
-    practice_target.connect("damaged", _on_target_damaged)
+    practice_target.connect("damaged", _on_damageable_hit)
     route_zone.body_entered.connect(_on_route_entered)
     ability.connect("anchor_placed", _on_anchor_placed)
     ability.connect("shifted", _on_shifted)
@@ -64,6 +72,7 @@ func _ready() -> void:
     replay_button.pressed.connect(request_replay)
     outcome.visible = false
     feedback.text = ""
+    _configure_shift_hud()
     _set_gate_color(AMBER)
     _set_hint()
     _update_objective()
@@ -89,7 +98,9 @@ func _on_route_entered(body: Node3D) -> void:
     _advance_training()
 
 
-func _on_target_damaged(_health: float) -> void:
+# The rifle lesson accepts either the marked practice target or a real guard.
+# Guard hits may come after the player has already tried Q and SHIFT.
+func _on_damageable_hit(_health: float) -> void:
     if phase != Phase.ACTIVE:
         return
     _target_hit = true
@@ -144,6 +155,33 @@ func _advance_training() -> void:
             _show_feedback("GOOD FLANK  /  THE ECHO DRAWS GUARD ATTENTION")
 
 
+# Keep the generic SHIFT HUD unchanged for the older firefight scenes.
+# Loading Dock owns a bottom-left space for its SHIFT status and timer.
+func _configure_shift_hud() -> void:
+    var backdrop := ColorRect.new()
+    backdrop.name = "DockShiftBackdrop"
+    backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    backdrop.color = Color(0.02, 0.06, 0.10, 0.78)
+    shift_hud.add_child(backdrop)
+    shift_hud.move_child(backdrop, 0)
+    backdrop.anchor_top = 1.0
+    backdrop.anchor_bottom = 1.0
+    backdrop.offset_left = 10.0
+    backdrop.offset_right = 675.0
+    backdrop.offset_top = -145.0
+    backdrop.offset_bottom = -18.0
+    for label: Label in [shift_status, shift_timer]:
+        label.anchor_top = 1.0
+        label.anchor_bottom = 1.0
+        label.offset_left = 18.0
+        label.offset_right = 660.0
+        label.add_theme_font_size_override("font_size", 22)
+    shift_status.offset_top = -132.0
+    shift_status.offset_bottom = -87.0
+    shift_timer.offset_top = -81.0
+    shift_timer.offset_bottom = -35.0
+
+
 func _set_hint() -> void:
     if phase != Phase.ACTIVE:
         return
@@ -151,7 +189,7 @@ func _set_hint() -> void:
         Step.MOVE:
             hint.text = "01  /  WASD MOVE TO THE CYAN COVER MARKER"
         Step.RIFLE:
-            hint.text = "02  /  MOUSE LOOK  |  RMB AIM  |  LMB HIT ORANGE TARGET  |  R RELOAD"
+            hint.text = "02  /  MOUSE LOOK  |  RMB AIM  |  LMB HIT TARGET OR GUARD  |  R RELOAD"
         Step.ANCHOR:
             hint.text = "03  /  AIM AT CLEAR FLOOR  |  Q PLACE ANCHOR (CYAN = SAFE)"
         Step.SHIFT:
@@ -204,6 +242,15 @@ func _set_gate_color(tint: Color) -> void:
     material.emission = tint
     material.emission_energy_multiplier = 1.4
     exit_beacon.material_override = material
+    exit_guide.material_override = material
+    gate_light.light_color = tint
+    gate_status.modulate = tint
+    gate_status.text = (
+        "SECURITY CORE  /  PRESS E" if is_gate_unlocked
+        else "SECURITY CORE  /  LOCKED"
+    )
+    if is_gate_unlocked:
+        gate_door.material_override = material
 
 
 func _update_objective() -> void:
