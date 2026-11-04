@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="Script" path="res://scripts/ms08_loading_dock.gd" id="1_director"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
@@ -35,6 +35,10 @@ albedo_color = Color(1.0, 0.61, 0.19, 1)
 emission_enabled = true
 emission = Color(0.95, 0.42, 0.07, 1)
 emission_energy_multiplier = 1.4
+
+[sub_resource type="StandardMaterial3D" id="SignPanelMaterial"]
+shading_mode = 0
+albedo_color = Color(0.015, 0.045, 0.065, 1)
 
 [sub_resource type="StandardMaterial3D" id="AmberDoor"]
 albedo_color = Color(0.49, 0.29, 0.15, 1)
@@ -76,6 +80,10 @@ material = SubResource("CyanGuide")
 [sub_resource type="BoxMesh" id="DoorMesh"]
 size = Vector3(4.8, 3.0, 0.16)
 material = SubResource("AmberDoor")
+
+[sub_resource type="BoxMesh" id="GateSignPanelMesh"]
+size = Vector3(4.65, 1.12, 0.08)
+material = SubResource("SignPanelMaterial")
 
 [sub_resource type="BoxMesh" id="BeaconMesh"]
 size = Vector3(4.8, 0.24, 0.22)
@@ -205,10 +213,15 @@ position = Vector3(0, 3.16, -21.25)
 mesh = SubResource("BeaconMesh")
 cast_shadow = 0
 
+[node name="GateSignPanel" type="MeshInstance3D" parent="."]
+position = Vector3(0, 2.3, -21.29)
+mesh = SubResource("GateSignPanelMesh")
+cast_shadow = 0
+
 [node name="GateStatus" type="Label3D" parent="."]
-position = Vector3(0, 2.3, -21.15)
-billboard = 1
-pixel_size = 0.008
+position = Vector3(0, 2.3, -21.12)
+billboard = 0
+pixel_size = 0.006
 font_size = 60
 modulate = Color(1, 0.74, 0.39, 1)
 text = "SECURITY CORE\nLOCKED"
@@ -255,11 +268,13 @@ text = "RANGE  /  FIRE HERE"
 
 [node name="GuardWest" parent="." instance=ExtResource("4_guard")]
 position = Vector3(-7.0, 1.03, -15.0)
+detection_range = 20.0
 shot_damage = 8.0
 fire_interval_seconds = 1.7
 
 [node name="GuardEast" parent="." instance=ExtResource("4_guard")]
 position = Vector3(7.0, 1.03, -17.0)
+detection_range = 20.0
 shot_damage = 8.0
 fire_interval_seconds = 1.7
 

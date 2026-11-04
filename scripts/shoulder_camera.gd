@@ -21,6 +21,9 @@ extends Camera3D
 var _distance: float = 0.0
 var _shoulder: float = 0.0
 var _visual_opacity: float = 1.0
+# A mission may ask for a closer view of enemies by fading only the player's
+# rendered suit. Default 1.0 preserves the camera in every other arena.
+var external_visual_opacity: float = 1.0
 var _side_query: PhysicsShapeQueryParameters3D
 var _suit_material: StandardMaterial3D
 var _visor_material: StandardMaterial3D
@@ -106,8 +109,9 @@ func _safe_shoulder_offset() -> float:
 func _update_player_visibility(delta: float) -> void:
     # Start fading before the suit reaches the lens and hide it completely
     # while the boom is compressed. Alpha is Compatibility-renderer safe.
-    var desired_opacity: float = smoothstep(
-        fade_full_distance, maxf(fade_full_distance + 0.01, fade_start_distance), _distance
+    var desired_opacity: float = minf(
+        smoothstep(fade_full_distance, maxf(fade_full_distance + 0.01, fade_start_distance), _distance),
+        clampf(external_visual_opacity, 0.0, 1.0)
     )
     # Hide immediately in a tight space; fade back in smoothly as we leave.
     _visual_opacity = minf(

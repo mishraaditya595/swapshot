@@ -15,6 +15,7 @@ const EXIT_DISTANCE: float = 3.6
 @onready var player: CharacterBody3D = $Player
 @onready var ability: Node = $Player/ShiftAbility
 @onready var weapon: Node = $Player/VisualRoot/WeaponPivot/VX7
+@onready var shoulder_camera: Camera3D = $Player/CameraPivot/CameraBoom/Camera3D
 @onready var combat_hud: Node = $Player/CombatHUD
 @onready var practice_target: StaticBody3D = $PracticeTarget
 @onready var route_zone: Area3D = $RouteZone
@@ -84,11 +85,24 @@ func _process(delta: float) -> void:
     if phase != Phase.ACTIVE:
         return
     elapsed_seconds += delta
+    _update_close_guard_visibility()
     _update_clock()
     if _feedback_remaining > 0.0:
         _feedback_remaining = maxf(0.0, _feedback_remaining - delta)
         if _feedback_remaining == 0.0:
             feedback.text = ""
+
+
+# Keep nearby live guards visible by fading Vex's suit instead of moving
+# the camera or its aim ray. The shared camera defaults to no extra fade.
+func _update_close_guard_visibility() -> void:
+    var opacity: float = 1.0
+    for guard: Node in _guards:
+        if _defeated.has(guard):
+            continue
+        var distance: float = player.global_position.distance_to((guard as Node3D).global_position)
+        opacity = minf(opacity, 0.22 + 0.78 * smoothstep(1.3, 4.0, distance))
+    shoulder_camera.set("external_visual_opacity", opacity)
 
 
 func _on_route_entered(body: Node3D) -> void:
@@ -125,7 +139,12 @@ func _on_shifted(_from: Vector3, _to: Vector3) -> void:
 
 func _on_anchor_rejected(reason: String) -> void:
     if phase == Phase.ACTIVE and step == Step.ANCHOR:
-        _show_feedback("ANCHOR NOT SET  /  " + reason)
+        if reason.begins_with("Out of range"):
+            _show_feedback("ANCHOR TOO FAR  /  AIM DOWN WITHIN 18 M")
+        elif reason == "No surface under crosshair":
+            _show_feedback("NO FLOOR TARGET  /  AIM DOWN AT NEARBY GROUND")
+        else:
+            _show_feedback("ANCHOR NOT SET  /  " + reason)
 
 
 func _on_shift_rejected(reason: String) -> void:
@@ -191,7 +210,7 @@ func _set_hint() -> void:
         Step.RIFLE:
             hint.text = "02  /  MOUSE LOOK  |  RMB AIM  |  LMB HIT TARGET OR GUARD  |  R RELOAD"
         Step.ANCHOR:
-            hint.text = "03  /  AIM AT CLEAR FLOOR  |  Q PLACE ANCHOR (CYAN = SAFE)"
+            hint.text = "03  /  AIM DOWN AT CLEAR FLOOR WITHIN 18 M  |  Q PLACE ANCHOR"
         Step.SHIFT:
             hint.text = "04  /  LEFT SHIFT TELEPORT TO ANCHOR  |  LEAVE AN ECHO"
         Step.COMBAT:
