@@ -131,6 +131,15 @@ jobs:
             echo "Godot MS-09 Security Core smoke test reported errors" >&2
             exit 1
           fi
+      - name: MS-10 Extraction double-deck and replay smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout 60s /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/ms10_extraction_smoke.gd 2>&1 | tee /tmp/ms10-smoke.log
+          if grep -E 'SCRIPT ERROR:|Parse Error:|ERROR:|MS-10 FAIL:' /tmp/ms10-smoke.log; then
+            echo "Godot MS-10 Extraction smoke test reported errors" >&2
+            exit 1
+          fi
       - name: Startup smoke test (no gameplay assertion)
         shell: bash
         run: |
