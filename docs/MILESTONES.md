@@ -168,7 +168,7 @@
 
 **Target:** Nov 18–20, 2026 · **Priority:** P1 · **Depends on:** MS-09 (unless explicitly reordered)
 
-- [ ] **MS-10 complete** — **Implementing PR:** —
+- [ ] **MS-10 complete** — **Implementing PR:** [#23](https://github.com/mishraaditya595/swapshot/pull/23)
   - [ ] Build the extraction arena using reusable industrial geometry.
   - [ ] Implement experimental core pickup, final triggered fight and extraction objective.
   - [ ] Add bounded enemy waves or a fixed encounter that cannot softlock the mission.
