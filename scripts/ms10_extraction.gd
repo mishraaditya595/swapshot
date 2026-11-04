@@ -520,8 +520,17 @@ func _on_guard_damaged(remaining_health: float, guard: Node) -> void:
     var tween: Tween = create_tween().set_parallel(true).set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
     tween.tween_property(visual, "rotation:x", 0.0, 0.19).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
     tween.tween_property(pulse, "scale", Vector3.ONE * 1.55, 0.19).set_trans(Tween.TRANS_CUBIC)
-    tween.chain().tween_callback(_clear_guard_impact.bind(guard))
+    tween.chain().tween_callback(_finish_guard_impact.bind(guard))
     _hit_feedback_tweens[guard] = tween
+
+
+func _finish_guard_impact(guard: Node) -> void:
+    if not is_instance_valid(guard):
+        return
+    _hit_feedback_tweens.erase(guard)
+    var visual: Node3D = guard.get_node("VisualRoot") as Node3D
+    visual.rotation.x = 0.0
+    (visual.get_node("ImpactPulse") as MeshInstance3D).visible = false
 
 
 func _clear_guard_impact(guard: Node) -> void:
@@ -616,7 +625,9 @@ func _build_arena() -> void:
     add_child(geometry)
     var floor_mat: StandardMaterial3D = _material(Color(0.12, 0.18, 0.24))
     var steel_mat: StandardMaterial3D = _material(Color(0.24, 0.33, 0.40))
-    var cover_mat: StandardMaterial3D = _material(Color(0.35, 0.41, 0.46))
+    var cover_mat: StandardMaterial3D = _material(Color(0.33, 0.38, 0.42))
+    var upper_cover_mat: StandardMaterial3D = _material(Color(0.19, 0.38, 0.43))
+    var shuttle_cover_mat: StandardMaterial3D = _material(Color(0.42, 0.34, 0.25))
     var walk_mat: StandardMaterial3D = _material(Color(0.20, 0.39, 0.44))
     var rail_mat: StandardMaterial3D = _material(Color(0.45, 0.55, 0.60))
     _box(geometry, "Floor", Vector3(0, -0.30, 0), Vector3(34, 0.6, 40), floor_mat)
@@ -650,18 +661,33 @@ func _build_arena() -> void:
         _box(geometry, "RampRail" + str(side_x), Vector3(side_x, 1.75, 3.4),
             Vector3(0.16, 0.66, 12.9), rail_mat, 0.211)
 
+    # Keep collision geometry unchanged. Surface-only bands differentiate
+    # lower freight, upper gantry cover and the final shuttle approach.
     for cover: Array in [
         ["LowerWestCover", Vector3(-5.7, 0.9, 5.5)],
         ["LowerMidCover", Vector3(-1.0, 0.9, 0.3)],
         ["LowerEastCover", Vector3(5.4, 0.9, 8.2)],
         ["ShuttleCover", Vector3(7.1, 0.9, 14.8)]
     ]:
-        _box(geometry, cover[0] as String, cover[1] as Vector3,
-            Vector3(2.6, 1.8, 2.4), cover_mat)
-    _box(geometry, "UpperWestCover", Vector3(-5.0, 3.65, -15.7),
-        Vector3(1.8, 1.5, 1.4), cover_mat)
-    _box(geometry, "UpperEastCover", Vector3(5.0, 3.65, -15.7),
-        Vector3(1.8, 1.5, 1.4), cover_mat)
+        var name: String = cover[0] as String
+        var at: Vector3 = cover[1] as Vector3
+        var shuttle: bool = name == "ShuttleCover"
+        var dimensions := Vector3(2.6, 1.8, 2.4)
+        _box(geometry, name, at, dimensions,
+            shuttle_cover_mat if shuttle else cover_mat)
+        _cover_trim(geometry, name, at, dimensions,
+            AMBER if shuttle else Color(0.92, 0.66, 0.35))
+    for upper_name: String in ["UpperWestCover", "UpperEastCover"]:
+        var upper_at: Vector3 = Vector3(-5.0, 3.65, -15.7) if upper_name == "UpperWestCover" else Vector3(5.0, 3.65, -15.7)
+        var upper_size := Vector3(1.8, 1.5, 1.4)
+        _box(geometry, upper_name, upper_at, upper_size, upper_cover_mat)
+        _cover_trim(geometry, upper_name, upper_at, upper_size, CYAN)
+    _cover_trim(geometry, "CargoWest", Vector3(-5.5, 1.0, 12.2),
+        Vector3(2.3, 2.0, 2.3), Color(0.92, 0.66, 0.35))
+    _cover_trim(geometry, "CargoLower", Vector3(3.2, 1.0, -2.5),
+        Vector3(2.3, 2.0, 2.3), Color(0.92, 0.66, 0.35))
+    _cover_trim(geometry, "CargoEast", Vector3(13.8, 1.4, 0.5),
+        Vector3(2.9, 2.8, 6.0), AMBER)
 
     for guide: Array in [
         ["WestRampApproach", Vector3(-11.0, 0.03, 11.5), Vector3(2.8, 0.03, 2.0)],
@@ -701,6 +727,34 @@ func _box(parent: Node3D, name: String, location: Vector3, size: Vector3,
     mesh.mesh = box
     solid.add_child(mesh)
     parent.add_child(solid)
+
+
+# Small, non-colliding color bands on the south-facing cover surfaces.
+# They are visual navigation accents only and do not change SHIFT support,
+# projectile traces or any physical cover dimensions.
+func _cover_trim(parent: Node3D, name: String, location: Vector3,
+        dimensions: Vector3, tint: Color) -> void:
+    var accent := StandardMaterial3D.new()
+    accent.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    accent.albedo_color = tint
+    accent.emission_enabled = true
+    accent.emission = tint * 0.45
+    accent.emission_energy_multiplier = 0.6
+    for part: Array in [
+        [Vector3(0.0, dimensions.y * 0.35, dimensions.z * 0.5 + 0.017),
+            Vector3(dimensions.x * 0.76, 0.12, 0.028)],
+        [Vector3(-dimensions.x * 0.39, 0.0, dimensions.z * 0.5 + 0.017),
+            Vector3(0.10, dimensions.y * 0.66, 0.028)]
+    ]:
+        var strip := MeshInstance3D.new()
+        strip.name = name + "Accent" + str(parent.get_child_count())
+        strip.position = location + (part[0] as Vector3)
+        strip.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+        var box_mesh := BoxMesh.new()
+        box_mesh.size = part[1] as Vector3
+        box_mesh.material = accent
+        strip.mesh = box_mesh
+        parent.add_child(strip)
 
 
 func _guide(parent: Node3D, name: String, location: Vector3, size: Vector3) -> void:
