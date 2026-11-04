@@ -2,7 +2,7 @@
 
 Use a fresh hosted build of [PR #17](https://github.com/mishraaditya595/swapshot/pull/17). The [manual Web deployment workflow](https://github.com/mishraaditya595/swapshot/actions/workflows/deploy-web-manual.yml) takes source `pr` and PR number `17`; it publishes under `/swapshot/pr-17/`. The preview is not automatically deployed by opening the PR.
 
-Record the build commit, browser/OS, approximate FPS and the number of attempts. The Nov 4 recording is from an earlier PR #17 snapshot. Manually redeploy PR #17 after the fixes; the existing preview does not update on push. Keep the opening run unscripted: do not read the control checklist before playing. Note any prompt that was missed or misunderstood.
+Record the build commit, browser/OS, approximate FPS and the number of attempts. The two Nov 4 recordings are from earlier PR #17 snapshots; the later one ends at 01:17 with two SHIFTS and full armor. Manually redeploy PR #17 after this latest patch, since the preview does not update on push. Keep a first-time run unscripted: do not read the control checklist before playing. Note prompts that were missed or misunderstood.
 
 ## First-time run
 
@@ -22,6 +22,15 @@ Record the build commit, browser/OS, approximate FPS and the number of attempts.
 - [ ] Confirm the orange practice target has a distinct amber frame and range sign.
 - [ ] The Security Core gate should read LOCKED in amber initially, then PRESS E in cyan after both guards are defeated.
 - [ ] Record the run time and any close-range camera crowding; the earlier run completed in about 58 seconds, shorter than the 2–3-minute target.
+
+## Retest the combat and visibility fixes
+
+- [ ] Walk into an exposed middle lane toward the western guard. It should notice, warn and fire before you get directly beside it. Record whether armor drops in a normal fight.
+- [ ] Move behind a cargo container while a guard tracks you. No shot should hit through the solid object; stepping into the open should restore pressure.
+- [ ] Approach a live guard closely while turning and shooting. Check that Vex's suit fades enough to reveal the target without changing crosshair alignment, camera stability or weapon behavior.
+- [ ] Aim down at clear floor within 18 m during step 03 and press Q. Test an out-of-range attempt and an attempt with no floor under the reticle. The instructions and rejection messages should tell you how to correct each.
+- [ ] Read the gate sign from front, side and close range before and after unlocking. The two-line text should remain visible on its fixed dark panel.
+- [ ] Record how long a new player takes, remaining armor and any camera/AI problems. No balance claim should be based on one run.
 
 ## Safety, controls and replay
 

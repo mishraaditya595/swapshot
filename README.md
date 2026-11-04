@@ -19,7 +19,7 @@ SWAPSHOT is a single-player third-person shooter for **GitHub Game Off 2026**, w
 
 1. Install [Godot 4.7.2 stable](https://godotengine.org/download/archive/4.7.2-stable/) (standard/non-.NET).
 2. Clone this repository and import `project.godot` through the Godot Project Manager.
-3. Run `scenes/main.tscn` for the MS-08 Loading Dock opening. Follow the cyan marker, shoot the orange practice target (or a guard), place an anchor with Q, SHIFT into a flank, defeat two guards, then press E at the lit exit gate. The outcome panel offers a full replay and points toward Security Core; it does not load MS-09. WASD moves, mouse looks after capturing the viewport, left mouse fires, right mouse aims, R reloads, Q places an anchor, Left Shift teleports, E interacts and Esc releases the cursor. The initial click captures the mouse without shooting. The original P0 firefight remains at `scenes/levels/ms06_firefight.tscn`, and the training arena at `scenes/levels/greybox_arena.tscn`.
+3. Run `scenes/main.tscn` for the MS-08 Loading Dock opening. Follow the cyan marker, shoot the orange practice target (or a guard), aim down at clear floor within 18 m and place an anchor with Q, SHIFT into a flank, defeat two guards, then press E at the lit exit gate. The outcome panel offers a full replay and points toward Security Core; it does not load MS-09. WASD moves, mouse looks after capturing the viewport, left mouse fires, right mouse aims, R reloads, Q places an anchor, Left Shift teleports, E interacts and Esc releases the cursor. The initial click captures the mouse without shooting. The original P0 firefight remains at `scenes/levels/ms06_firefight.tscn`, and the training arena at `scenes/levels/greybox_arena.tscn`.
 4. Run the static review audit and tests:
 
 ```bash
