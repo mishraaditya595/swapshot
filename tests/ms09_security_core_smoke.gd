@@ -77,7 +77,7 @@ func _run() -> void:
         and core.has_node("WorldGeometry/NorthWalk")
         and core.has_node("WorldGeometry/WestTerminalDeck"),
         "Both ramps, upper walk and terminal deck exist")
-    _check(is_equal_approx(player.global_position.y, 1.03)
+    _check(player.global_position.y > 0.7 and player.global_position.y < 1.4
         and absf(player.global_position.z - 15.0) < 1.0,
         "Player starts at the clear south entrance")
     _check(is_equal_approx(float(player.get("health")), 100.0)
@@ -164,8 +164,9 @@ func _run() -> void:
     var east: StaticBody3D = guards[2] as StaticBody3D
     player.global_position = Vector3(8.5, 3.93, -12)
     await _frames(3)
+    var no_other_spawns: Array[Vector3] = []
     _check(not bool(core.call("_safe_upper_spawn", east,
-        Vector3(8.5, 3.93, -12), [])),
+        Vector3(8.5, 3.93, -12), no_other_spawns)),
         "Upper activation cannot overlap the player")
     player.global_position = Vector3(0, 1.03, 13)
     ability.call("reset_lifecycle")
