@@ -29,7 +29,7 @@ func _run() -> void:
     _check(main != null, "Main boot scene must load")
     if main != null:
         var startup: Node = main.instantiate()
-        _check(startup.has_node("LoadingDock/Player"),
+        _check(startup.has_node("SecurityCore/Player"),
             "Main must launch the next milestone scene; MS-06 remains directly loadable")
         startup.free()
 

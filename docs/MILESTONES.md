@@ -153,7 +153,7 @@
 
 **Target:** Nov 14–17, 2026 · **Priority:** P1 · **Depends on:** MS-08 (unless explicitly reordered)
 
-- [ ] **MS-09 complete** — **Implementing PR:** —
+- [ ] **MS-09 complete** — **Implementing PR:** [#20](https://github.com/mishraaditya595/swapshot/pull/20)
   - [ ] Build a readable vertical zone with catwalks, cover, safe landing surfaces and limited active enemies.
   - [ ] Introduce tactical elevation where SHIFT provides better sightlines but not unfair teleport shortcuts.
   - [ ] Implement the terminal disable / interaction objective with clear progress and feedback.
@@ -161,6 +161,8 @@
   - [ ] Playtest the 3–4-minute section; defer the optional turret unless time remains.
 
 **Acceptance gate:** The terminal can be reached and disabled through a stable encounter that rewards SHIFT flanks and respects collision safety.
+
+**MS-09 implementation evidence (Nov 4):** [Draft PR #20](https://github.com/mishraaditya595/swapshot/pull/20) adds a standalone Looped Mezzanine with two ramps, two-stage four-guard combat, a safely gated upper response, and an E-operated shutdown terminal. [CI 41776092450](https://github.com/mishraaditya595/swapshot/actions/runs/41776092450) passed Godot 4.7.2 import/startup, MS-01 through MS-09 physics smoke, project audit and repository Python tests. Manual browser, 3–4-minute pacing and camera acceptance are **NOT RUN**; see [MS-09 review](reviews/MS-09-review.md) and [browser QA](../tests/MS-09-BROWSER-QA.md). The [pre-merge policy](https://github.com/mishraaditya595/swapshot/actions/runs/41776092465) still fails for unchecked MS-07, MS-08 and MS-09 acceptance. The predecessor follow-up remains [issue #19](https://github.com/mishraaditya595/swapshot/issues/19). Keep all unverified MS-09 tasks unchecked.
 
 ### MS-10 — Extraction: final assault, core pickup and escape
 

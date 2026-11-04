@@ -1,7 +1,7 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/levels/loading_dock.tscn" id="1_dock"]
+[ext_resource type="PackedScene" path="res://scenes/levels/security_core.tscn" id="1_core"]
 
 [node name="Swapshot" type="Node3D"]
 
-[node name="LoadingDock" parent="." instance=ExtResource("1_dock")]
+[node name="SecurityCore" parent="." instance=ExtResource("1_core")]
