@@ -88,13 +88,27 @@ func _run() -> void:
         and extraction.has_node("WorldGeometry/EastOverlook")
         and extraction.has_node("WorldGeometry/LowerDropPad"),
         "Collision greybox and both SHIFT decks are built")
+    _check(extraction.has_node("WorldGeometry/UpperWestCoverAccentTop")
+        and extraction.has_node("WorldGeometry/LowerWestCoverAccentTop")
+        and extraction.has_node("WorldGeometry/ShuttleCoverAccentTop")
+        and extraction.has_node("WorldGeometry/CargoWestAccentSide"),
+        "Upper, lower, shuttle and cargo covers have distinct visual accent strips")
+    _check(extraction.get_node("WorldGeometry/UpperWestCoverAccentTop") is MeshInstance3D
+        and not extraction.get_node("WorldGeometry/UpperWestCoverAccentTop") is CollisionObject3D,
+        "Decorative accents cannot modify physics or SHIFT traces")
     _check(player.global_position.x < -8.0 and player.global_position.z > 14.0
         and player.is_on_floor(), "Southwest entrance has supported ground")
     _check((extraction.get_node("ExtractionHUD/Objective") as Label).text.contains("CORE")
         and not (extraction.get_node("Outcome") as CanvasLayer).visible,
         "Initial objective is readable and result is hidden")
-    _check((extraction.get_node("ExtractionGate/Status") as Label3D).text.contains("LOCKED"),
-        "Exit begins amber and locked")
+    var core_sign: Label3D = extraction.get_node("ExperimentalCore/Status") as Label3D
+    var exit_sign: Label3D = extraction.get_node("ExtractionGate/Status") as Label3D
+    _check(core_sign.visible and core_sign.font_size <= 30
+        and core_sign.pixel_size <= 0.004,
+        "Before pickup, compact core prompt is visible on the pedestal")
+    _check(exit_sign.text == "EXIT LOCKED"
+        and exit_sign.font_size <= 40 and exit_sign.pixel_size <= 0.005,
+        "Gate label is short enough to fit on the physical sign panel")
     _check(not bool(extraction.call("try_extract")), "Early extraction is rejected")
     _check(not bool(extraction.call("try_collect_core")), "Remote pickup is rejected")
 
@@ -163,6 +177,9 @@ func _run() -> void:
         and int(extraction.get("phase")) == 1
         and not (extraction.get_node("ExperimentalCore/CoreCrystal") as MeshInstance3D).visible,
         "Pickup hides core and queues UPPER_WARNING")
+    _check(not core_sign.visible
+        and (extraction.get_node("ExtractionHUD/Feedback") as Label).text.contains("CORE SECURED"),
+        "Core confirmation moves to HUD and 3D sign vanishes before the firefight")
     _check(not bool(extraction.call("try_collect_core")),
         "Duplicate pickup cannot launch another wave")
     _check(not bool(extraction.call("try_extract")),
@@ -200,7 +217,21 @@ func _run() -> void:
     _check(not bool(upper[0].call("_can_see_player")),
         "Solid gantry blocks upper-to-lower enemy sightline")
 
+    var hit_mesh: MeshInstance3D = upper[0].get_node("VisualRoot/ImpactPulse") as MeshInstance3D
+    var hit_visual: Node3D = upper[0].get_node("VisualRoot") as Node3D
+    _check(not hit_mesh.visible, "Inactive trooper impact flash is hidden")
+    upper[0].call("apply_damage", 16.0)
+    _check(hit_mesh.visible and hit_visual.rotation.x < -0.05,
+        "Live damaging hit triggers impact flash and small armor recoil")
+    await _frames(20)
+    _check(not hit_mesh.visible and absf(hit_visual.rotation.x) < 0.01,
+        "Visual recoil and flash end without modifying enemy state or aim")
+    _check(int(upper[0].get("state")) != 3
+        and is_equal_approx(float(upper[0].get("health")), 84.0),
+        "A nonlethal hit keeps the original 100 HP combat contract")
+
     upper[0].call("apply_damage", 250.0)
+    _check(not hit_mesh.visible, "Fatal hit leaves no lingering impact flash")
     _check(int(extraction.get("phase")) == 2,
         "One destroyed upper guard cannot resolve the group")
     upper[0].call("advance_ai", 5.0)
@@ -247,8 +278,8 @@ func _run() -> void:
     lower[1].call("apply_damage", 250.0)
     _check(int(extraction.get("phase")) == 5
         and bool(extraction.get("lower_resolved"))
-        and (extraction.get_node("ExtractionGate/Status") as Label3D).text.contains("READY"),
-        "Lower clear exposes cyan extraction gate")
+        and exit_sign.text == "EXIT READY\nPRESS E",
+        "Lower clear exposes a compact cyan extraction prompt")
     _check(not bool(extraction.call("try_extract")),
         "Remote extraction is rejected")
     player.global_position = Vector3(11, 3.93, 16.0)
