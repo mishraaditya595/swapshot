@@ -56,7 +56,7 @@ func _run() -> void:
     var extraction: Node3D = packed.instantiate()
     root.add_child(extraction)
     current_scene = extraction
-    await _frames(8)
+    await _frames(20)
 
     var player: CharacterBody3D = extraction.get_node("Player") as CharacterBody3D
     var ability: Node = player.get_node("ShiftAbility")
