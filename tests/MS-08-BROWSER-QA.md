@@ -2,7 +2,7 @@
 
 Use a fresh hosted build of [PR #17](https://github.com/mishraaditya595/swapshot/pull/17). The [manual Web deployment workflow](https://github.com/mishraaditya595/swapshot/actions/workflows/deploy-web-manual.yml) takes source `pr` and PR number `17`; it publishes under `/swapshot/pr-17/`. The preview is not automatically deployed by opening the PR.
 
-Record the build commit, browser/OS, approximate FPS and the number of attempts. Keep the opening run unscripted: do not read the control checklist before playing. Note any prompt that was missed or misunderstood.
+Record the build commit, browser/OS, approximate FPS and the number of attempts. The Nov 4 recording is from an earlier PR #17 snapshot. Manually redeploy PR #17 after the fixes; the existing preview does not update on push. Keep the opening run unscripted: do not read the control checklist before playing. Note any prompt that was missed or misunderstood.
 
 ## First-time run
 
@@ -13,6 +13,15 @@ Record the build commit, browser/OS, approximate FPS and the number of attempts.
 - [ ] Defeat both guards. Check that the counter reaches `2 / 2` and the exit changes to cyan.
 - [ ] Walk to the illuminated gate and press E. Confirm the outcome says `SECURITY CORE IS NEXT`, without entering an unfinished zone.
 - [ ] Record first clear time, SHIFT count, remaining armor, what felt unclear, and whether outside help was needed.
+
+## Retest the November 4 recording findings
+
+- [ ] After crossing the cyan movement marker, shoot a real guard without touching the dummy. The rifle lesson should advance from step 02.
+- [ ] On a separate run, place an anchor and SHIFT before hitting a guard. Shooting the guard should credit the earlier actions, without asking the player to repeat Q or SHIFT.
+- [ ] Check the SHIFT status and cooldown at the lower-left of the screen. They must not overlap the top-left objective, tutorial or clock, including at a 960×540 browser viewport.
+- [ ] Confirm the orange practice target has a distinct amber frame and range sign.
+- [ ] The Security Core gate should read LOCKED in amber initially, then PRESS E in cyan after both guards are defeated.
+- [ ] Record the run time and any close-range camera crowding; the earlier run completed in about 58 seconds, shorter than the 2–3-minute target.
 
 ## Safety, controls and replay
 
@@ -30,7 +39,7 @@ Record the build commit, browser/OS, approximate FPS and the number of attempts.
 
 | Field | Observation |
 | --- | --- |
-| PR head SHA / preview URL | |
+| PR head SHA / preview URL (must reflect updated deploy) | |
 | Browser / OS / viewport | |
 | First-run time and attempts | |
 | SHIFTs / armor at clear | |

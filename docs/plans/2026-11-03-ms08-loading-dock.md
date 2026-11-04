@@ -25,3 +25,9 @@ For the new scene, test the tutorial transition sequence, early gate rejection, 
 ## Manual checks
 
 Follow `tests/MS-08-BROWSER-QA.md` on the hosted PR build. Record a first attempt before showing the controls worksheet. Test the two PR #16 observations (overhead camera and close-range guard behavior) as candidate reproductions, and report what actually happened. Never mark the milestone complete without that new-player feedback.
+
+## November 4 recorded-playtest follow-up
+
+The owner's hosted PR #17 recording showed a successful 58-second clear with three SHIFTS and 76 armor. Two interface bugs require correction before acceptance: rifle onboarding ignored guard hits, and the global SHIFT status overlapped the Loading Dock mission labels. The follow-up accepts damage from either training dummy or living guard, preserves early Q/SHIFT actions, and moves the SHIFT status to a dock-only lower-left panel without modifying the global HUD resource. The target receives a brighter amber frame and range label, and the gate adds a locked/unlocked sign and matching floor cue.
+
+Godot regression checks cover the filmed action order, invalid zero-damage hits, panel bounds at desktop and 960×540, color/label state changes, and all existing MS-01–MS-07 regressions. Treat the prior 58-second clear as one observed run, not a reason to add enemy health or artificial delays yet. The owner must redeploy and retest the revised build before the milestone can close. The P2 close-range camera observation remains open pending reproduction.
