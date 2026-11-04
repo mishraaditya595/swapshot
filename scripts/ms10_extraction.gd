@@ -64,6 +64,7 @@ var _lower: Array[Node] = []
 var _activated: Array[Node] = []
 var _defeated: Array[Node] = []
 var _feedback_remaining: float = 0.0
+var _hit_feedback_tweens: Dictionary = {}
 
 
 func _ready() -> void:
@@ -99,6 +100,8 @@ func _register_guard(guard: Node) -> void:
     guard.connect("windup_started", _on_guard_windup)
     guard.connect("echo_distracted", _on_guard_echo)
     guard.connect("echo_released", _refresh_threat)
+    guard.connect("damaged", _on_guard_damaged.bind(guard))
+    _add_guard_impact_pulse(guard)
     guard.call("set_combat_enabled", false)
 
 
@@ -167,7 +170,10 @@ func _start_warning(upper_wave: bool) -> void:
     retry_elapsed = 0.0
     retry_remaining = 0.0
     _enter_phase(Phase.UPPER_WARNING if upper_wave else Phase.LOWER_WARNING)
-    _show_feedback("HELIX LOCKDOWN / %s RESPONSE INCOMING" % ("UPPER" if upper_wave else "LOWER"))
+    _show_feedback(
+        "CORE SECURED / UPPER SECURITY INCOMING" if upper_wave
+        else "HELIX LOCKDOWN / LOWER SECURITY INCOMING"
+    )
 
 
 func try_collect_core() -> bool:
@@ -178,8 +184,9 @@ func try_collect_core() -> bool:
     core_collected = true
     core_mesh.visible = false
     core_light.visible = false
-    core_status.text = "CORE SECURED"
-    core_status.modulate = CYAN
+    # Keep confirmation on the fixed HUD; nearby Label3D text can cover the
+    # camera and firing lane after the player walks through the pedestal.
+    core_status.visible = false
     core_picked_up.emit()
     _start_warning(true)
     return true
@@ -289,6 +296,7 @@ func _safe_spawn(guard: StaticBody3D, point: Vector3,
 
 
 func _on_guard_destroyed(guard: Node) -> void:
+    _clear_guard_impact(guard)
     if phase != Phase.UPPER_FIGHT and phase != Phase.LOWER_FIGHT:
         return
     if not _activated.has(guard) or _defeated.has(guard):
@@ -360,7 +368,7 @@ func _set_gate_visual(unlocked: bool) -> void:
     gate_beacon.material_override = material
     gate_light.light_color = tint
     gate_status.modulate = tint
-    gate_status.text = "EXTRACTION READY\nPRESS E" if unlocked else "EXTRACTION LOCKED"
+    gate_status.text = "EXIT READY\nPRESS E" if unlocked else "EXIT LOCKED"
 
 
 func _on_player_died() -> void:
@@ -377,6 +385,7 @@ func _finish(result: Phase) -> void:
     phase_changed.emit(int(phase))
     player.set_combat_enabled(false)
     for guard: Node in _guards:
+        _clear_guard_impact(guard)
         if int(guard.get("state")) != 3:
             guard.call("set_combat_enabled", false)
     Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -473,6 +482,59 @@ func _update_clock() -> void:
 func _show_feedback(message: String) -> void:
     feedback_label.text = message
     _feedback_remaining = 2.6
+
+
+# One tiny unlit mesh per trooper, hidden until a real damaging hit. The
+# pulse and armor recoil only affect visuals, not AI aiming or hitboxes.
+func _add_guard_impact_pulse(guard: Node) -> void:
+    var pulse := MeshInstance3D.new()
+    pulse.name = "ImpactPulse"
+    var sphere := SphereMesh.new()
+    sphere.radius = 0.19
+    sphere.height = 0.38
+    pulse.mesh = sphere
+    pulse.position = Vector3(0.0, 0.22, -0.53)
+    pulse.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+    var glow := StandardMaterial3D.new()
+    glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    glow.albedo_color = Color(1.0, 0.88, 0.49)
+    glow.emission_enabled = true
+    glow.emission = Color(1.0, 0.65, 0.20)
+    glow.emission_energy_multiplier = 1.2
+    pulse.material_override = glow
+    pulse.visible = false
+    (guard.get_node("VisualRoot") as Node3D).add_child(pulse)
+
+
+func _on_guard_damaged(remaining_health: float, guard: Node) -> void:
+    if phase != Phase.UPPER_FIGHT and phase != Phase.LOWER_FIGHT:
+        return
+    if not _activated.has(guard) or _defeated.has(guard) or remaining_health <= 0.0:
+        return
+    _clear_guard_impact(guard)
+    var visual: Node3D = guard.get_node("VisualRoot") as Node3D
+    var pulse: MeshInstance3D = visual.get_node("ImpactPulse") as MeshInstance3D
+    pulse.visible = true
+    pulse.scale = Vector3.ONE * 0.65
+    visual.rotation.x = -0.13
+    var tween: Tween = create_tween().set_parallel(true).set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
+    tween.tween_property(visual, "rotation:x", 0.0, 0.19).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+    tween.tween_property(pulse, "scale", Vector3.ONE * 1.55, 0.19).set_trans(Tween.TRANS_CUBIC)
+    tween.chain().tween_callback(_clear_guard_impact.bind(guard))
+    _hit_feedback_tweens[guard] = tween
+
+
+func _clear_guard_impact(guard: Node) -> void:
+    if not is_instance_valid(guard):
+        return
+    if _hit_feedback_tweens.has(guard):
+        var old: Tween = _hit_feedback_tweens[guard] as Tween
+        if old != null and old.is_running():
+            old.kill()
+        _hit_feedback_tweens.erase(guard)
+    var visual: Node3D = guard.get_node("VisualRoot") as Node3D
+    visual.rotation.x = 0.0
+    (visual.get_node("ImpactPulse") as MeshInstance3D).visible = false
 
 
 func _on_guard_state_changed(_next: int) -> void:
