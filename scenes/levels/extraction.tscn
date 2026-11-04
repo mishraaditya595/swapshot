@@ -143,11 +143,11 @@ position = Vector3(0, 0.98, 0)
 mesh = SubResource("CoreCrystalMesh")
 
 [node name="Status" type="Label3D" parent="ExperimentalCore"]
-position = Vector3(0, 1.95, 0.5)
-pixel_size = 0.006
-font_size = 52
+position = Vector3(0, 1.78, 0.68)
+pixel_size = 0.004
+font_size = 30
 modulate = Color(0.35, 0.98, 0.9, 1)
-text = "EXPERIMENTAL CORE\nPRESS E TO TAKE"
+text = "RETRIEVE CORE\nPRESS E"
 
 [node name="InteractionPoint" type="Marker3D" parent="ExperimentalCore"]
 position = Vector3(0, 0.50, 1.15)
@@ -182,11 +182,11 @@ mesh = SubResource("SignPanelMesh")
 cast_shadow = 0
 
 [node name="Status" type="Label3D" parent="ExtractionGate"]
-position = Vector3(0, 2.10, 0.55)
-pixel_size = 0.006
-font_size = 54
+position = Vector3(0, 2.10, 0.67)
+pixel_size = 0.0048
+font_size = 37
 modulate = Color(1, 0.67, 0.29, 1)
-text = "EXTRACTION LOCKED"
+text = "EXIT LOCKED"
 
 [node name="InteractionPoint" type="Marker3D" parent="ExtractionGate"]
 position = Vector3(0, 0.0, 1.2)
