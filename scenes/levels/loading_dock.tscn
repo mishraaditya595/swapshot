@@ -211,7 +211,7 @@ billboard = 1
 pixel_size = 0.008
 font_size = 60
 modulate = Color(1, 0.74, 0.39, 1)
-text = "SECURITY CORE  /  LOCKED"
+text = "SECURITY CORE\\nLOCKED"
 
 [node name="ExitPoint" type="Marker3D" parent="."]
 position = Vector3(0, 1.1, -18.7)

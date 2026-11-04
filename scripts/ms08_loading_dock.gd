@@ -246,8 +246,8 @@ func _set_gate_color(tint: Color) -> void:
     gate_light.light_color = tint
     gate_status.modulate = tint
     gate_status.text = (
-        "SECURITY CORE  /  PRESS E" if is_gate_unlocked
-        else "SECURITY CORE  /  LOCKED"
+        "SECURITY CORE\nPRESS E TO ENTER" if is_gate_unlocked
+        else "SECURITY CORE\nLOCKED"
     )
     if is_gate_unlocked:
         gate_door.material_override = material

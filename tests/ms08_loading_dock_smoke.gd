@@ -94,6 +94,16 @@ func _run() -> void:
                 "SHIFT HUD must not overlap dock objective, tutorial or clock")
     _check(not status.get_global_rect().intersects(timer.get_global_rect()),
         "SHIFT status and timer stay on independent lines")
+    var original_viewport_size: Vector2i = root.size
+    root.size = Vector2i(960, 540)
+    await _frames(3)
+    var ammo_label: Label = player.get_node("CombatHUD/Ammo")
+    for label: Label in [status, timer]:
+        for panel: Label in [objective, hint, clock, ammo_label]:
+            _check(not label.get_global_rect().intersects(panel.get_global_rect()),
+                "SHIFT HUD must remain separate at a 960 by 540 browser viewport")
+    root.size = original_viewport_size
+    await _frames(3)
 
     player.set_physics_process(false)
     for guard: Node in [first, second]:
