@@ -153,7 +153,7 @@
 
 **Target:** Nov 14–17, 2026 · **Priority:** P1 · **Depends on:** MS-08 (unless explicitly reordered)
 
-- [ ] **MS-09 complete** — **Implementing PR:** —
+- [ ] **MS-09 complete** — **Implementing PR:** [#20](https://github.com/mishraaditya595/swapshot/pull/20)
   - [ ] Build a readable vertical zone with catwalks, cover, safe landing surfaces and limited active enemies.
   - [ ] Introduce tactical elevation where SHIFT provides better sightlines but not unfair teleport shortcuts.
   - [ ] Implement the terminal disable / interaction objective with clear progress and feedback.
