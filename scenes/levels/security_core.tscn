@@ -1,0 +1,245 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/ms09_security_core.gd" id="1_director"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/security_trooper.tscn" id="3_guard"]
+
+[sub_resource type="Environment" id="CoreAtmosphere"]
+background_mode = 1
+background_color = Color(0.10, 0.17, 0.22, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.45, 0.64, 0.74, 1)
+ambient_light_energy = 0.85
+
+[sub_resource type="StandardMaterial3D" id="TerminalBodyMat"]
+albedo_color = Color(0.10, 0.18, 0.24, 1)
+roughness = 0.75
+
+[sub_resource type="StandardMaterial3D" id="TerminalPanelMat"]
+shading_mode = 0
+albedo_color = Color(0.01, 0.04, 0.07, 1)
+
+[sub_resource type="StandardMaterial3D" id="BeaconMat"]
+shading_mode = 0
+albedo_color = Color(1, 0.68, 0.32, 1)
+emission_enabled = true
+emission = Color(0.9, 0.30, 0.07, 1)
+emission_energy_multiplier = 1.2
+
+[sub_resource type="BoxMesh" id="TerminalMesh"]
+size = Vector3(1.5, 1.4, 0.85)
+material = SubResource("TerminalBodyMat")
+
+[sub_resource type="BoxShape3D" id="TerminalShape"]
+size = Vector3(1.5, 1.4, 0.85)
+
+[sub_resource type="BoxMesh" id="BeaconMesh"]
+size = Vector3(1.55, 0.18, 0.93)
+material = SubResource("BeaconMat")
+
+[sub_resource type="BoxMesh" id="SignPanelMesh"]
+size = Vector3(3.3, 1.15, 0.10)
+material = SubResource("TerminalPanelMat")
+
+[node name="SecurityCore" type="Node3D"]
+script = ExtResource("1_director")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("CoreAtmosphere")
+
+[node name="MainLight" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.85, 0.4, -0.35)
+light_energy = 1.0
+shadow_enabled = true
+
+[node name="EntranceLight" type="OmniLight3D" parent="."]
+position = Vector3(0, 4.0, 12)
+light_color = Color(0.50, 0.83, 1.0, 1)
+light_energy = 0.7
+omni_range = 16.0
+shadow_enabled = false
+
+[node name="CoreLight" type="OmniLight3D" parent="."]
+position = Vector3(0, 4.5, -14.5)
+light_color = Color(1, 0.59, 0.28, 1)
+light_energy = 0.7
+omni_range = 18.0
+shadow_enabled = false
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector3(0, 1.03, 15)
+
+[node name="GuardLowerWest" parent="." instance=ExtResource("3_guard")]
+position = Vector3(-5.0, 1.03, -3.2)
+detection_range = 20.0
+shot_damage = 8.0
+fire_interval_seconds = 1.7
+
+[node name="GuardLowerEast" parent="." instance=ExtResource("3_guard")]
+position = Vector3(5.0, 1.03, -3.5)
+detection_range = 20.0
+shot_damage = 8.0
+fire_interval_seconds = 1.7
+
+[node name="GuardUpperEast" parent="." instance=ExtResource("3_guard")]
+position = Vector3(8.5, 3.93, -12)
+detection_range = 20.0
+shot_damage = 8.0
+fire_interval_seconds = 1.7
+
+[node name="GuardUpperWest" parent="." instance=ExtResource("3_guard")]
+position = Vector3(-8.5, 3.93, -12)
+detection_range = 20.0
+shot_damage = 8.0
+fire_interval_seconds = 1.7
+
+[node name="Terminal" type="StaticBody3D" parent="."]
+position = Vector3(-11.2, 3.65, -15.0)
+collision_layer = 1
+collision_mask = 1
+
+[node name="Mesh" type="MeshInstance3D" parent="Terminal"]
+mesh = SubResource("TerminalMesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Terminal"]
+shape = SubResource("TerminalShape")
+
+[node name="Beacon" type="MeshInstance3D" parent="Terminal"]
+position = Vector3(0, 0.81, 0)
+mesh = SubResource("BeaconMesh")
+cast_shadow = 0
+
+[node name="SignPanel" type="MeshInstance3D" parent="Terminal"]
+position = Vector3(0, 1.74, 0.48)
+mesh = SubResource("SignPanelMesh")
+cast_shadow = 0
+
+[node name="Status" type="Label3D" parent="Terminal"]
+position = Vector3(0, 1.74, 0.55)
+billboard = 0
+pixel_size = 0.006
+font_size = 56
+modulate = Color(1, 0.68, 0.32, 1)
+text = "CORE CONTROL\nLOCKED"
+
+[node name="InteractionPoint" type="Marker3D" parent="Terminal"]
+position = Vector3(0, 0.40, 1.05)
+
+[node name="Light" type="OmniLight3D" parent="Terminal"]
+position = Vector3(0, 1.0, 0)
+light_color = Color(1, 0.68, 0.32, 1)
+light_energy = 0.65
+omni_range = 6.5
+shadow_enabled = false
+
+[node name="CoreHUD" type="CanvasLayer" parent="."]
+
+[node name="HeaderBackdrop" type="ColorRect" parent="CoreHUD"]
+offset_left = 10.0
+offset_top = 94.0
+offset_right = 1220.0
+offset_bottom = 181.0
+mouse_filter = 2
+color = Color(0.02, 0.06, 0.10, 0.78)
+
+[node name="Objective" type="Label" parent="CoreHUD"]
+offset_left = 18.0
+offset_top = 99.0
+offset_right = 1200.0
+offset_bottom = 134.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.68, 0.32, 1)
+theme_override_font_sizes/font_size = 25
+text = "OBJECTIVE / CLEAR LOWER SECURITY 0 / 2"
+
+[node name="Hint" type="Label" parent="CoreHUD"]
+offset_left = 18.0
+offset_top = 140.0
+offset_right = 1190.0
+offset_bottom = 179.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.72, 0.94, 0.96, 1)
+theme_override_font_sizes/font_size = 19
+text = "USE CRATES AS COVER / RAMPS LEAD TO UPPER CATWALKS"
+
+[node name="Clock" type="Label" parent="CoreHUD"]
+offset_left = 18.0
+offset_top = 210.0
+offset_right = 690.0
+offset_bottom = 248.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.67, 0.94, 0.96, 1)
+theme_override_font_sizes/font_size = 22
+text = "SECURITY CORE 00:00 | SHIFTS 0"
+
+[node name="Feedback" type="Label" parent="CoreHUD"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -460.0
+offset_top = 273.0
+offset_right = 460.0
+offset_bottom = 316.0
+mouse_filter = 2
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.69, 0.98, 0.91, 1)
+theme_override_font_sizes/font_size = 22
+
+[node name="Outcome" type="CanvasLayer" parent="."]
+layer = 15
+visible = false
+
+[node name="Dim" type="ColorRect" parent="Outcome"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.01, 0.035, 0.06, 0.86)
+
+[node name="Card" type="ColorRect" parent="Outcome"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -430.0
+offset_top = -205.0
+offset_right = 430.0
+offset_bottom = 205.0
+color = Color(0.07, 0.13, 0.18, 0.98)
+
+[node name="Kicker" type="Label" parent="Outcome/Card"]
+offset_left = 26.0
+offset_top = 20.0
+offset_right = 834.0
+offset_bottom = 66.0
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.68, 0.89, 0.94, 1)
+theme_override_font_sizes/font_size = 23
+text = "HELIX FACILITY / OPERATION ZERO HOUR"
+
+[node name="Title" type="Label" parent="Outcome/Card"]
+offset_left = 15.0
+offset_top = 84.0
+offset_right = 845.0
+offset_bottom = 154.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 43
+text = "SECURITY CORE OFFLINE"
+
+[node name="Details" type="Label" parent="Outcome/Card"]
+offset_left = 25.0
+offset_top = 158.0
+offset_right = 835.0
+offset_bottom = 308.0
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.88, 0.94, 0.96, 1)
+theme_override_font_sizes/font_size = 23
+text = "SECURITY TERMINAL AHEAD"
+
+[node name="ReplayButton" type="Button" parent="Outcome/Card"]
+offset_left = 223.0
+offset_top = 324.0
+offset_right = 637.0
+offset_bottom = 387.0
+theme_override_font_sizes/font_size = 25
+text = "REPLAY SECURITY CORE [ENTER]"
