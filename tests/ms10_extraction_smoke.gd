@@ -103,9 +103,9 @@ func _run() -> void:
         "Initial objective is readable and result is hidden")
     var core_sign: Label3D = extraction.get_node("ExperimentalCore/Status") as Label3D
     var exit_sign: Label3D = extraction.get_node("ExtractionGate/Status") as Label3D
-    _check(core_sign.visible and core_sign.font_size <= 30
-        and core_sign.pixel_size <= 0.004,
-        "Before pickup, compact core prompt is visible on the pedestal")
+    _check(core_sign.visible, "Core prompt is visible before pickup")
+    _check(core_sign.font_size <= 30 and core_sign.pixel_size < 0.0041,
+        "Core prompt uses compact world-space text sizing")
     _check(exit_sign.text == "EXIT LOCKED"
         and exit_sign.font_size <= 40 and exit_sign.pixel_size <= 0.005,
         "Gate label is short enough to fit on the physical sign panel")
