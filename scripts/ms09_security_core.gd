@@ -463,8 +463,8 @@ func _build_arena() -> void:
 
     # The front rail is interrupted for visible, usable SHIFT angles.
     for pair: Array in [[-11.3, 4.5], [-3.7, 3.0], [4.0, 4.0], [11.3, 4.5]]:
-        _box(geometry, "FrontRail" + str(pair[0]), Vector3(float(pair[0]), 3.37, -9.4),
-            Vector3(float(pair[1]), 0.82, 0.18), rail_mat)
+        _box(geometry, "FrontRail" + str(pair[0]), Vector3(float(pair[0]), 3.23, -9.4),
+            Vector3(float(pair[1]), 0.65, 0.18), rail_mat)
     _box(geometry, "BackRail", Vector3(0, 3.42, -14.55),
         Vector3(27, 1.0, 0.18), rail_mat)
     _box(geometry, "WestDeckRail", Vector3(-14.15, 3.42, -15.1),

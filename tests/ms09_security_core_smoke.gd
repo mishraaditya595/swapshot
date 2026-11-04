@@ -107,6 +107,15 @@ func _run() -> void:
         "East ramp physically elevates the moving player")
     _check(player.global_position.x > 8.0 and player.global_position.x < 12.5,
         "East ramp keeps the player inside its collision-safe lane")
+    player.global_position = Vector3(-10.4, 1.03, 10.5)
+    player.velocity = Vector3.ZERO
+    await _frames(5)
+    Input.action_press("move_forward")
+    await _frames(130)
+    Input.action_release("move_forward")
+    _check(player.global_position.y > 2.2
+        and player.global_position.x < -8.0,
+        "West return ramp also physically reaches the upper deck")
     player.set_physics_process(false)
     player.global_position = Vector3(10.4, 3.93, -3.6)
     player.velocity = Vector3.ZERO
@@ -129,6 +138,20 @@ func _run() -> void:
     ability.call("_advance_lifecycle", 4.1)
     _check(is_zero_approx(float(ability.get("cooldown_remaining_seconds"))),
         "Cooldown completes deterministically")
+    ability.call("reset_lifecycle")
+    _check(bool(ability.call("_try_place_at", Vector3(0, 2.9, -12.0), Vector3.UP)),
+        "Lateral catwalk SHIFT has a clear line over its safety rail")
+    _check(bool(ability.call("try_shift")),
+        "Lateral elevated SHIFT crosses onto the north catwalk")
+    player.global_position = Vector3(0, 3.88, -10.5)
+    player.velocity = Vector3.ZERO
+    ability.call("reset_lifecycle")
+    await _frames(4)
+    _check(bool(ability.call("_try_place_at", Vector3(0, 0, -7), Vector3.UP)),
+        "Open north overlook permits safe downward anchor placement")
+    _check(bool(ability.call("try_shift"))
+        and player.global_position.y < 1.3,
+        "Downward SHIFT reaches unobstructed lower cover")
 
     # Expiry and unsafe landing must not spend ability or move the player.
     ability.call("reset_lifecycle")
@@ -170,6 +193,12 @@ func _run() -> void:
         "Upper activation cannot overlap the player")
     player.global_position = Vector3(0, 1.03, 13)
     ability.call("reset_lifecycle")
+    ability.set("anchor_active", true)
+    ability.set("anchor_point", Vector3(8.5, 2.9, -12.0))
+    _check(not bool(core.call("_safe_upper_spawn", east,
+        Vector3(8.5, 3.93, -12), no_other_spawns)),
+        "Upper spawn rejects positions reserved for an armed anchor")
+    ability.call("reset_lifecycle")
     await _frames(4)
 
     # Actual destroyed signals stage the next encounter.
@@ -194,6 +223,10 @@ func _run() -> void:
         "Upper phase objective and tactical hint are visible")
 
     # Eye and muzzle traces must respect real upper geometry and temporary cover.
+    player.global_position = Vector3(8.5, 1.03, -12)
+    await _frames(4)
+    _check(not bool(guards[2].call("_can_see_player")),
+        "Upper sentry cannot detect the player through the solid catwalk floor")
     player.global_position = Vector3(8.5, 3.93, -8.0)
     await _frames(4)
     _check(bool(guards[2].call("_can_see_player")),
@@ -230,6 +263,13 @@ func _run() -> void:
     _check(not bool(core.call("try_shutdown")),
         "Terminal cannot activate through the floor from below")
     player.global_position = Vector3(-11.2, 3.93, -12.6)
+    await _frames(3)
+    var console_blocker: StaticBody3D = _blocker(
+        core, Vector3(-11.2, 4.1, -13.35), Vector3(0.9, 1.6, 0.18))
+    await _frames(3)
+    _check(not bool(core.call("try_shutdown")),
+        "Terminal line of sight rejects nearby but obstructed interaction")
+    console_blocker.queue_free()
     await _frames(3)
     _check(bool(core.call("try_shutdown")),
         "Near and unobstructed upper-deck E disables the terminal")
