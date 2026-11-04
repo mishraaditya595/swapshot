@@ -50,7 +50,7 @@ func _run() -> void:
     _check(startup_scene != null, "Preview main scene loads")
     if startup_scene != null:
         var preview: Node = startup_scene.instantiate()
-        _check(preview.has_node("SecurityCore/Player"), "Main previews Security Core")
+        _check(preview.has_node("Extraction/Player"), "Main previews Extraction")
         preview.free()
     var core: Node3D = scene.instantiate()
     root.add_child(core)
