@@ -42,8 +42,8 @@ func _run() -> void:
     _check(main != null, "Main scene loads")
     if main != null:
         var startup: Node = main.instantiate()
-        _check(startup.has_node("SecurityCore/Player"),
-            "Main previews Security Core; Loading Dock stays standalone")
+        _check(startup.has_node("Extraction/Player"),
+            "Main previews Extraction; Loading Dock stays standalone")
         startup.free()
     var dock: Node3D = scene.instantiate()
     root.add_child(dock)
