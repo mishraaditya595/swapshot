@@ -740,6 +740,7 @@ func _cover_trim(parent: Node3D, name: String, location: Vector3,
     accent.emission_enabled = true
     accent.emission = tint * 0.45
     accent.emission_energy_multiplier = 0.6
+    var stripe_index: int = 0
     for part: Array in [
         [Vector3(0.0, dimensions.y * 0.35, dimensions.z * 0.5 + 0.017),
             Vector3(dimensions.x * 0.76, 0.12, 0.028)],
@@ -747,7 +748,8 @@ func _cover_trim(parent: Node3D, name: String, location: Vector3,
             Vector3(0.10, dimensions.y * 0.66, 0.028)]
     ]:
         var strip := MeshInstance3D.new()
-        strip.name = name + "Accent" + str(parent.get_child_count())
+        strip.name = name + ("AccentTop" if stripe_index == 0 else "AccentSide")
+        stripe_index += 1
         strip.position = location + (part[0] as Vector3)
         strip.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
         var box_mesh := BoxMesh.new()
