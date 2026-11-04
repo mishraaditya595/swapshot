@@ -18,6 +18,13 @@ from validate_milestones import CHECK, HEADING, TASK, validate as validate_track
 REPO_URL = "https://github.com/mishraaditya595/swapshot/pull/"
 MILESTONE_FIELD = re.compile(r"(?im)^\s*(?:[-*]\s*)?\*\*Milestone:\*\*\s*(MS-\d{2})\s*$")
 GOVERNANCE_FIELD = re.compile(r"(?im)^\s*(?:[-*]\s*)?\*\*Change type:\*\*\s*governance\s*$")
+POC_DEFER_FIELD = re.compile(
+    r"(?im)^\s*\*\*POC deferral:\*\*\s*(#[0-9]+(?:\s*,\s*#[0-9]+)*)\s*$"
+)
+# Owner-approved, PR-specific POC exception. This is not milestone completion.
+# Remove it after the deferred acceptance checklists are resolved.
+POC_DEFERRALS = {(20, 9): (19, 21)}
+
 SECRET = re.compile(
     r"(?:github_pat_[A-Za-z0-9_]{20,}|gh[pousr]_[A-Za-z0-9]{20,}|"
     r"sk-[A-Za-z0-9_-]{24,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)"
@@ -101,6 +108,20 @@ def policy(event: dict, paths: list[str], before: str, after: str) -> tuple[list
     governance = bool(GOVERNANCE_FIELD.search(body))
     title_ids = re.findall(r"\bMS-\d{2}\b", title)
 
+    poc_fields = POC_DEFER_FIELD.findall(body)
+    poc_authorized = False
+    if len(poc_fields) > 1:
+        failures.append("Exactly one POC deferral field is permitted.")
+    if poc_fields:
+        identity = int(fields[0][-2:]) if len(fields) == 1 else -1
+        issue_numbers = tuple(int(item.strip()[1:]) for item in poc_fields[0].split(","))
+        poc_authorized = (
+            not governance and len(poc_fields) == 1
+            and POC_DEFERRALS.get((number, identity)) == issue_numbers
+        )
+        if not poc_authorized:
+            failures.append("POC deferral is not approved for this PR, milestone and issue list.")
+
     if governance:
         if fields or title_ids:
             failures.append("Governance PR cannot declare a gameplay milestone.")
@@ -128,7 +149,14 @@ def policy(event: dict, paths: list[str], before: str, after: str) -> tuple[list
                 if old[0]:
                     failures.append("This milestone is already completed on main.")
                 if not new[0] or not new[1] or any(flag != "x" for flag in new[1]):
-                    failures.append("Selected milestone and every task must be checked before merge.")
+                    if poc_authorized:
+                        notes.append(
+                            "POC deferral only: PR #20 may advance with MS-09 unchecked. "
+                            "The required manual work remains open in issues #19 and #21; "
+                            "this is not final milestone or release acceptance."
+                        )
+                    else:
+                        failures.append("Selected milestone and every task must be checked before merge.")
                 expected = f"[#{number}]({REPO_URL}{number})"
                 if new[2] != expected:
                     failures.append(f"Selected milestone must link its actual implementing PR: {expected}")
@@ -138,8 +166,11 @@ def policy(event: dict, paths: list[str], before: str, after: str) -> tuple[list
                 if baseline.get(key) != proposed.get(key):
                     failures.append(f"PR cannot change the completion state or checked tasks of MS-{key:02}.")
                 if key < milestone and baseline.get(key) and not baseline[key][0]:
-                    failures.append(f"Complete prerequisite MS-{key:02} before MS-{milestone:02}.")
+                    if not poc_authorized:
+                        failures.append(f"Complete prerequisite MS-{key:02} before MS-{milestone:02}.")
             notes.append(f"One milestone PR: MS-{milestone:02}. Human acceptance evidence remains necessary.")
+            if poc_authorized:
+                notes.append("Outstanding predecessor acceptance remains deferred; release checks still apply.")
         for heading in SECTION_TITLES:
             content = section_body(body, heading)
             if not substantive(content):

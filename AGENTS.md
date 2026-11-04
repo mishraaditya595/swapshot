@@ -55,6 +55,8 @@ Every implementation or governance PR must pass **SWAPSHOT Pre-Merge** in additi
 - CI automatically checks milestone bookkeeping and catches certain static risks (credentials, generated artifacts, unsafe execution). `Automated code review` is a **rule-based risk scan, not an AI reviewer**. It cannot certify correctness, playability, safe SHIFT, or external submissions.
 - Perform `swapshot-review` and real manual gameplay QA separately. A passing CI check cannot replace developer approval. Don't game the scripts or mark unverified tasks done.
 
+**Owner-approved MS-09 POC deferral (November 4, 2026):** The project may continue toward a POC despite unfinished MS-07/MS-08 and MS-09 manual acceptance. The only permitted temporary CI exception is PR #20 declaring `**POC deferral:** #19, #21`, as documented in [docs/PRE_MERGE.md](docs/PRE_MERGE.md). The milestone tracker must keep unfinished tests unchecked. A POC status pass is not final milestone, browser or release acceptance; close the follow-up issues and remove the narrow policy exception before POC release sign-off.
+
 ## Godot & game implementation rules
 
 - The official project engine target is **Godot 4.7.2 stable**, no C#/.NET required.
