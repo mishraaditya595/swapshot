@@ -83,6 +83,84 @@ class PRQualityTests(unittest.TestCase):
         failures, _ = policy(e, ["docs/MILESTONES.md"], tracker(), tracker({0, 1}, pr=7))
         self.assertTrue(any("preserve existing completion status" in f for f in failures))
 
+    @staticmethod
+    def _poc_event(number=20, issues="#19, #21"):
+        event = milestone_event(number, "MS-09")
+        event["pull_request"]["body"] += f"\n**POC deferral:** {issues}\n"
+        return event
+
+    @staticmethod
+    def _ms09_tracker(number=20):
+        result = tracker()
+        old = "- [ ] **MS-09 complete** — **Implementing PR:** —"
+        new = (f"- [ ] **MS-09 complete** — **Implementing PR:** "
+               f"[#{number}](https://github.com/mishraaditya595/swapshot/pull/{number})")
+        assert old in result
+        return result.replace(old, new)
+
+    def test_approved_poc_can_defer_ms09_and_predecessors(self):
+        failures, notes = policy(
+            self._poc_event(),
+            ["docs/MILESTONES.md", "scenes/levels/security_core.tscn"],
+            tracker(), self._ms09_tracker()
+        )
+        self.assertEqual(failures, [])
+        self.assertTrue(any("not final milestone or release acceptance" in n for n in notes))
+
+    def test_poc_without_approved_issue_list_fails(self):
+        for wrong in ["#19", "#21, #19", "#19, #22"]:
+            with self.subTest(wrong=wrong):
+                failures, _ = policy(
+                    self._poc_event(issues=wrong), ["docs/MILESTONES.md"],
+                    tracker(), self._ms09_tracker()
+                )
+                self.assertTrue(any("not approved" in f for f in failures))
+
+    def test_poc_other_pr_number_cannot_opt_in(self):
+        failures, _ = policy(
+            self._poc_event(number=22), ["docs/MILESTONES.md"],
+            tracker(), self._ms09_tracker(22)
+        )
+        self.assertTrue(any("not approved" in f for f in failures))
+
+    def test_poc_without_explicit_opt_in_still_fails(self):
+        failures, _ = policy(
+            milestone_event(20, "MS-09"), ["docs/MILESTONES.md"],
+            tracker(), self._ms09_tracker()
+        )
+        self.assertTrue(any("must be checked" in f for f in failures))
+
+    def test_poc_cannot_skip_actual_pr_link(self):
+        failures, _ = policy(
+            self._poc_event(), ["docs/MILESTONES.md"], tracker(), tracker()
+        )
+        self.assertTrue(any("actual implementing PR" in f for f in failures))
+
+    def test_poc_cannot_change_predecessor_tasks(self):
+        updated = self._ms09_tracker().replace(
+            "  - [ ] Task two\n", "  - [x] Task two\n", 1
+        )
+        failures, _ = policy(
+            self._poc_event(), ["docs/MILESTONES.md"], tracker(), updated
+        )
+        self.assertTrue(any("cannot change" in f or "invalid" in f for f in failures))
+
+    def test_poc_rejects_duplicate_fields(self):
+        event = self._poc_event()
+        event["pull_request"]["body"] += "\n**POC deferral:** #19, #21\n"
+        failures, _ = policy(
+            event, ["docs/MILESTONES.md"], tracker(), self._ms09_tracker()
+        )
+        self.assertTrue(any("Exactly one POC deferral field" in f for f in failures))
+
+    def test_poc_does_not_bypass_evidence_sections(self):
+        event = self._poc_event()
+        event["pull_request"]["body"] = "**Milestone:** MS-09\n**POC deferral:** #19, #21"
+        failures, _ = policy(
+            event, ["docs/MILESTONES.md"], tracker(), self._ms09_tracker()
+        )
+        self.assertTrue(any("Acceptance evidence" in f for f in failures))
+
     def test_secret_is_blocking_and_redacted(self):
         token = "ghp_" + "a" * 30
         findings, _ = static_review(["scripts/test.gd"], "diff --git a/scripts/test.gd b/scripts/test.gd\n+" + token, Path("."))
