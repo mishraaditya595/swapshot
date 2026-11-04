@@ -6,6 +6,14 @@ var failures: Array[String] = []
 
 func _initialize() -> void:
     call_deferred("_run")
+    call_deferred("_start_watchdog")
+
+
+# A runtime exception in an awaited smoke test must not leave CI waiting forever.
+func _start_watchdog() -> void:
+    await create_timer(35.0).timeout
+    printerr("MS-09 FAIL: smoke did not finish within 35 seconds")
+    quit(1)
 
 
 func _frames(count: int) -> void:
