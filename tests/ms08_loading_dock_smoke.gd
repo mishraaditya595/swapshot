@@ -59,6 +59,10 @@ func _run() -> void:
     var objective: Label = dock.get_node("DockHUD/Objective")
     var hint: Label = dock.get_node("DockHUD/Hint")
     var feedback: Label = dock.get_node("DockHUD/Feedback")
+    var clock: Label = dock.get_node("DockHUD/Clock")
+    var status: Label = ability.get_node("ShiftHUD/Status")
+    var timer: Label = ability.get_node("ShiftHUD/Timer")
+    var gate_sign: Label3D = dock.get_node("GateStatus")
     var outcome: CanvasLayer = dock.get_node("Outcome")
     _check(bool(player.get("managed_restart")), "Mission owns retry and replay")
     _check(int(dock.get("phase")) == 0 and int(dock.get("step")) == 0,
@@ -74,14 +78,31 @@ func _run() -> void:
         "Full armor and magazine at start")
     _check(not bool(dock.call("try_exit")), "Exit cannot complete before both guards die")
     _check(feedback.text.contains("LOCKED"), "Locked gate explains missing objective")
+    _check(gate_sign.text.contains("LOCKED"),
+        "Gate signage starts amber and explicitly locked")
+    _check(dock.has_node("RangeStatus") and dock.has_node("PracticeFrameTop")
+        and dock.has_node("PracticeFrameLeft") and dock.has_node("PracticeFrameRight"),
+        "The orange practice target has a distinct visible frame and range label")
+    _check(ability.get_node("ShiftHUD/DockShiftBackdrop") is ColorRect,
+        "Dock-specific SHIFT status has a solid readable background")
+    for label: Label in [status, timer]:
+        _check(is_equal_approx(label.anchor_top, 1.0)
+            and is_equal_approx(label.anchor_bottom, 1.0),
+            "SHIFT status and timer are anchored to the viewport bottom")
+        for panel: Label in [objective, hint, clock]:
+            _check(not label.get_global_rect().intersects(panel.get_global_rect()),
+                "SHIFT HUD must not overlap dock objective, tutorial or clock")
+    _check(not status.get_global_rect().intersects(timer.get_global_rect()),
+        "SHIFT status and timer stay on independent lines")
 
     player.set_physics_process(false)
     for guard: Node in [first, second]:
         guard.set_physics_process(false)
     player.global_position = Vector3(0.0, 1.1, 12.0)
     await _frames(4)
-    _check(int(dock.get("step")) == 1 and hint.text.contains("RMB AIM"),
-        "Physical route trigger reveals look, aim, fire and reload instructions")
+    _check(int(dock.get("step")) == 1 and hint.text.contains("RMB AIM")
+        and hint.text.contains("TARGET OR GUARD"),
+        "Physical route trigger accepts a target or guard for rifle training")
     target.call("apply_damage", 20.0)
     _check(int(dock.get("step")) == 2 and hint.text.contains("Q PLACE"),
         "A registered target hit reveals the anchor instruction")
@@ -134,6 +155,10 @@ func _run() -> void:
         "Both guards clear the dock and advance to the gate")
     _check(objective.text.contains("PRESS E") and hint.text.contains("E INTERACT"),
         "Unlocked gate announces next action and control")
+    _check(gate_sign.text.contains("PRESS E"),
+        "The gate sign changes from locked to interaction instruction")
+    _check((dock.get_node("GateFillLight") as OmniLight3D).light_color.g > 0.9,
+        "Gate lighting turns cyan after clearing both guards")
     _check(not bool(dock.call("try_exit")),
         "Gate interaction requires player proximity after clear")
     player.global_position = (dock.get_node("ExitPoint") as Node3D).global_position
@@ -204,8 +229,46 @@ func _run() -> void:
         dock.queue_free()
     await _frames(3)
 
+    # Separate fresh run reproduces the browser sequence: ignore the dummy,
+    # use Q + SHIFT early, hit a real guard, then cross the tutorial marker.
+    # All valid actions must advance the tutorial at once when it catches up.
+    var alternate: Node3D = scene.instantiate()
+    root.add_child(alternate)
+    current_scene = alternate
+    await _frames(8)
+    var alternate_player: CharacterBody3D = alternate.get_node("Player")
+    var alternate_ability: Node = alternate_player.get_node("ShiftAbility")
+    var alternate_guard: Node = alternate.get_node("GuardWest")
+    var alternate_hint: Label = alternate.get_node("DockHUD/Hint")
+    alternate_player.set_physics_process(false)
+    (alternate.get_node("GuardWest") as Node).set_physics_process(false)
+    (alternate.get_node("GuardEast") as Node).set_physics_process(false)
+    _check(bool(alternate_ability.call("_try_place_at", Vector3(0.0, 0.0, 10.0), Vector3.UP)),
+        "Early anchor placement is accepted")
+    _check(bool(alternate_ability.call("try_shift")),
+        "Early SHIFT is accepted before the player completes rifle onboarding")
+    _check(int(alternate.get("step")) == 0 and int(alternate.get("shift_count")) == 1,
+        "Early SHIFT is remembered without skipping the movement lesson")
+    alternate_guard.call("apply_damage", 0.0)
+    _check(not bool(alternate.get("_target_hit")),
+        "Invalid or zero damage is not credited as a rifle hit")
+    alternate_guard.call("apply_damage", 20.0)
+    _check(bool(alternate.get("_target_hit")),
+        "Damage to a living guard counts as valid rifle training")
+    _check(int(alternate.get("step")) == 0,
+        "Guard damage alone cannot skip the movement-area trigger")
+    alternate_player.global_position = Vector3(0.0, 1.1, 12.0)
+    await _frames(4)
+    _check(int(alternate.get("step")) == 4
+        and alternate_hint.text.contains("CLEAR BOTH GUARDS"),
+        "Previously completed guard hit, anchor and SHIFT advance to combat")
+    _check(not bool(alternate.get("is_gate_unlocked")),
+        "One damaged guard and an early SHIFT cannot unlock the gate")
+    alternate.queue_free()
+    await _frames(3)
+
     if failures.is_empty():
-        print("MS-08 SMOKE PASS: onboarding, cover, SHIFT safety, gate, transition, victory/death replay")
+        print("MS-08 SMOKE PASS: guard/dummy onboarding, HUD, gate signs, SHIFT safety, cover, victory/death replay")
         quit(0)
     else:
         printerr("MS-08 SMOKE FAIL: %d checks" % failures.size())
